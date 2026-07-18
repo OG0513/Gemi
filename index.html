@@ -56,17 +56,27 @@
   <!-- Main Viewport Container (Cinematic Lens/Perspective stage) -->
   <main id="app-container">
 
-    <!-- SCENE 1: LOADING SCREEN -->
+    <!-- SCENE 1: REDESIGNED PREMIUM LOADING SCREEN -->
     <section id="scene-loading" class="scene active">
+      <div class="loader-bg-ambient"></div>
       <div class="loader-wrapper">
-        <div class="loader-logo">
-          <span class="logo-initial">M</span>
+        <div class="loader-logo-container">
+          <div class="loader-logo">
+            <span class="logo-initial">M</span>
+          </div>
+          <div class="logo-glow-ring"></div>
+        </div>
+        <div class="loader-typography">
+          <h2 class="loader-brand">MUSEUM OF CELEBRATION</h2>
+          <p class="loader-sub">Curating your interactive sensory experience</p>
         </div>
         <div class="loader-bar-container">
           <div class="loader-bar" id="loader-progress"></div>
         </div>
-        <div class="loader-text" id="loader-status">Initializing Experience...</div>
-        <div class="loader-percentage" id="loader-percentage">0%</div>
+        <div class="loader-status-wrapper">
+          <span class="loader-text" id="loader-status">Initializing Environment...</span>
+          <span class="loader-percentage" id="loader-percentage">0%</span>
+        </div>
       </div>
     </section>
 
@@ -117,7 +127,7 @@
                       <div class="foil-border"></div>
                       <span class="cover-accent">For You</span>
                       <div class="gold-embellishment">✿</div>
-                      <span class="cover-instruction">Click to Open Card</span>
+                      <span class="cover-instruction">Opening Card...</span>
                     </div>
                   </div>
                   <div class="card-page card-cover-back">
@@ -156,26 +166,26 @@
         </div>
 
         <!-- Hidden navigation control, appears after card opens fully -->
-        <button id="btn-next-scene" class="btn-circular-next hidden">
+        <button id="btn-next-scene" class="btn-circular-next hidden" aria-label="Continue Celebration">
           <span class="arrow-icon">→</span>
           <span class="btn-pulse"></span>
         </button>
       </div>
     </section>
 
-    <!-- SCENE 4: GARDEN (V4 Unobstructed Immersive Environment Scene) -->
+    <!-- SCENE 4: GARDEN (V5 Unobstructed Immersive Environment Scene) -->
     <section id="scene-garden" class="scene hidden">
-      <!-- Minimalist spatial setup allows pure, uninterrupted viewing of the 11 blooming species -->
+      <!-- Cards removed. The user stands completely inside the cinematic, calm meadow -->
     </section>
 
     <!-- FUTURE SCENES PLACEHOLDER HOOKS (Preserved structure for future versions) -->
-    <!-- Scene 5: Gift (Hidden in V4) -->
+    <!-- Scene 5: Gift (Hidden in V5) -->
     <section id="scene-gift" class="scene hidden"></section>
-    <!-- Scene 6: Cake (Hidden in V4) -->
+    <!-- Scene 6: Cake (Hidden in V5) -->
     <section id="scene-cake" class="scene hidden"></section>
-    <!-- Scene 7: Celebration (Hidden in V4) -->
+    <!-- Scene 7: Celebration (Hidden in V5) -->
     <section id="scene-celebration" class="scene hidden"></section>
-    <!-- Scene 8: Final Wish (Hidden in V4) -->
+    <!-- Scene 8: Final Wish (Hidden in V5) -->
     <section id="scene-wish" class="scene hidden"></section>
 
   </main>
