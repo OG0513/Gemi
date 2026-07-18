@@ -134,19 +134,22 @@
     </section>
 
     <!-- SCENE 4: GARDEN (V3 Placeholder) -->
-    <section id="scene-garden" class="scene hidden">
-      <div class="glass-card garden-placeholder-card">
-        <div class="card-accent-line"></div>
-        <div class="card-header">
-          <span class="subtitle">Next Destination</span>
-          <h1 class="main-title">The Enchanted Garden</h1>
-        </div>
-        <div class="card-body">
-          <p class="welcome-text">
-            The next chapter of your celebration unfolds in the garden. This space is currently under architectural curation and will bloom fully in Version 4.
-          </p>
-        </div>
-      </div>
+<!-- Inside <section id="scene-garden"> -->
+<div class="garden-environment">
+  <!-- Interactive Wind-swept Grass Layers (Parallax Depth) -->
+  <div class="grass-layer grass-back"></div>
+  <div class="grass-layer grass-mid"></div>
+  <div class="grass-layer grass-front"></div>
+
+  <!-- Dynamic Particles (Pollen & Butterflies) -->
+  <div class="particle-system" id="pollen-emitter"></div>
+  <div class="butterfly-container" id="butterfly-system"></div>
+  
+  <!-- Floating Content Overlay (Minimalist) -->
+  <div class="minimal-glass-panel">
+    <p class="panel-narrative">The garden blooms in your honor...</p>
+  </div>
+</div>
     </section>
 
     <!-- FUTURE SCENES PLACEHOLDER HOOKS (Preserved structure for future versions) -->
