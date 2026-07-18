@@ -1,34 +1,30 @@
 /* ==========================================================================
-   1. VARIABLES & RESET (UPGRADED FOR V4 LUXURY LIGHT CONCEPT)
+   1. VARIABLES & RESET (REDESIGNED FOR DAY/NIGHT TRANSITIONS & GPU PERFORMANCE)
    ========================================================================== */
 :root {
-  /* Fluid Palette Backgrounds */
-  --bg-primary-1: #FFFDF8;
-  --bg-primary-2: #FFF8F2;
-  --bg-primary-3: #FFF6FB;
-  --bg-primary-4: #FDF9FF;
-  
-  /* Rich Cinematic Environment sky-to-ground transition variables */
-  --sky-blue-light: #A3C9E8;
-  --meadow-green-light: #D5EBD3;
-  --meadow-green-rich: #A0C695;
+  /* Day Mode Environments (Default) */
+  --sky-top: #A3C9E8;
+  --sky-mid-high: #D2F1F7;
+  --sky-mid: #FFF3E3;
+  --meadow-mid-low: #C8E7B5;
+  --meadow-bottom: #9BC785;
 
   /* Luxury Gold Details */
   --gold-primary: #c5a059;
   --gold-secondary: #967438;
   --gold-light: #f7edd6;
-  --gold-glow-shadow: rgba(197, 160, 89, 0.08);
+  --gold-glow-shadow: rgba(197, 160, 89, 0.05);
 
-  /* Refined Typography Gray Tones */
+  /* Refined Typography Gray Tones (Day Mode) */
   --text-primary: #2F2F35;
   --text-muted: #55545A;
   --text-dim: rgba(47, 47, 53, 0.4);
 
-  /* Apple-Quality Glassmorphism Accents */
+  /* Optimised Mobile backdrop filters to mitigate layout lag */
   --glass-bg: rgba(255, 255, 255, 0.45);
   --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-border-hover: rgba(197, 160, 89, 0.4);
-  --glass-shadow: rgba(142, 134, 122, 0.06);
+  --glass-border-hover: rgba(197, 160, 89, 0.3);
+  --glass-shadow: rgba(142, 134, 122, 0.04);
 
   /* Pastel Luxe Accents */
   --blush-pink: #f4dcd6;
@@ -42,17 +38,48 @@
   --font-script: 'Playfair Display', Georgia, serif;
 
   /* Cinematic Scene Transitions */
-  --transition-lens: 1.8s cubic-bezier(0.25, 1, 0.3, 1);
-  --transition-medium: 0.8s cubic-bezier(0.25, 1, 0.3, 1);
-  --transition-fast: 0.35s cubic-bezier(0.25, 1, 0.3, 1);
+  --transition-lens: 1.5s cubic-bezier(0.25, 1, 0.3, 1);
+  --transition-medium: 0.6s cubic-bezier(0.25, 1, 0.3, 1);
+  --transition-fast: 0.25s cubic-bezier(0.25, 1, 0.3, 1);
   
   /* Envelope/Card Structural Styling */
   --envelope-outer: #f3e6dd;
   --envelope-inner: #fbf9f6;
   --envelope-pocket: #ebdcd2;
-  --envelope-shadow: rgba(165, 155, 145, 0.16);
+  --envelope-shadow: rgba(165, 155, 145, 0.12);
   --paper-cream: #fdfcf9;
   --paper-border: #f2ebd9;
+
+  /* Day Mode Glossy Card Gradients */
+  --card-grad-start: rgba(254, 230, 232, 0.88);
+  --card-grad-mid: rgba(247, 215, 219, 0.88);
+  --card-grad-end: rgba(253, 232, 215, 0.88);
+  --card-border-luxe: rgba(255, 255, 255, 0.6);
+  --card-shadow-luxe: rgba(165, 155, 145, 0.08);
+}
+
+/* Night Mode Global Override Variables */
+body.night-mode {
+  --sky-top: #080B1E;
+  --sky-mid-high: #121535;
+  --sky-mid: #221C3D;
+  --meadow-mid-low: #13261F;
+  --meadow-bottom: #0A1713;
+
+  --text-primary: #F3ECF8;
+  --text-muted: #BCB9C4;
+  --text-dim: rgba(243, 236, 248, 0.4);
+
+  --glass-bg: rgba(25, 22, 43, 0.55);
+  --glass-border: rgba(183, 143, 255, 0.25);
+  --glass-border-hover: rgba(183, 143, 255, 0.4);
+  --glass-shadow: rgba(0, 0, 0, 0.35);
+
+  --card-grad-start: rgba(30, 16, 47, 0.92);
+  --card-grad-mid: rgba(55, 22, 74, 0.92);
+  --card-grad-end: rgba(21, 19, 48, 0.92);
+  --card-border-luxe: rgba(183, 143, 255, 0.35);
+  --card-shadow-luxe: rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -66,7 +93,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden; /* Prevent scrolling strictly */
-  background-color: var(--bg-primary-1);
+  background-color: var(--sky-top);
   font-family: var(--font-sans);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -74,7 +101,7 @@ html, body {
 }
 
 /* ==========================================================================
-   2. PERSISTENT SKY-TO-GROUND GRADIENT SYSTEM
+   2. SEAMLESS PERSISTENT ENVIRONMENTAL BACKGROUND
    ========================================================================== */
 .ambient-background {
   position: fixed;
@@ -84,8 +111,15 @@ html, body {
   height: 100vh;
   z-index: 1;
   overflow: hidden;
-  /* Perfect transition from radiant sky blue to warm meadow green */
-  background: linear-gradient(180deg, var(--sky-blue-light) 0%, var(--meadow-green-light) 65%, var(--meadow-green-rich) 100%);
+  /* One continuous smooth gradient transitioning sky directly into ground */
+  background: linear-gradient(180deg, 
+    var(--sky-top) 0%, 
+    var(--sky-mid-high) 30%, 
+    var(--sky-mid) 55%, 
+    var(--meadow-mid-low) 75%, 
+    var(--meadow-bottom) 100%
+  );
+  transition: background 2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .gradient-overlay {
@@ -94,21 +128,27 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 248, 242, 0.4) 90%);
+  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.1) 90%);
   pointer-events: none;
 }
 
-/* Sun Glow & Volumetric rays */
+/* Sun/Moon Glow & Volumetric rays */
 .sun-glow {
   position: absolute;
   top: -10%;
   left: 20%;
-  width: clamp(300px, 60vw, 900px);
-  height: clamp(300px, 60vw, 900px);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 251, 242, 0.35) 50%, rgba(255, 255, 255, 0) 70%);
+  width: clamp(300px, 60vw, 800px);
+  height: clamp(300px, 60vw, 800px);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 251, 242, 0.2) 50%, rgba(255, 255, 255, 0) 70%);
   border-radius: 50%;
   filter: blur(20px);
   pointer-events: none;
+  transition: opacity 2s ease;
+}
+
+body.night-mode .sun-glow {
+  opacity: 0.35;
+  background: radial-gradient(circle, rgba(200, 220, 255, 0.6) 0%, rgba(18, 25, 60, 0.1) 60%, rgba(255, 255, 255, 0) 70%);
 }
 
 .sun-rays {
@@ -117,10 +157,15 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(105deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 20px, transparent 20px, transparent 60px);
+  background: repeating-linear-gradient(105deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 20px, transparent 20px, transparent 60px);
   mask-image: radial-gradient(circle at 50% 0%, black, transparent 80%);
   -webkit-mask-image: radial-gradient(circle at 50% 0%, black, transparent 80%);
   pointer-events: none;
+  transition: opacity 2s ease;
+}
+
+body.night-mode .sun-rays {
+  opacity: 0.15;
 }
 
 /* Atmospheric depth layers */
@@ -128,7 +173,7 @@ html, body {
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.25;
+  opacity: 0.2;
   pointer-events: none;
 }
 
@@ -156,7 +201,12 @@ html, body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.45;
+  opacity: 0.35;
+  transition: opacity 2s ease;
+}
+
+body.night-mode .cloud-container {
+  opacity: 0.15;
 }
 
 .cloud {
@@ -192,7 +242,67 @@ html, body {
 }
 
 /* ==========================================================================
-   3. CINEMATIC SCENE STAGE (TRANSITIONS & CAMERA LENS)
+   3. PERSISTENT INTERACTIVE THEME TOGGLE (GLASS BUTTON)
+   ========================================================================== */
+.theme-toggle-container {
+  position: fixed;
+  top: clamp(16px, 4vw, 32px);
+  right: clamp(16px, 4vw, 32px);
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.theme-toggle-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background 1.5s ease;
+  overflow: hidden;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.05);
+  border-color: var(--gold-primary);
+}
+
+.toggle-icon-wrapper {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.sun-icon, .moon-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--transition-medium), opacity var(--transition-medium);
+  color: var(--text-primary);
+}
+
+/* Day/Night icon crossfade */
+body.night-mode .sun-icon {
+  opacity: 0;
+  transform: rotate(45deg) scale(0.5);
+}
+
+body:not(.night-mode) .moon-icon {
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.5);
+}
+
+/* ==========================================================================
+   4. CINEMATIC SCENE STAGE (TRANSITIONS & CAMERA LENS)
    ========================================================================== */
 #app-container {
   position: relative;
@@ -220,10 +330,11 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transform: translate3d(0, 40px, -100px) scale(0.93);
-  filter: blur(25px) brightness(1.5); /* Bloom state */
+  filter: blur(20px) brightness(1.3); /* Adjusted for mobile rendering speed */
   transition: opacity var(--transition-lens), 
               transform var(--transition-lens), 
               filter var(--transition-lens);
+  will-change: transform, opacity;
 }
 
 .scene.active {
@@ -237,35 +348,34 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transform: translate3d(0, -40px, 100px) scale(1.07);
-  filter: blur(25px) brightness(1.5); /* Receding state */
+  filter: blur(20px) brightness(1.3); /* Receding state */
 }
 
 /* ==========================================================================
-   4. APPLE-QUALITY GLASSMORPHIC CARDS
+   5. APPLE-QUALITY GLASSMORPHIC CARDS
    ========================================================================== */
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.25) 100%);
-  backdrop-filter: blur(24px) saturate(135%);
-  -webkit-backdrop-filter: blur(24px) saturate(135%);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
   padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
   width: 90%;
   max-width: 560px;
-  box-shadow: 0 30px 70px -15px var(--glass-shadow), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 45px -10px var(--glass-shadow), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
   position: relative;
   display: flex;
   flex-direction: column;
   gap: clamp(24px, 3.5vw, 36px);
-  transition: border-color var(--transition-medium), box-shadow var(--transition-medium);
+  transition: border-color var(--transition-medium), box-shadow var(--transition-medium), background 1.5s ease;
 }
 
 .glass-card:hover {
   border-color: var(--glass-border-hover);
-  box-shadow: 0 40px 80px -10px rgba(165, 155, 145, 0.14), 
-              0 0 40px var(--gold-glow-shadow),
-              inset 0 1px 0 rgba(255, 255, 255, 1);
+  box-shadow: 0 30px 60px -10px var(--glass-shadow), 
+              0 0 30px var(--gold-glow-shadow);
 }
 
 .card-accent-line {
@@ -297,6 +407,7 @@ html, body {
   line-height: 1.35;
   color: var(--text-primary);
   letter-spacing: 1px;
+  transition: color 1.5s ease;
 }
 
 .welcome-text {
@@ -306,12 +417,13 @@ html, body {
   color: var(--text-muted);
   text-align: center;
   font-weight: 400;
+  transition: color 1.5s ease;
 }
 
 .card-footer { display: flex; justify-content: center; }
 
 /* ==========================================================================
-   5. LUXURY CTA BUTTONS WITH MAGNETIC HOVER & REFLECTIONS
+   6. LUXURY CTA BUTTONS WITH REFLECTIONS
    ========================================================================== */
 .btn-premium {
   position: relative;
@@ -324,7 +436,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 10px 25px rgba(197, 160, 89, 0.1);
+  box-shadow: 0 8px 20px rgba(197, 160, 89, 0.08);
   transition: transform var(--transition-fast), 
               border-color var(--transition-fast), 
               box-shadow var(--transition-fast);
@@ -336,7 +448,7 @@ html, body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 3px;
-  color: var(--text-primary);
+  color: #2F2F35;
   z-index: 2;
   transition: color var(--transition-fast);
 }
@@ -358,9 +470,9 @@ html, body {
 
 /* Hover States for premium buttons */
 .btn-premium:hover {
-  transform: scale(1.025) translateY(-2px);
+  transform: scale(1.025) translateY(-1px);
   border-color: var(--gold-primary);
-  box-shadow: 0 15px 30px rgba(197, 160, 89, 0.18);
+  box-shadow: 0 12px 25px rgba(197, 160, 89, 0.12);
 }
 
 .btn-premium:hover .btn-text {
@@ -379,7 +491,7 @@ html, body {
 }
 
 /* ==========================================================================
-   6. REALISTIC PAPER TEXTURING & ENVELOPE DESIGN
+   7. REALISTIC ENVELOPE DESIGN
    ========================================================================== */
 .paper-texture {
   background-color: var(--paper-cream);
@@ -417,7 +529,7 @@ html, body {
   height: min(240px, 56.6vw);
   background-color: var(--envelope-inner);
   border-radius: 8px;
-  box-shadow: 0 20px 50px var(--envelope-shadow);
+  box-shadow: 0 15px 35px var(--envelope-shadow);
   transform-style: preserve-3d;
   cursor: pointer;
   transition: transform 1s cubic-bezier(0.2, 1, 0.2, 1), box-shadow 1s;
@@ -429,13 +541,13 @@ html, body {
 }
 
 @keyframes floatEnvelope {
-  0% { transform: translateY(0px) rotateX(1deg) rotateY(-1deg); }
-  50% { transform: translateY(-12px) rotateX(-2deg) rotateY(2deg); }
-  100% { transform: translateY(0px) rotateX(1deg) rotateY(-1deg); }
+  0% { transform: translate3d(0, 0, 0) rotateX(1deg) rotateY(-1deg); }
+  50% { transform: translate3d(0, -10px, 0) rotateX(-2deg) rotateY(2deg); }
+  100% { transform: translate3d(0, 0, 0) rotateX(1deg) rotateY(-1deg); }
 }
 
 .envelope-wrapper:hover {
-  box-shadow: 0 35px 70px rgba(165, 155, 145, 0.28);
+  box-shadow: 0 25px 50px rgba(165, 155, 145, 0.22);
 }
 
 /* Front triangular structural pocket layout */
@@ -485,7 +597,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 6px 15px rgba(165, 155, 145, 0.35);
+  box-shadow: 0 4px 10px rgba(165, 155, 145, 0.25);
   z-index: 5;
   transition: opacity 0.4s var(--transition-fast), transform 0.4s;
 }
@@ -524,7 +636,7 @@ html, body {
 }
 
 /* ==========================================================================
-   7. THE BOOK FOLDING LUXURY GREETING CARD
+   8. REDESIGNED GLOSSY BOOK GREETING CARD (DAY/NIGHT MODES)
    ========================================================================== */
 .birthday-card-wrapper {
   position: absolute;
@@ -533,14 +645,14 @@ html, body {
   width: 90%;
   height: 90%;
   z-index: 2;
-  transform: translateY(0) scale(0.95);
+  transform: translate3d(0, 0, 0) scale(0.95);
   transition: transform 1.4s cubic-bezier(0.25, 1, 0.25, 1), z-index 1.4s;
   pointer-events: none;
 }
 
 /* Transition to emerge up out of envelope body */
 .envelope-wrapper.card-emerged .birthday-card-wrapper {
-  transform: translateY(-170px) scale(1.08) rotateX(4deg);
+  transform: translate3d(0, -170px, 0) scale(1.08) rotateX(4deg);
   z-index: 10;
   pointer-events: auto;
 }
@@ -554,6 +666,20 @@ html, body {
   transition: transform 1.2s cubic-bezier(0.25, 1, 0.25, 1);
 }
 
+/* Reusable Gloss overlay to achieve premium glass reflection shine */
+.gloss-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* The card page base structure */
 .card-page {
   position: absolute;
   top: 0;
@@ -561,10 +687,13 @@ html, body {
   width: 100%;
   height: 100%;
   border-radius: 10px;
-  box-shadow: inset 0 0 12px rgba(0,0,0,0.02), 
-              0 10px 25px rgba(165, 155, 145, 0.12);
   backface-visibility: hidden;
-  border: 1px solid var(--paper-border);
+  border: 1px solid var(--card-border-luxe);
+  /* Glossy gradient setups with smooth transition */
+  background: linear-gradient(135deg, var(--card-grad-start) 0%, var(--card-grad-mid) 50%, var(--card-grad-end) 100%);
+  box-shadow: 0 12px 30px var(--card-shadow-luxe), 
+              inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  transition: background 1.5s ease, border-color 1.5s ease, box-shadow 1.5s ease;
 }
 
 /* Book fold cover container */
@@ -625,6 +754,7 @@ html, body {
   font-size: 0.95rem;
   color: var(--text-primary);
   letter-spacing: 1px;
+  transition: color 1.5s ease;
 }
 
 .card-cover-back {
@@ -653,7 +783,7 @@ html, body {
 /* Static flat inside-right panel */
 .card-inside-right {
   z-index: 0;
-  border-left: 2px solid rgba(0,0,0,0.03); /* crease depth line */
+  border-left: 1px solid rgba(0,0,0,0.05); /* crease line */
 }
 
 .inside-right-content {
@@ -682,6 +812,7 @@ html, body {
   font-weight: 600;
   letter-spacing: 1px;
   margin-bottom: 6px;
+  transition: color 1.5s ease;
 }
 
 .message-divider {
@@ -698,12 +829,14 @@ html, body {
   font-weight: 500;
   max-width: 250px;
   margin-bottom: clamp(6px, 2vw, 12px);
+  transition: color 1.5s ease;
 }
 
 .signature {
   font-family: var(--font-script);
   font-size: clamp(0.75rem, 2vw, 0.85rem);
   color: var(--text-muted);
+  transition: color 1.5s ease;
 }
 
 /* OPEN ACTIVE STATE TRIGGERS */
@@ -712,7 +845,7 @@ html, body {
 }
 
 /* ==========================================================================
-   8. CIRCULAR NEXT NAVIGATION STYLING
+   9. CIRCULAR NEXT NAVIGATION STYLING
    ========================================================================== */
 .btn-circular-next {
   position: absolute;
@@ -737,7 +870,8 @@ html, body {
   box-shadow: 0 10px 25px rgba(165, 155, 145, 0.16);
   transition: opacity var(--transition-medium), 
               transform var(--transition-medium), 
-              border-color var(--transition-fast);
+              border-color var(--transition-fast),
+              background 1.5s ease;
 }
 
 .btn-circular-next.visible {
@@ -780,7 +914,7 @@ html, body {
 }
 
 /* ==========================================================================
-   9. RESPONSIVE COMPATIBILITY MATRIX
+   10. RESPONSIVE COMPATIBILITY MATRIX
    ========================================================================== */
 @media (max-width: 768px) {
   .stage-3d {
