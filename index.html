@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A calm, magical moonlit garden scene with an interactive surprise gift.">
-  <title>A Quiet Evening | Version 2</title>
+  <meta name="description" content="A calm, magical moonlit garden scene with an interactive surprise gift and scrapbook timeline.">
+  <title>A Quiet Evening | Version 3</title>
   
   <!-- Typography Setup -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <!-- Ambient Scene Dimmer (Activated when letter is opened) -->
+  <!-- Ambient Scene Dimmer -->
   <div id="scene-dimmer" class="scene-dimmer"></div>
 
   <!-- Immersive Main Scene -->
@@ -44,8 +44,15 @@
     
     <div class="parallax-layer moon-layer" data-depth="0.15">
       <div class="moon-container">
-        <div class="moon" role="img" aria-label="Glowing full moon">
+        <!-- V3 Enhanced Realistic Moon -->
+        <div class="moon" role="img" aria-label="Detailed realistic glowing moon">
           <div class="moon-texture"></div>
+          <div class="moon-crater crater-large" style="top: 25%; left: 20%; width: 20%; height: 20%;"></div>
+          <div class="moon-crater crater-medium" style="top: 55%; left: 60%; width: 14%; height: 14%;"></div>
+          <div class="moon-crater crater-small" style="top: 45%; left: 15%; width: 10%; height: 10%;"></div>
+          <div class="moon-crater crater-medium" style="top: 65%; left: 35%; width: 12%; height: 12%;"></div>
+          <div class="moon-crater crater-small" style="top: 15%; left: 50%; width: 8%; height: 8%;"></div>
+          <div class="moon-glow-ring"></div>
         </div>
       </div>
     </div>
@@ -62,7 +69,7 @@
       <div class="grass-field" id="grass-field"></div>
       <div class="flower-field" id="flower-field"></div>
       
-      <!-- Interactive Envelope Target (Sits beautifully in the meadow) -->
+      <!-- Interactive Envelope Target -->
       <div id="envelope-wrapper" class="envelope-container" role="button" tabindex="0" aria-label="Open the handcrafted envelope">
         <div class="envelope">
           <div class="envelope-back"></div>
@@ -78,10 +85,9 @@
       </div>
     </div>
 
-    <!-- Interactive Letter Paper Overlay (Unfolded / Readable State) -->
+    <!-- Interactive Letter Paper Overlay -->
     <div id="letter-overlay" class="letter-overlay" aria-modal="true" role="dialog" aria-hidden="true">
       <div class="letter-paper">
-        <!-- Elegant Hand-Crafted Decorative Accents -->
         <div class="letter-doodle letter-doodle-top">❦</div>
         
         <div class="letter-scroll-content">
@@ -97,11 +103,92 @@
 
         <div class="letter-doodle letter-doodle-bottom">❦</div>
 
-        <!-- Navigation / Action Anchor -->
-        <button id="btn-continue" class="btn-continue" disabled aria-label="Proceed to next scene">
+        <!-- Continue Button Transitions into V3 Memory Timeline -->
+        <button id="btn-continue" class="btn-continue" disabled aria-label="Continue to your memories">
           <span>Continue</span>
           <span class="arrow">→</span>
         </button>
+      </div>
+    </div>
+
+    <!-- V3 Memory Scrapbook Timeline Overlay -->
+    <div id="timeline-container" class="timeline-container" aria-hidden="true">
+      <div class="timeline-scroll-wrapper">
+        <header class="timeline-header">
+          <h2 class="timeline-title">A Few Favorite Moments...</h2>
+          <p class="timeline-subtitle">Scroll down to explore some of our shared memories</p>
+        </header>
+
+        <!-- Hanging Fairy Light / String Guide -->
+        <div class="timeline-hanging-guide"></div>
+
+        <div class="timeline-items">
+          
+          <!-- Memory Item 1: Polaroid Photo -->
+          <div class="timeline-item memory-polaroid" data-rotation="-4">
+            <div class="polaroid-wrapper">
+              <div class="polaroid-frame">
+                <!-- Programmatic aesthetic placeholder gradient -->
+                <div class="polaroid-image-placeholder img-grad-1">
+                  <span class="polaroid-decor">✨</span>
+                </div>
+                <p class="polaroid-caption">Where it all began...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Memory Item 2: Sticky Note -->
+          <div class="timeline-item memory-sticky" data-rotation="3">
+            <div class="sticky-wrapper">
+              <div class="sticky-pin">📌</div>
+              <div class="sticky-note-paper">
+                <p class="sticky-text">"I still remember laughing so hard our ribs hurt over absolutely nothing. Thank you for always understanding my quietest jokes."</p>
+                <span class="sticky-footer">♥ Always</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Memory Item 3: Postcard -->
+          <div class="timeline-item memory-postcard" data-rotation="-2">
+            <div class="postcard-wrapper">
+              <div class="postcard-stamp">✉</div>
+              <div class="postcard-body">
+                <div class="postcard-left">
+                  <p class="postcard-text">That rainy Tuesday afternoon cafe date. We talked about everything from the stars to our favorite recipes, completely losing track of time.</p>
+                </div>
+                <div class="postcard-divider"></div>
+                <div class="postcard-right">
+                  <div class="postcard-address-line"></div>
+                  <div class="postcard-address-line"></div>
+                  <div class="postcard-address-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Memory Item 4: Ticket Stub -->
+          <div class="timeline-item memory-ticket" data-rotation="5">
+            <div class="ticket-wrapper">
+              <div class="ticket-notch left"></div>
+              <div class="ticket-notch right"></div>
+              <div class="ticket-inner">
+                <span class="ticket-heading">ADMIT ONE: SPECIAL MEMORY</span>
+                <div class="ticket-content">
+                  <p class="ticket-title">A Perfect Sunset Walk</p>
+                  <p class="ticket-meta">DATE: FOREVER • SEAT: YOURS</p>
+                </div>
+                <div class="ticket-barcode">
+                  <span>||||| | || |||| | ||| | ||</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <footer class="timeline-footer">
+          <p class="timeline-footer-text">More beautiful moments to come...</p>
+        </footer>
       </div>
     </div>
 
