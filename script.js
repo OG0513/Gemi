@@ -1,250 +1,146 @@
 /**
- * A Premium Birthday Journey - Version 1
- * Core Architecture & Scene System Module
+ * Interactive Premium Birthday Experience - Version 1
+ * Core Architecture & Scene Manager
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initializing system modules
-    SceneManager.init();
-    PreloaderModule.init();
-    InteractiveCardModule.init();
-});
+'use strict';
+
+// Global App Configuration
+const APP_CONFIG = {
+  loadingSimulationTime: 2500, // Speed calibration of virtual asset initialization
+  transitionDelay: 1200,      // Sync matching style.css transition speed
+};
 
 /**
- * SCENE MANAGER MODULE
- * Handles transition state machines, global indicators, and scene limits.
+ * Scene Manager Module
+ * Controls application flow, viewport sizing checks, and high-performance scene rendering
  */
-const SceneManager = (() => {
-    let currentSceneIndex = 1;
-    const totalScenes = 8;
-    const transitionDuration = 1000; // Match duration of CSS transitions
+class SceneManager {
+  constructor() {
+    this.currentSceneId = 'scene-loading';
+    this.scenes = document.querySelectorAll('.scene');
+    this.init();
+  }
 
-    const selectors = {
-        scenes: '.scene-section',
-        dots: '.indicator-dot',
-        triggers: '.next-scene-trigger',
-        restartBtn: '#restart-experience-btn'
-    };
+  init() {
+    this.validateViewports();
+    window.addEventListener('resize', () => this.validateViewports());
+  }
 
-    /**
-     * Updates active class mappings inside indicators
-     */
-    const updateIndicators = (targetIndex) => {
-        const dots = document.querySelectorAll(selectors.dots);
-        dots.forEach(dot => {
-            const step = parseInt(dot.getAttribute('data-scene-step'), 10);
-            if (step === targetIndex) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
-    };
+  /**
+   * transitions smoothly from one screen to another
+   * @param {string} targetSceneId ID string of target scene element
+   */
+  transitionTo(targetSceneId) {
+    const activeScene = document.getElementById(this.currentSceneId);
+    const targetScene = document.getElementById(targetSceneId);
 
-    /**
-     * Coordinates animation states between scene transitions
-     * @param {number} nextIndex - The upcoming scene index
-     */
-    const navigateToScene = (nextIndex) => {
-        if (nextIndex < 1 || nextIndex > totalScenes || nextIndex === currentSceneIndex) return;
+    if (!targetScene) {
+      console.warn(`Target scene "${targetSceneId}" does not exist in the DOM.`);
+      return;
+    }
 
-        const currentScene = document.querySelector(`${selectors.scenes}[data-scene-index="${currentSceneIndex}"]`);
-        const nextScene = document.querySelector(`${selectors.scenes}[data-scene-index="${nextIndex}"]`);
+    // Step 1: Transition Out Active Scene
+    activeScene.classList.add('hidden');
+    activeScene.classList.remove('active');
 
-        if (!currentScene || !nextScene) return;
+    // Step 2: Swap state indicator flags after visual fade completes
+    setTimeout(() => {
+      activeScene.style.display = 'none';
+      targetScene.style.display = 'flex';
+      
+      // Step 3: Trigger entrance transition on targeted elements
+      setTimeout(() => {
+        targetScene.classList.remove('hidden');
+        targetScene.classList.add('active');
+        this.currentSceneId = targetSceneId;
+      }, 50); // Small margin to force browser layout recalculation
+    }, APP_CONFIG.transitionDelay);
+  }
 
-        // Transition Step 1: Trigger current scene exit animation
-        currentScene.classList.add('fade-out');
+  /**
+   * Asserts window bounds structure to guarantee layout preservation and avoid vertical clipping overflow
+   */
+  validateViewports() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+}
 
-        // Transition Step 2: Swap visibility indexes
+/**
+ * Asset Loading Simulation Module
+ * Simulates high-fidelity rendering pipeline progress for optimal user immersion setup
+ */
+class Loader {
+  constructor(duration, onCompleteCallback) {
+    this.duration = duration;
+    this.onCompleteCallback = onCompleteCallback;
+    this.progressBar = document.getElementById('loader-progress');
+    this.percentageText = document.getElementById('loader-percentage');
+    this.statusText = document.getElementById('loader-status');
+    this.statuses = [
+      'Loading interface assets...',
+      'Optimizing atmospheric cloud rendering...',
+      'Generating ambient light profiles...',
+      'Structuring sensory flow paths...',
+      'Ready'
+    ];
+    this.start();
+  }
+
+  start() {
+    const startTime = performance.now();
+    
+    const updateLoader = (timestamp) => {
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / this.duration, 1);
+      const percentage = Math.floor(progress * 100);
+
+      // DOM Updates
+      this.progressBar.style.width = `${percentage}%`;
+      this.percentageText.textContent = `${percentage}%`;
+
+      // Interpolate loading narrative phases
+      const statusIdx = Math.min(
+        Math.floor(progress * this.statuses.length), 
+        this.statuses.length - 1
+      );
+      this.statusText.textContent = this.statuses[statusIdx];
+
+      if (progress < 1) {
+        requestAnimationFrame(updateLoader);
+      } else {
         setTimeout(() => {
-            currentScene.classList.remove('active', 'fade-out');
-            nextScene.classList.add('active');
-            
-            updateIndicators(nextIndex);
-            currentSceneIndex = nextIndex;
-            
-            // Allow post-transition triggers for individual scene logic
-            onSceneActive(nextIndex);
-        }, transitionDuration);
+          if (typeof this.onCompleteCallback === 'function') {
+            this.onCompleteCallback();
+          }
+        }, 400); // Buffer for micro-UX confirmation display
+      }
     };
 
-    /**
-     * Hook to process unique animations when a scene opens
-     * @param {number} index - The activated scene index
-     */
-    const onSceneActive = (index) => {
-        if (index === 3) {
-            // Reset card flips state on re-entry of Scene 3
-            const cardAssembly = document.getElementById('card-assembly-element');
-            if (cardAssembly) {
-                cardAssembly.classList.remove('flipped');
-            }
-        }
-    };
+    requestAnimationFrame(updateLoader);
+  }
+}
 
-    /**
-     * Binds listeners to global UI controls
-     */
-    const bindEvents = () => {
-        // Universal direct navigation hooks
-        document.querySelectorAll(selectors.triggers).forEach(trigger => {
-            trigger.addEventListener('click', (e) => {
-                const target = parseInt(e.currentTarget.getAttribute('data-target'), 10);
-                if (target) navigateToScene(target);
-            });
-        });
+// Global App Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize primary Scene Architecture Manager
+  const app = new SceneManager();
 
-        // Navigation Indicators
-        document.querySelectorAll(selectors.dots).forEach(dot => {
-            dot.addEventListener('click', (e) => {
-                const targetStep = parseInt(e.currentTarget.getAttribute('data-scene-step'), 10);
-                // Prevent bypass during loading scene
-                if (currentSceneIndex > 1 && targetStep > 0) {
-                    navigateToScene(targetStep);
-                }
-            });
-        });
+  // Create isolated triggers for interactive controls
+  const handleStartExperience = () => {
+    // Modular navigation ready for future card transitions
+    console.log("Welcome complete. Ready for Version 2: Birthday Card Integration.");
+  };
 
-        // Reset system hook on final step
-        const restartBtn = document.querySelector(selectors.restartBtn);
-        if (restartBtn) {
-            restartBtn.addEventListener('click', () => {
-                navigateToScene(2);
-            });
-        }
-    };
+  // Wire CTA elements safely
+  const btnStart = document.getElementById('btn-start-celebration');
+  if (btnStart) {
+    btnStart.addEventListener('click', handleStartExperience);
+  }
 
-    return {
-        init: () => {
-            bindEvents();
-        },
-        navigateTo: (index) => {
-            navigateToScene(index);
-        },
-        getCurrentIndex: () => currentSceneIndex
-    };
-})();
-
-/**
- * PRELOADER MODULE
- * Simulates system checks while monitoring user experience deployment.
- */
-const PreloaderModule = (() => {
-    const selectors = {
-        percentText: '#loader-percent',
-        progressBar: '#preloader-progress',
-        enterBtn: '#enter-journey-btn'
-    };
-
-    const simulateResourceLoading = () => {
-        const percentText = document.querySelector(selectors.percentText);
-        const progressBar = document.querySelector(selectors.progressBar);
-        const enterBtn = document.querySelector(selectors.enterBtn);
-
-        let progress = 0;
-        const totalLength = 283; // Circumference matching CSS dashoffset limit
-
-        const interval = setInterval(() => {
-            // Logarithmic slowing down simulation to feel realistic
-            const delta = Math.max(1, Math.floor((100 - progress) * 0.15));
-            progress += delta;
-
-            if (progress >= 100) {
-                progress = 100;
-                clearInterval(interval);
-                onLoadComplete(enterBtn);
-            }
-
-            // Visual updates
-            if (percentText) percentText.textContent = progress;
-            if (progressBar) {
-                const offset = totalLength - (progress / 100) * totalLength;
-                progressBar.style.strokeDashoffset = offset;
-            }
-        }, 120);
-    };
-
-    const onLoadComplete = (btn) => {
-        if (!btn) return;
-        btn.classList.remove('hidden');
-        btn.addEventListener('click', () => {
-            SceneManager.navigateTo(2);
-        });
-    };
-
-    return {
-        init: () => {
-            simulateResourceLoading();
-        }
-    };
-})();
-
-/**
- * INTERACTIVE CARD MODULE
- * Controls visual flips, perspectives, and action triggers of Scene 3 Card assembly.
- */
-const InteractiveCardModule = (() => {
-    const selectors = {
-        cardAssembly: '#card-assembly-element',
-        envelopeContainer: '.interactive-envelope-container'
-    };
-
-    const initCardInteractions = () => {
-        const card = document.querySelector(selectors.cardAssembly);
-        const container = document.querySelector(selectors.envelopeContainer);
-
-        if (!card || !container) return;
-
-        // Handles standard dimensional rotations when the cursor hovers (Desktop Only)
-        container.addEventListener('mousemove', (e) => {
-            if (card.classList.contains('flipped')) {
-                // Prevent tilt when open
-                card.style.transform = `rotateY(180deg)`;
-                return;
-            }
-            
-            const rect = container.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerPointX = rect.width / 2;
-            const centerPointY = rect.height / 2;
-            
-            // Rotation limits
-            const rotateX = ((y - centerPointY) / centerPointY) * -12;
-            const rotateY = ((x - centerPointX) / centerPointX) * 12;
-
-            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        });
-
-        // Reset orientation states on cursor exit
-        container.addEventListener('mouseleave', () => {
-            if (!card.classList.contains('flipped')) {
-                card.style.transform = `rotateX(0deg) rotateY(0deg)`;
-            } else {
-                card.style.transform = `rotateY(180deg)`;
-            }
-        });
-
-        // Action Trigger to flip card face open
-        card.addEventListener('click', (e) => {
-            // Prevent visual resets if button elements within back-face are selected
-            if (e.target.closest('.action-btn')) return;
-            
-            card.classList.toggle('flipped');
-            
-            if (card.classList.contains('flipped')) {
-                card.style.transform = `rotateY(180deg)`;
-            } else {
-                card.style.transform = `rotateY(0deg)`;
-            }
-        });
-    };
-
-    return {
-        init: () => {
-            initCardInteractions();
-        }
-    };
-})();
+  // Kickstart system simulation loading
+  new Loader(APP_CONFIG.loadingSimulationTime, () => {
+    app.transitionTo('scene-welcome');
+  });
+});
