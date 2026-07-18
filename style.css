@@ -17,6 +17,7 @@
   --color-muted-green: #4a5c3d;
   --color-dark-green: #25331a;
   --color-soft-gold: #edd18a;
+  --color-envelope-interior: #dfcca2;
   
   /* Typography */
   --font-handwritten: 'Sacramento', cursive;
@@ -134,6 +135,29 @@ html, body {
 }
 
 /* ==========================================================================
+   Ambient Scene Dimmer
+   ========================================================================== */
+.scene-dimmer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(5, 10, 24, 0.55);
+  backdrop-filter: blur(0px);
+  z-index: 8;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease, backdrop-filter 1.5s ease;
+}
+
+.scene-dimmer.dimmed {
+  opacity: 1;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+/* ==========================================================================
    Main Scene Layout
    ========================================================================== */
 .scene-wrapper {
@@ -163,7 +187,7 @@ html, body {
 .parallax-layer {
   position: absolute;
   top: 0;
-  left: -2%; /* Buffer area for parallax scaling */
+  left: -2%;
   width: 104%;
   height: 104%;
   pointer-events: none;
@@ -349,6 +373,320 @@ html, body {
 }
 
 /* ==========================================================================
+   Interactive Envelope (V2)
+   ========================================================================== */
+.envelope-container {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(65px, 11vh, 120px);
+  transform: translateX(-50%);
+  width: clamp(200px, 15vw, 240px);
+  height: clamp(130px, 10vw, 156px);
+  cursor: pointer;
+  z-index: 10;
+  pointer-events: auto;
+  perspective: 800px;
+}
+
+.envelope {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-warm-beige);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.envelope-container:hover .envelope {
+  transform: translateY(-8px) rotateX(10deg);
+}
+
+/* Flaps drawn via elegant clip-paths instead of heavy images */
+.envelope-top-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background-color: var(--color-warm-beige);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center;
+  transition: transform 0.5s ease-in-out;
+  z-index: 5;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+}
+
+.envelope-bottom-flap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background-color: #ebdcb9;
+  clip-path: polygon(0 100%, 100% 100%, 50% 0);
+  z-index: 4;
+}
+
+.envelope-left-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 55%;
+  height: 100%;
+  background-color: #e3d2ab;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  z-index: 3;
+}
+
+.envelope-right-flap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 55%;
+  height: 100%;
+  background-color: #e3d2ab;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  z-index: 3;
+}
+
+.envelope-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-envelope-interior);
+  border-radius: 4px;
+  z-index: 1;
+}
+
+/* Sneak peek of paper inside envelope */
+.paper-preview {
+  position: absolute;
+  top: 15%;
+  left: 5%;
+  width: 90%;
+  height: 75%;
+  background-color: var(--color-cream);
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  transform: translateY(0);
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preview-heart {
+  color: var(--color-blush-pink);
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+
+.envelope-shadow {
+  position: absolute;
+  bottom: -15px;
+  left: 10%;
+  width: 80%;
+  height: 10px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 80%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  transition: transform 0.6s ease;
+}
+
+.envelope-container:hover .envelope-shadow {
+  transform: scale(0.9);
+  opacity: 0.6;
+}
+
+/* Interactive Open Sequence States */
+.envelope-container.active-opening {
+  pointer-events: none;
+  animation: envelopeLift 1.2s forwards cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.envelope-container.active-opening .envelope-top-flap {
+  transform: rotateX(180deg);
+  z-index: 1;
+}
+
+.envelope-container.active-opening .paper-preview {
+  transform: translateY(-80%);
+  z-index: 2;
+}
+
+/* ==========================================================================
+   Unfolded Letter Panel Overlay (V2)
+   ========================================================================== */
+.letter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.letter-overlay.visible {
+  pointer-events: auto;
+}
+
+.letter-paper {
+  width: clamp(280px, 90vw, 540px);
+  height: clamp(380px, 75vh, 640px);
+  background: radial-gradient(circle at center, var(--color-cream) 0%, var(--color-warm-beige) 100%);
+  box-shadow: 
+    0 15px 45px rgba(0, 0, 0, 0.5),
+    inset 0 0 40px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: clamp(1.8rem, 4vw, 3rem);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform: scale(0.85) translateY(50px) rotateX(10deg);
+  opacity: 0;
+  transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.2s ease;
+  z-index: 11;
+}
+
+.letter-overlay.visible .letter-paper {
+  transform: scale(1) translateY(0) rotateX(0deg);
+  opacity: 1;
+}
+
+.letter-scroll-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+  /* Custom thin elegant scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.1) transparent;
+}
+
+.letter-scroll-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.letter-scroll-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+
+/* Letter Typography & Accents */
+.letter-paragraph {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  line-height: 1.6;
+  color: #3b3225;
+  margin-bottom: clamp(1rem, 2.5vh, 1.8rem);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.letter-paragraph.reveal-p {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.letter-paragraph.signature {
+  margin-bottom: 0.2rem;
+  margin-top: 1.5rem;
+}
+
+.letter-paragraph.signature-name {
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  color: #5c4b37;
+}
+
+.glow-word {
+  color: #8c734b;
+  font-weight: 600;
+  text-shadow: 0 0 6px rgba(237, 209, 138, 0.5);
+  padding: 0 2px;
+}
+
+.letter-heart {
+  color: #c98a96;
+  font-size: 1.3rem;
+  display: inline-block;
+  animation: heartFlutter 1.5s ease-in-out infinite;
+}
+
+/* Beautiful Doodles Frame */
+.letter-doodle {
+  text-align: center;
+  color: var(--color-sage-green);
+  font-size: 1.4rem;
+  opacity: 0.5;
+  user-select: none;
+}
+
+.letter-doodle-top {
+  margin-bottom: 0.8rem;
+}
+
+.letter-doodle-bottom {
+  margin-top: 0.8rem;
+}
+
+/* Action Trigger Button */
+.btn-continue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 1.2rem auto 0 auto;
+  padding: 0.8rem 2.2rem;
+  font-family: var(--font-elegant);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background-color: transparent;
+  color: #5c4b37;
+  border: 1px solid rgba(92, 75, 55, 0.25);
+  border-radius: 30px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  pointer-events: none;
+}
+
+.btn-continue.visible-btn {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.btn-continue:not([disabled]):hover {
+  background-color: #5c4b37;
+  color: var(--color-cream);
+  border-color: #5c4b37;
+}
+
+.btn-continue:not([disabled]):active {
+  transform: scale(0.97);
+}
+
+.btn-continue .arrow {
+  transition: transform 0.3s ease;
+}
+
+.btn-continue:not([disabled]):hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
    Fireflies (JS Rendered)
    ========================================================================== */
 .firefly-container {
@@ -378,6 +716,19 @@ html, body {
   background-color: var(--color-soft-gold);
   filter: blur(2px);
   opacity: 0.6;
+}
+
+/* ==========================================================================
+   Sparkles Generator System (V2)
+   ========================================================================== */
+.sparkle {
+  position: absolute;
+  background-color: var(--color-soft-gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 12;
+  box-shadow: 0 0 10px 2px rgba(237, 209, 138, 0.6);
+  will-change: transform, opacity;
 }
 
 /* ==========================================================================
@@ -413,7 +764,7 @@ html, body {
   width: 100%;
   height: 100%;
   z-index: 8;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 /* ==========================================================================
@@ -462,12 +813,45 @@ html, body {
   }
 }
 
-/* Sway animation applied dynamic variables for responsive timing */
 @keyframes sway {
   0%, 100% {
     transform: rotate(calc(var(--sway-angle-base) * -1deg));
   }
   50% {
     transform: rotate(calc(var(--sway-angle-base) * 1deg * var(--wind-strength-multiplier)));
+  }
+}
+
+@keyframes envelopeLift {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+  30% {
+    transform: translateX(-50%) translateY(-15px);
+  }
+  100% {
+    transform: translateX(-50%) translateY(15px) scale(0.92);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkleOut {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dest-x), var(--dest-y)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes heartFlutter {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+    color: #b5707d;
   }
 }
