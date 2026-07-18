@@ -56,7 +56,7 @@
   <!-- Main Viewport Container (Cinematic Lens/Perspective stage) -->
   <main id="app-container">
 
-    <!-- SCENE 1: REDESIGNED PREMIUM LOADING SCREEN -->
+    <!-- SCENE 1: PREMIUM LOADING SCREEN -->
     <section id="scene-loading" class="scene active">
       <div class="loader-bg-ambient"></div>
       <div class="loader-wrapper">
@@ -127,7 +127,7 @@
                       <div class="foil-border"></div>
                       <span class="cover-accent">For You</span>
                       <div class="gold-embellishment">✿</div>
-                      <span class="cover-instruction">Opening Card...</span>
+                      <span class="cover-instruction">Opening...</span>
                     </div>
                   </div>
                   <div class="card-page card-cover-back">
@@ -148,6 +148,12 @@
                       May your year be filled with beautiful moments, silent peace, and dynamic joy. Today is a celebration of the incredible light you bring into this world.
                     </p>
                     <span class="signature">With love & admiration</span>
+
+                    <!-- Proceed button integrated elegantly within the Card Layout -->
+                    <button id="btn-next-scene" class="btn-circular-next hidden" aria-label="Continue Celebration">
+                      <span class="arrow-icon">→</span>
+                      <span class="btn-pulse"></span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -164,28 +170,18 @@
           </div>
 
         </div>
-
-        <!-- Hidden navigation control, appears after card opens fully -->
-        <button id="btn-next-scene" class="btn-circular-next hidden" aria-label="Continue Celebration">
-          <span class="arrow-icon">→</span>
-          <span class="btn-pulse"></span>
-        </button>
       </div>
     </section>
 
     <!-- SCENE 4: GARDEN (V5 Unobstructed Immersive Environment Scene) -->
     <section id="scene-garden" class="scene hidden">
-      <!-- Cards removed. The user stands completely inside the cinematic, calm meadow -->
+      <!-- Unobstructed viewing of the blooming species and sway branches -->
     </section>
 
-    <!-- FUTURE SCENES PLACEHOLDER HOOKS (Preserved structure for future versions) -->
-    <!-- Scene 5: Gift (Hidden in V5) -->
+    <!-- FUTURE SCENES PLACEHOLDER HOOKS -->
     <section id="scene-gift" class="scene hidden"></section>
-    <!-- Scene 6: Cake (Hidden in V5) -->
     <section id="scene-cake" class="scene hidden"></section>
-    <!-- Scene 7: Celebration (Hidden in V5) -->
     <section id="scene-celebration" class="scene hidden"></section>
-    <!-- Scene 8: Final Wish (Hidden in V5) -->
     <section id="scene-wish" class="scene hidden"></section>
 
   </main>
