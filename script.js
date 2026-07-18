@@ -13,8 +13,8 @@ const APP_CONFIG = {
 
 /**
  * High-Performance Environmental Rendering Engine (Canvas)
- * Creates real-time dynamic, wind-swept individual grass blades, floating light particles,
- * and elegant interactive flower stems at 60FPS.
+ * Creates real-time dynamic, ultra-calm, wind-swept individual grass blades, floating light particles,
+ * and ultra-realistic scattered flowers at 60FPS.
  */
 class EnvironmentalEngine {
   constructor() {
@@ -25,7 +25,7 @@ class EnvironmentalEngine {
     this.particles = [];
     this.flowers = [];
     this.windTime = 0;
-    this.activeState = 'loading'; // Syncs with currently active scene ID to govern density
+    this.activeState = 'loading'; // Syncs with currently active scene ID
     
     this.isTicking = false;
     this.init();
@@ -52,7 +52,7 @@ class EnvironmentalEngine {
   }
 
   /**
-   * Procedurally generate grass blades with varying heights, widths, and spring-wave settings
+   * Procedurally generate tall, lush grass blades with varying heights, widths, and individual wind phases
    */
   generateGrass() {
     this.blades = [];
@@ -60,21 +60,23 @@ class EnvironmentalEngine {
     const height = this.canvas.height;
     
     // Calibrate blade count to screen width to maximize mobile performance
-    const bladeCount = Math.floor(width / (window.innerWidth < 768 ? 4 : 2)); 
+    const bladeCount = Math.floor(width / (window.innerWidth < 768 ? 3 : 1.5)); 
 
     for (let i = 0; i < bladeCount; i++) {
       const x = Math.random() * width;
-      // Grass sits locked strictly at the bottom border of the screen
       const y = height; 
       
-      const bladeHeight = clamp(40, Math.random() * 85 + 45, 140);
-      const bladeWidth = Math.random() * 3.5 + 1.5;
+      // Increased grass height parameters for lush visual density
+      const bladeHeight = clamp(110, Math.random() * 120 + 80, 240);
+      const bladeWidth = Math.random() * 4 + 2;
       
-      // Depth layering colors (Front: Golden green / Back: Deep sage green)
+      // Depth layering colors (Warm spring greens & meadow gold highlights)
       const colorDepth = Math.random();
-      const color = colorDepth > 0.5 
-        ? `rgba(180, 196, 160, ${0.45 + Math.random() * 0.3})`  // soft golden-sage
-        : `rgba(148, 168, 128, ${0.5 + Math.random() * 0.45})`;  // deep meadow sage
+      const color = colorDepth > 0.65 
+        ? `rgba(164, 194, 142, ${0.7 + Math.random() * 0.25})`  // vibrant meadow green
+        : colorDepth > 0.3
+        ? `rgba(132, 166, 110, ${0.75 + Math.random() * 0.2})`   // deeper rich green
+        : `rgba(182, 206, 150, ${0.65 + Math.random() * 0.3})`;  // gold-green highlights
 
       this.blades.push({
         x: x,
@@ -83,32 +85,44 @@ class EnvironmentalEngine {
         w: bladeWidth,
         color: color,
         angleOffset: Math.random() * Math.PI, // Random phase offsets
-        speed: 0.02 + Math.random() * 0.025,
-        springiness: 12 + Math.random() * 8
+        speed: 0.008 + Math.random() * 0.01,  // Slow wind sway
+        springiness: 4 + Math.random() * 4     // Lower spring multiplier for calm behavior
       });
     }
   }
 
   /**
-   * Instantiate flower systems resting directly within structural grass coordinates
+   * Instantiate ultra-realistic flower systems resting directly along the bottom line
    */
   generateFlowers() {
     this.flowers = [];
     const width = this.canvas.width;
     const height = this.canvas.height;
     
-    const flowerCount = window.innerWidth < 768 ? 4 : 8;
-    const colors = ['#f4dcd6', '#fcece7', '#f3effc', '#eae0d5']; // Premium light pastel shades
+    const flowerCount = window.innerWidth < 768 ? 6 : 12;
+    // Elegant light palette color profiles
+    const colors = [
+      { petal: '#f4dcd6', core: '#e5ad9b', glow: 'rgba(244, 220, 214, 0.4)' }, // Blush Pink
+      { petal: '#fcece7', core: '#d4af37', glow: 'rgba(252, 236, 231, 0.4)' }, // Soft Peach/Gold
+      { petal: '#f3effc', core: '#b39fdb', glow: 'rgba(243, 239, 252, 0.4)' }, // Lavender Whisper
+      { petal: '#e8f0fe', core: '#a0c3ff', glow: 'rgba(232, 240, 254, 0.4)' }, // Soft Sky Blue
+    ];
 
     for (let i = 0; i < flowerCount; i++) {
-      const x = (width * 0.1) + (Math.random() * width * 0.8);
+      // Scatter evenly with organic offsets along the baseline
+      const x = (width * 0.05) + (Math.random() * width * 0.9);
+      const stemHeight = Math.random() * 60 + 100; // Realistic height taller than average grass
+      const petalCount = Math.floor(Math.random() * 2) + 5; // 5 or 6 multi-petal structures
+      
       this.flowers.push({
         x: x,
         y: height,
-        h: Math.random() * 50 + 90, // taller than average grass blades
-        petalColor: colors[Math.floor(Math.random() * colors.length)],
+        h: stemHeight,
+        colorProfile: colors[Math.floor(Math.random() * colors.length)],
+        petalCount: petalCount,
         angleOffset: Math.random() * Math.PI,
-        size: Math.random() * 3 + 4
+        size: Math.random() * 4 + 8, // Leafy bud size
+        windPhase: Math.random() * Math.PI
       });
     }
   }
@@ -122,10 +136,10 @@ class EnvironmentalEngine {
       this.particles.push({
         x: Math.random() * this.canvas.width,
         y: Math.random() * this.canvas.height,
-        r: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.4 + 0.1,
-        speedX: (Math.random() - 0.5) * 0.4,
-        speedY: -Math.random() * 0.5 - 0.1,
+        r: Math.random() * 2.5 + 1.2,
+        alpha: Math.random() * 0.5 + 0.15,
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: -Math.random() * 0.3 - 0.08,
         phase: Math.random() * Math.PI
       });
     }
@@ -150,13 +164,14 @@ class EnvironmentalEngine {
   }
 
   updatePhysics() {
-    this.windTime += 0.005; // Governs global wind ripple speed
+    // Highly calibrated ultra-calm cool breeze movement variables
+    this.windTime += 0.002; 
 
     // Update floating light particles
     this.particles.forEach(p => {
       p.y += p.speedY;
-      // Sine wave lateral sway to mimic organic flight drift
-      p.x += p.speedX + Math.sin(this.windTime + p.phase) * 0.2; 
+      // Organic drifting sway pattern
+      p.x += p.speedX + Math.sin(this.windTime * 0.8 + p.phase) * 0.15; 
       
       // Recycle particles wrapping out of top bounds smoothly
       if (p.y < -10) {
@@ -174,39 +189,100 @@ class EnvironmentalEngine {
     // Clear frames cleanly
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Draw Flowers (Distant Layer)
+    // 1. Draw Ultra-Realistic Flowers (Scattered organically beneath grass layer)
     this.flowers.forEach(f => {
-      const windAngle = Math.sin(this.windTime * 2 + f.angleOffset) * 0.1;
+      // Wind sway calculations: slow cool drift physics
+      const windAngle = Math.sin(this.windTime * 1.2 + f.angleOffset) * 0.08;
       const topX = f.x + Math.sin(windAngle) * f.h;
       const topY = f.y - Math.cos(windAngle) * f.h;
 
-      // Draw elegant stem
+      // Draw elegant bending organic stem
       ctx.beginPath();
       ctx.moveTo(f.x, f.y);
-      ctx.quadraticCurveTo(f.x, f.y - f.h * 0.5, topX, topY);
-      ctx.strokeStyle = 'rgba(148, 168, 128, 0.4)';
-      ctx.lineWidth = 1.5;
+      ctx.quadraticCurveTo(f.x + (topX - f.x) * 0.3, f.y - f.h * 0.5, topX, topY);
+      ctx.strokeStyle = 'rgba(122, 153, 102, 0.55)';
+      ctx.lineWidth = 2.2;
       ctx.stroke();
 
-      // Draw delicate soft pastel bud
+      // Draw natural alternating stem leaves
+      const leafCount = 2;
+      for (let j = 1; j <= leafCount; j++) {
+        const ratio = j / (leafCount + 1);
+        const leafY = f.y - f.h * ratio;
+        const leafX = f.x + (topX - f.x) * ratio;
+        const leafSide = j % 2 === 0 ? 1 : -1;
+
+        ctx.beginPath();
+        ctx.ellipse(
+          leafX + leafSide * 6, 
+          leafY - 2, 
+          8, 
+          3, 
+          (leafSide * Math.PI / 6) + windAngle, 
+          0, 
+          Math.PI * 2
+        );
+        ctx.fillStyle = 'rgba(132, 166, 110, 0.65)';
+        ctx.fill();
+      }
+
+      // Draw 3D realistic petals with beautiful translucent layering
+      ctx.save();
+      ctx.translate(topX, topY);
+      ctx.rotate(windAngle * 2);
+
+      // Back glow shadow
       ctx.beginPath();
-      ctx.arc(topX, topY, f.size, 0, Math.PI * 2);
-      ctx.fillStyle = f.petalColor;
+      ctx.arc(0, 0, f.size * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = f.colorProfile.glow;
+      ctx.filter = 'blur(4px)';
+      ctx.fill();
+      ctx.filter = 'none';
+
+      // Draw layered realistic petals
+      const petals = f.petalCount;
+      const angleStep = (Math.PI * 2) / petals;
+      
+      for (let k = 0; k < petals; k++) {
+        ctx.save();
+        ctx.rotate(k * angleStep + Math.sin(this.windTime + f.windPhase) * 0.05);
+
+        // Individual petal ellipse gradient shadow
+        ctx.beginPath();
+        ctx.ellipse(0, -f.size * 0.8, f.size * 0.5, f.size * 0.95, 0, 0, Math.PI * 2);
+        ctx.fillStyle = f.colorProfile.petal;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 0.5;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // Draw textured center core disc
+      ctx.beginPath();
+      ctx.arc(0, 0, f.size * 0.45, 0, Math.PI * 2);
+      ctx.fillStyle = f.colorProfile.core;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.fill();
+      ctx.stroke();
+
+      // Core details (realistic pollen clusters)
+      ctx.beginPath();
+      ctx.arc(0, 0, f.size * 0.2, 0, Math.PI * 2);
+      ctx.fillStyle = '#f9d976';
       ctx.fill();
 
-      // Golden core highlights
-      ctx.beginPath();
-      ctx.arc(topX, topY, f.size * 0.4, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(212, 175, 55, 0.6)';
-      ctx.fill();
+      ctx.restore();
     });
 
-    // 2. Draw Grass Blades (Midground layer)
+    // 2. Draw Grass Blades (Midground layer - Tall and slow moving)
     ctx.lineCap = 'round';
     this.blades.forEach(b => {
-      // Wind wave offset maps using the horizontal position creating an elegant continuous wave effect
-      const wave = Math.sin(this.windTime * b.springiness + (b.x * 0.01) + b.angleOffset);
-      const angle = wave * 0.15; // Limit max flex parameters to stay realistic
+      // Adjusted wave formula representing calm, cool, realistic breeze sways
+      const wave = Math.sin(this.windTime * b.springiness * 0.45 + (b.x * 0.005) + b.angleOffset);
+      const angle = wave * 0.12; // Slow, natural angular limits
 
       const tipX = b.x + Math.sin(angle) * b.h;
       const tipY = b.y - Math.cos(angle) * b.h;
