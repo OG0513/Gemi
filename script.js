@@ -1,5 +1,5 @@
 /**
- * Dreamy Landscape - Version 1 Engine
+ * Dreamy Landscape - Version 2 Engine
  * Architectural elements structured modularly for performance and maintainability.
  */
 
@@ -361,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('petals-container');
     
     function spawnPetal() {
-      // Respect performance targets; throttle active floating petal volume
       if (container.childElementCount > 15) return;
 
       const petal = document.createElement('div');
@@ -371,7 +370,6 @@ document.addEventListener('DOMContentLoaded', () => {
       petal.style.width = `${size}px`;
       petal.style.height = `${size * 0.8}px`;
       
-      // Spawn at dynamic locations from top edge
       const startX = Math.random() * window.innerWidth;
       const startY = -20;
       
@@ -380,7 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       container.appendChild(petal);
 
-      // Simulation parameters
       let posX = startX;
       let posY = startY;
       let angle = Math.random() * 360;
@@ -395,13 +392,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         driftTime += 0.01;
         posY += fallSpeed;
-        // Sway drift influenced directly by active system wind strength
         posX += (Math.sin(driftTime) * driftAmplitude) + (windState.strength * 0.5);
         angle += angleSpeed;
 
         petal.style.transform = `translate3d(${(posX - startX).toFixed(1)}px, ${(posY - startY).toFixed(1)}px, 0) rotate(${angle.toFixed(1)}deg)`;
 
-        // Clean up when leaving viewport boundaries
         if (posY > window.innerHeight + 20 || posX < -20 || posX > window.innerWidth + 20) {
           petal.remove();
         } else {
@@ -412,17 +407,125 @@ document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(driftStep);
     }
 
-    // Attempt petal creation periodically
     setInterval(spawnPetal, 1800);
   }
 
   /**
-   * 9. Parallax Camera Navigation System
+   * 9. Sparkles Generator System (V2)
+   */
+  function createSparkles(startX, startY) {
+    const container = document.getElementById('interactive-anchor');
+    const sparkleCount = 18;
+
+    for (let i = 0; i < sparkleCount; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      
+      const size = Math.random() * 5 + 3;
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
+      sparkle.style.left = `${startX}px`;
+      sparkle.style.top = `${startY}px`;
+
+      // Calculate path outwards
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 90 + 30;
+      const destX = Math.cos(angle) * distance;
+      const destY = Math.sin(angle) * distance - 20;
+
+      sparkle.style.setProperty('--dest-x', `${destX}px`);
+      sparkle.style.setProperty('--dest-y', `${destY}px`);
+
+      // Vary timing attributes
+      const duration = Math.random() * 0.6 + 0.8;
+      const delay = Math.random() * 0.15;
+      sparkle.style.animation = `sparkleOut ${duration}s cubic-bezier(0.25, 1, 0.5, 1) forwards ${delay}s`;
+
+      container.appendChild(sparkle);
+
+      // DOM Cleanup
+      setTimeout(() => {
+        sparkle.remove();
+      }, (duration + delay) * 1000);
+    }
+  }
+
+  /**
+   * 10. Interactive Envelope & Letter Orchestration (V2)
+   */
+  function initEnvelopeLetter() {
+    const envelopeWrapper = document.getElementById('envelope-wrapper');
+    const sceneDimmer = document.getElementById('scene-dimmer');
+    const letterOverlay = document.getElementById('letter-overlay');
+    const letterParagraphs = document.querySelectorAll('.letter-paragraph');
+    const btnContinue = document.getElementById('btn-continue');
+    
+    let alreadyOpened = false;
+
+    function handleOpenEnvelope() {
+      if (alreadyOpened) return;
+      alreadyOpened = true;
+
+      // Capture envelope coordinates to anchor sparkles precisely
+      const rect = envelopeWrapper.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+
+      // 1. Lift envelope & dispatch sparkles
+      envelopeWrapper.classList.add('active-opening');
+      createSparkles(originX, originY);
+
+      // 2. Dim background scene, slowly fade-in modal layout
+      setTimeout(() => {
+        sceneDimmer.classList.add('dimmed');
+        letterOverlay.classList.add('visible');
+        letterOverlay.setAttribute('aria-hidden', 'false');
+      }, 1100);
+
+      // 3. Sequentially reveal writing paragraph by paragraph
+      setTimeout(() => {
+        revealParagraphs(0);
+      }, 2300);
+    }
+
+    function revealParagraphs(index) {
+      if (index >= letterParagraphs.length) {
+        // All writing is rendered; bring forward the continue button
+        setTimeout(() => {
+          btnContinue.classList.add('visible-btn');
+          btnContinue.removeAttribute('disabled');
+        }, 800);
+        return;
+      }
+
+      letterParagraphs[index].classList.add('reveal-p');
+
+      // Cascade intervals dynamically relative to visual length
+      const delay = letterParagraphs[index].classList.contains('signature') ? 900 : 1800;
+      
+      setTimeout(() => {
+        revealParagraphs(index + 1);
+      }, delay);
+    }
+
+    // Capture standard Pointer interactions
+    envelopeWrapper.addEventListener('click', handleOpenEnvelope);
+
+    // Keyboard navigation bindings
+    envelopeWrapper.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleOpenEnvelope();
+      }
+    });
+  }
+
+  /**
+   * 11. Parallax Camera Navigation System
    */
   function initParallax() {
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
-    // Smooth, low impact fallback for touch hardware
     if (isTouch) return;
 
     const layers = document.querySelectorAll('.parallax-layer');
@@ -432,19 +535,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMouseY = 0;
 
     window.addEventListener('mousemove', (e) => {
-      // Capture coordinates normalized around screen center points
       targetMouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
       targetMouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
     });
 
     function runLerpParallax() {
-      // Linear interpolation smoothing filter (lerp)
       currentMouseX += (targetMouseX - currentMouseX) * 0.05;
       currentMouseY += (targetMouseY - currentMouseY) * 0.05;
 
       layers.forEach(layer => {
         const depth = parseFloat(layer.getAttribute('data-depth')) || 0;
-        const moveX = currentMouseX * depth * -50; // Shift multiplier scale
+        const moveX = currentMouseX * depth * -50;
         const moveY = currentMouseY * depth * -30;
         
         layer.style.transform = `translate3d(${moveX.toFixed(2)}px, ${moveY.toFixed(2)}px, 0)`;
@@ -469,6 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createFireflies();
     animatePetals();
     initParallax();
+    initEnvelopeLetter(); // Connect interactive sequences
   }
 
   initScene();
