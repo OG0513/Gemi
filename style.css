@@ -216,7 +216,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Enhanced Premium Moon (V3+)
+   Enhanced Premium Moon
    ========================================================================== */
 .moon-layer {
   z-index: 3;
@@ -247,6 +247,16 @@ html, body {
     inset -10px -10px 25px rgba(0, 0, 0, 0.15),
     inset 10px 10px 20px rgba(255, 255, 255, 0.5);
   animation: moonBreathingGlow 12s ease-in-out infinite;
+}
+
+.interactive-moon {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.interactive-moon:hover {
+  transform: scale(1.03);
 }
 
 .moon-texture {
@@ -281,6 +291,21 @@ html, body {
   background: radial-gradient(circle, rgba(254, 251, 247, 0.35) 0%, rgba(254, 251, 247, 0) 70%);
   pointer-events: none;
   mix-blend-mode: screen;
+}
+
+/* Fullscreen Ripple Layer spawned on Moon Interaction */
+.moon-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, rgba(253, 251, 247, 0.1) 0%, rgba(253, 251, 247, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 12;
+  animation: rippleSpread 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 
 /* ==========================================================================
@@ -398,12 +423,12 @@ html, body {
 }
 
 /* ==========================================================================
-   Centred Interactive Envelope (Focal Point)
+   Centred Interactive Envelope
    ========================================================================== */
 .envelope-container {
   position: absolute;
   left: 50%;
-  top: 52%; /* Precisely positioned at vertical viewport coordinate center */
+  top: 52%;
   transform: translate(-50%, -50%);
   width: clamp(210px, 16vw, 250px);
   height: clamp(140px, 11vw, 166px);
@@ -716,7 +741,7 @@ html, body {
   width: 100%;
   height: 100%;
   z-index: 9;
-  overflow: hidden; /* Strict viewport confinement; no scrolling */
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -766,7 +791,6 @@ html, body {
   opacity: 0.8;
 }
 
-/* Scrapbook spread collage */
 .gallery-collage {
   position: relative;
   width: 100%;
@@ -777,7 +801,6 @@ html, body {
   align-items: center;
 }
 
-/* Responsive absolute arrangement coordinates on Desktop layout */
 .collage-item {
   position: absolute;
   opacity: 0;
@@ -791,46 +814,17 @@ html, body {
   transform: translate3d(0, 0, 0) scale(1) rotate(var(--rotation-offset, 0deg));
 }
 
-/* Micro-interaction updates: Elegant lifts on hovering nodes */
 .collage-item:hover {
   transform: scale(1.04) rotate(calc(var(--rotation-offset) * 0.5)) translate3d(0, -8px, 0) !important;
   z-index: 10 !important;
 }
 
-/* Coordinates positioning array */
-.p-1 {
-  left: 10%;
-  top: 15%;
-  z-index: 3;
-}
+.p-1 { left: 10%; top: 15%; z-index: 3; }
+.p-2 { right: 12%; top: 12%; z-index: 4; }
+.p-3 { left: 48%; top: 28%; transform: translate(-50%, -50%); z-index: 5; }
+.p-4 { left: 15%; bottom: 12%; z-index: 2; }
+.p-5 { right: 18%; bottom: 15%; z-index: 1; }
 
-.p-2 {
-  right: 12%;
-  top: 12%;
-  z-index: 4;
-}
-
-.p-3 {
-  left: 48%;
-  top: 28%;
-  transform-origin: center;
-  transform: translate(-50%, -50%);
-  z-index: 5;
-}
-
-.p-4 {
-  left: 15%;
-  bottom: 12%;
-  z-index: 2;
-}
-
-.p-5 {
-  right: 18%;
-  bottom: 15%;
-  z-index: 1;
-}
-
-/* Polaroid design updates */
 .memory-polaroid .polaroid-wrapper {
   background-color: var(--color-cream);
   padding: 12px 12px 28px 12px;
@@ -852,17 +846,9 @@ html, body {
   align-items: center;
 }
 
-.img-grad-1 {
-  background: linear-gradient(135deg, #dfdaf1 0%, #f2d5dc 100%);
-}
-
-.img-grad-2 {
-  background: linear-gradient(135deg, #e3edf7 0%, #ccd5ae 100%);
-}
-
-.img-grad-3 {
-  background: linear-gradient(135deg, #f7e3e7 0%, #edd18a 100%);
-}
+.img-grad-1 { background: linear-gradient(135deg, #dfdaf1 0%, #f2d5dc 100%); }
+.img-grad-2 { background: linear-gradient(135deg, #e3edf7 0%, #ccd5ae 100%); }
+.img-grad-3 { background: linear-gradient(135deg, #f7e3e7 0%, #edd18a 100%); }
 
 .polaroid-decor {
   font-size: 1.8rem;
@@ -878,7 +864,6 @@ html, body {
   margin-top: 10px;
 }
 
-/* Decorative Sticky Note Design */
 .memory-sticky .sticky-wrapper {
   position: relative;
 }
@@ -920,7 +905,6 @@ html, body {
   margin-top: 8px;
 }
 
-/* Decorative Ticket Stub Design */
 .memory-ticket .ticket-wrapper {
   position: relative;
   background: linear-gradient(135deg, #fcead2 0%, #ecd0a1 100%);
@@ -938,20 +922,15 @@ html, body {
   position: absolute;
   width: 12px;
   height: 12px;
-  background-color: #050b18; /* Matches the dimmed overlay backdrop */
+  background-color: #050b18;
   border-radius: 50%;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
 }
 
-.ticket-notch.left {
-  left: -6px;
-}
-
-.ticket-notch.right {
-  right: -6px;
-}
+.ticket-notch.left { left: -6px; }
+.ticket-notch.right { right: -6px; }
 
 .ticket-inner {
   border: 1px dashed rgba(92, 75, 55, 0.25);
@@ -981,7 +960,6 @@ html, body {
   color: #856f4e;
 }
 
-/* Gallery Footer */
 .gallery-footer {
   margin-bottom: 1vh;
 }
@@ -993,9 +971,6 @@ html, body {
   opacity: 0.5;
 }
 
-/* ==========================================================================
-   Responsive Adaptability (Memory Collage Mobile stacking adjustments)
-   ========================================================================== */
 @media (max-width: 768px) {
   .gallery-collage {
     display: grid;
@@ -1027,60 +1002,13 @@ html, body {
     transform: none !important;
   }
 
-  .p-5 {
-    display: none; /* Hide ticket stub on tight screens for breathing space */
-  }
+  .p-5 { display: none; }
 }
 
 /* ==========================================================================
-   Fireflies (JS Rendered)
+   V4 Interactive Objects Design
    ========================================================================== */
-.firefly-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
-  pointer-events: none;
-}
-
-.firefly {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: radial-gradient(circle, #ffe699 0%, rgba(237, 209, 138, 0) 70%);
-  border-radius: 50%;
-  will-change: transform, opacity;
-}
-
-.firefly-glow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: var(--color-soft-gold);
-  filter: blur(2px);
-  opacity: 0.6;
-}
-
-/* ==========================================================================
-   Sparkles Generator System
-   ========================================================================== */
-.sparkle {
-  position: absolute;
-  background-color: var(--color-soft-gold);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 12;
-  box-shadow: 0 0 10px 2px rgba(237, 209, 138, 0.6);
-  will-change: transform, opacity;
-}
-
-/* ==========================================================================
-   Petals (Falling & Drifting)
-   ========================================================================== */
-.petals-container {
+.interactive-objects-layer {
   position: absolute;
   top: 0;
   left: 0;
@@ -1088,29 +1016,515 @@ html, body {
   height: 100%;
   z-index: 7;
   pointer-events: none;
+}
+
+.interactive-object {
+  position: absolute;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), filter 0.3s ease;
+  will-change: transform;
+}
+
+.interactive-object:hover {
+  filter: drop-shadow(0 0 8px rgba(237, 209, 138, 0.5));
+}
+
+/* --- 1. Lantern --- */
+.obj-lantern {
+  left: clamp(4%, 7vw, 12%);
+  bottom: clamp(20px, 5vh, 60px);
+  width: 32px;
+  height: 80px;
+}
+
+.lantern-hook {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 20px;
+  background-color: #3b3225;
+}
+
+.lantern-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: top center;
+  animation: lanternSway 6s ease-in-out infinite alternate;
+}
+
+.lantern-cap {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 8px;
+  background-color: #4a3e3d;
+  border-radius: 4px 4px 0 0;
+}
+
+.lantern-glass {
+  position: absolute;
+  top: 8px;
+  left: 4px;
+  width: 24px;
+  height: 44px;
+  background-color: rgba(237, 209, 138, 0.2);
+  border: 2px solid #4a3e3d;
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
 }
 
-.petal-element {
+.lantern-glow-core {
+  width: 10px;
+  height: 18px;
+  background: radial-gradient(circle, #fffbf0 0%, var(--color-soft-gold) 70%);
+  border-radius: 50%;
+  box-shadow: 0 0 15px 4px rgba(237, 209, 138, 0.8);
+  animation: lanternGlowPulse 3s ease-in-out infinite alternate;
+}
+
+.lantern-base {
   position: absolute;
+  bottom: 24px;
+  width: 100%;
+  height: 6px;
+  background-color: #4a3e3d;
+  border-radius: 0 0 3px 3px;
+}
+
+/* --- 2. Cozy Sleeping Cat --- */
+.obj-cat {
+  left: clamp(22%, 25vw, 32%);
+  bottom: clamp(10px, 2.5vh, 35px);
+  width: 48px;
+  height: 28px;
+  animation: catBreathing 4s ease-in-out infinite alternate;
+}
+
+.cat-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-cream);
+  border-radius: 20px 20px 4px 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+.cat-head {
+  position: absolute;
+  top: -12px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  background-color: var(--color-cream);
+  border-radius: 50%;
+}
+
+.cat-ear {
+  position: absolute;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--color-cream);
+}
+
+.cat-ear.left { left: 1px; transform: rotate(-15deg); }
+.cat-ear.right { right: 1px; transform: rotate(15deg); }
+
+.cat-eye {
+  position: absolute;
+  top: 10px;
+  width: 4px;
+  height: 1px;
+  background-color: #7a6e3c;
+}
+
+.cat-eye.left { left: 4px; }
+.cat-eye.right { right: 4px; }
+
+.cat-nose {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  width: 2px;
+  height: 2px;
   background-color: var(--color-blush-pink);
-  border-radius: 60% 10% 60% 40% / 60% 40% 60% 20%;
-  opacity: 0.75;
-  transform-origin: center;
-  will-change: transform, opacity;
+  border-radius: 50%;
+}
+
+.cat-tail {
+  position: absolute;
+  bottom: 2px;
+  left: -8px;
+  width: 14px;
+  height: 8px;
+  background-color: var(--color-cream);
+  border-radius: 10px 0 0 10px;
+  transform-origin: right center;
+  animation: catTailWag 3s ease-in-out infinite alternate;
+}
+
+/* --- 3. Teddy Bear --- */
+.obj-teddy {
+  right: clamp(4%, 7vw, 12%);
+  bottom: clamp(15px, 4vh, 50px);
+  width: 42px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: teddyBreathing 5s ease-in-out infinite alternate;
+}
+
+.teddy-ears {
+  display: flex;
+  justify-content: space-between;
+  width: 34px;
+  position: absolute;
+  top: 0;
+}
+
+.teddy-ear {
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-warm-beige);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 50%;
+}
+
+.teddy-head {
+  position: relative;
+  width: 32px;
+  height: 26px;
+  background-color: var(--color-warm-beige);
+  border-radius: 16px 16px 14px 14px;
+  z-index: 2;
+  margin-top: 4px;
+}
+
+.teddy-eye {
+  position: absolute;
+  top: 10px;
+  width: 3px;
+  height: 3px;
+  background-color: #3b3225;
+  border-radius: 50%;
+}
+
+.teddy-eye.left { left: 7px; }
+.teddy-eye.right { right: 7px; }
+
+.teddy-snout {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 10px;
+  background-color: var(--color-cream);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.teddy-nose {
+  width: 4px;
+  height: 3px;
+  background-color: #3b3225;
+  border-radius: 50%;
+}
+
+.teddy-body {
+  position: relative;
+  width: 38px;
+  height: 28px;
+  background-color: var(--color-warm-beige);
+  border-radius: 18px 18px 10px 10px;
+  z-index: 1;
+  margin-top: -6px;
+}
+
+.teddy-paws {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: absolute;
+  top: 4px;
+}
+
+.teddy-paw {
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-warm-beige);
+  border-radius: 50%;
+}
+
+.teddy-paw.left {
+  transform-origin: center top;
+}
+
+.teddy-paw.left.wave-anim {
+  animation: teddyWave 1.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.teddy-legs {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: absolute;
+  bottom: -4px;
+}
+
+.teddy-foot {
+  width: 12px;
+  height: 10px;
+  background-color: var(--color-warm-beige);
+  border-radius: 50%;
+}
+
+/* --- 4. Surprise Gift Box --- */
+.obj-gift {
+  right: clamp(22%, 25vw, 32%);
+  bottom: clamp(15px, 3vh, 45px);
+  width: 36px;
+  height: 36px;
+  animation: giftFloating 4.5s ease-in-out infinite alternate;
+}
+
+.gift-box-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.gift-lid {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 10px;
+  background-color: var(--color-blush-pink);
+  border-radius: 2px;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.obj-gift.gift-open .gift-lid {
+  transform: translateY(-14px) rotate(-15deg);
+}
+
+.gift-box-body {
+  position: absolute;
+  bottom: 0;
+  left: 3px;
+  width: 30px;
+  height: 28px;
+  background-color: #e9b3bd;
+  border-radius: 0 0 3px 3px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.gift-ribbon-vertical {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 100%;
+  background-color: var(--color-soft-gold);
+}
+
+.gift-ribbon-horizontal {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 6px;
+  background-color: var(--color-soft-gold);
+}
+
+.gift-bow {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 10px;
+  z-index: 3;
+}
+
+.bow-loop {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--color-soft-gold);
+  border-radius: 50%;
+}
+
+.bow-loop.left { left: 1px; transform: rotate(-30deg); }
+.bow-loop.right { right: 1px; transform: rotate(30deg); }
+
+.obj-gift.gift-open {
+  animation: giftBounce 0.5s ease-out;
+}
+
+/* --- 5. Interactive Flower --- */
+.obj-flower {
+  left: 50%;
+  margin-left: clamp(80px, 12vw, 150px);
+  bottom: clamp(15px, 3vh, 45px);
+  width: 24px;
+  height: 55px;
+}
+
+.interactive-flower-stem {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 40px;
+  background-color: var(--color-muted-green);
+}
+
+.interactive-flower-head {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+}
+
+.interactive-flower-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-cream);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.interactive-flower-petals {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: flowerSwaySlow 4s ease-in-out infinite alternate;
+}
+
+.int-petal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 12px;
+  background-color: var(--color-soft-gold);
+  border-radius: 4px;
+  transform-origin: center bottom;
+}
+
+.int-petal:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg); }
+.int-petal:nth-child(2) { transform: translate(-50%, -100%) rotate(60deg); }
+.int-petal:nth-child(3) { transform: translate(-50%, -100%) rotate(120deg); }
+.int-petal:nth-child(4) { transform: translate(-50%, -100%) rotate(180deg); }
+.int-petal:nth-child(5) { transform: translate(-50%, -100%) rotate(240deg); }
+.int-petal:nth-child(6) { transform: translate(-50%, -100%) rotate(300deg); }
+
+.obj-flower:hover .interactive-flower-head {
+  transform: translate(-50%, -50%) scale(1.15) rotate(15deg);
 }
 
 /* ==========================================================================
-   Interactive Overlay Anchor
+   V4 Glassmorphism Speech / Message Card Layout
    ========================================================================== */
-.interactive-overlay {
+.object-message-card {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 8;
+  background: rgba(253, 251, 247, 0.72);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  z-index: 15;
+  opacity: 0;
   pointer-events: none;
+  transform: translate3d(0, 15px, 0) scale(0.95);
+  transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  width: max-content;
+  max-width: 260px;
+}
+
+.object-message-card.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.object-message-text {
+  font-family: var(--font-elegant);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #4a3e3d;
+  font-weight: 500;
+  text-align: center;
+}
+
+.card-tail {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background-color: rgba(253, 251, 247, 0.72);
+  border-right: 1px solid rgba(255, 255, 255, 0.45);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+/* Adjustments on narrow viewport screens */
+@media (max-width: 768px) {
+  .object-message-card {
+    position: fixed !important;
+    bottom: clamp(15px, 3vh, 30px) !important;
+    left: 50% !important;
+    transform: translate3d(-50%, 15px, 0) scale(0.95) !important;
+    width: 90% !important;
+    max-width: 320px !important;
+  }
+  
+  .object-message-card.visible {
+    transform: translate3d(-50%, 0, 0) scale(1) !important;
+  }
+  
+  .card-tail {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   V4 Confetti Design System
+   ========================================================================== */
+.confetti-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-soft-gold);
+  pointer-events: none;
+  z-index: 12;
+  border-radius: 1px;
 }
 
 /* ==========================================================================
@@ -1149,6 +1563,19 @@ html, body {
       inset 10px 10px 20px rgba(255, 255, 255, 0.5),
       0 0 65px 12px rgba(254, 251, 247, 0.5),
       0 0 130px 25px rgba(254, 251, 247, 0.25);
+  }
+}
+
+@keyframes rippleSpread {
+  0% {
+    width: 10px;
+    height: 10px;
+    opacity: 1;
+  }
+  100% {
+    width: 250vw;
+    height: 250vw;
+    opacity: 0;
   }
 }
 
@@ -1203,5 +1630,62 @@ html, body {
   50% {
     transform: scale(1.2);
     color: #b5707d;
+  }
+}
+
+/* V4 Object Animation Sequences */
+@keyframes lanternSway {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
+}
+
+@keyframes lanternGlowPulse {
+  0% { opacity: 0.7; box-shadow: 0 0 10px 2px rgba(237, 209, 138, 0.6); }
+  100% { opacity: 1; box-shadow: 0 0 22px 6px rgba(237, 209, 138, 0.9); }
+}
+
+@keyframes catBreathing {
+  0% { transform: scaleY(0.97); }
+  100% { transform: scaleY(1.03); }
+}
+
+@keyframes catTailWag {
+  0% { transform: rotate(-8deg); }
+  100% { transform: rotate(8deg); }
+}
+
+@keyframes teddyBreathing {
+  0% { transform: scaleY(0.98) scaleX(0.99); }
+  100% { transform: scaleY(1.02) scaleX(1.01); }
+}
+
+@keyframes teddyWave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-40deg); }
+}
+
+@keyframes giftFloating {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+@keyframes giftBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15) translateY(-8px); }
+}
+
+@keyframes flowerSwaySlow {
+  0% { transform: rotate(-6deg); }
+  100% { transform: rotate(6deg); }
+}
+
+@keyframes confettiExplode {
+  0% {
+    transform: translate3d(0,0,0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--cx), var(--cy), 0) rotate(var(--rot)) scale(0.3);
+    opacity: 0;
   }
 }
