@@ -293,7 +293,6 @@ html, body {
   mix-blend-mode: screen;
 }
 
-/* Fullscreen Ripple Layer spawned on Moon Interaction */
 .moon-ripple {
   position: absolute;
   top: 50%;
@@ -1494,7 +1493,6 @@ html, body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.45);
 }
 
-/* Adjustments on narrow viewport screens */
 @media (max-width: 768px) {
   .object-message-card {
     position: fixed !important;
@@ -1509,183 +1507,336 @@ html, body {
     transform: translate3d(-50%, 0, 0) scale(1) !important;
   }
   
-  .card-tail {
-    display: none;
-  }
+  .card-tail { display: none; }
 }
 
 /* ==========================================================================
-   V4 Confetti Design System
+   V5 Magical Wish Tree Layout
    ========================================================================== */
-.confetti-particle {
+.wish-tree-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 30px, 0);
+  transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.wish-tree-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+}
+
+.tree-stage-wrapper {
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tree-header {
+  text-align: center;
+  margin-top: 2vh;
+}
+
+.tree-title {
+  font-family: var(--font-handwritten);
+  font-size: clamp(2.2rem, 5vh, 3.4rem);
+  color: var(--color-warm-beige);
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  font-weight: normal;
+  margin-bottom: 0.2rem;
+}
+
+.tree-subtitle {
+  font-family: var(--font-elegant);
+  font-size: clamp(0.7rem, 1.5vh, 0.85rem);
+  color: var(--color-sage-green);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.8;
+}
+
+.wish-tree {
+  position: relative;
+  width: 240px;
+  height: clamp(260px, 45vh, 380px);
+  cursor: pointer;
+  transform-origin: bottom center;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.wish-tree:hover {
+  transform: scale(1.03);
+}
+
+.wish-tree:active {
+  transform: scale(0.97);
+}
+
+/* Tree Trunk & Branches */
+.tree-trunk {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 50%;
+  background: linear-gradient(to right, #4e3629, #6d4c3a, #3b281e);
+  border-radius: 8px 8px 0 0;
+  z-index: 2;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.tree-branch {
+  position: absolute;
+  background: linear-gradient(to right, #4e3629, #6d4c3a);
+  border-radius: 4px;
+  transform-origin: bottom center;
+  transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.branch-left {
+  bottom: 60%;
+  left: -10px;
+  width: 6px;
+  height: 60%;
+  transform: rotate(-35deg);
+}
+
+.branch-right {
+  bottom: 50%;
+  right: -10px;
+  width: 6px;
+  height: 55%;
+  transform: rotate(35deg);
+}
+
+.branch-top {
+  top: -20%;
+  left: 50%;
+  width: 6px;
+  height: 45%;
+  transform: translateX(-50%) rotate(5deg);
+}
+
+/* Leaf Clusters styled for Stage Growth increments */
+.tree-leaf-cluster-group {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tree-leaf {
+  position: absolute;
+  background-color: var(--color-sage-green);
+  border-radius: 50% 50% 0 50% / 50% 50% 0 50%;
+  transform-origin: bottom right;
+  opacity: 0;
+  transform: scale(0) rotate(15deg);
+  transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: inset 1px 1px 3px rgba(255,255,255,0.2), 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.tree-leaf.glowing-leaf {
+  background-color: var(--color-blush-pink);
+  box-shadow: 0 0 10px rgba(242, 213, 220, 0.5);
+}
+
+.tree-leaf.active-leaf {
+  opacity: 0.9;
+  transform: scale(1) rotate(15deg);
+}
+
+/* Blinking fairy lights */
+.tree-fairy-lights {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tree-light-bulb {
   position: absolute;
   width: 6px;
   height: 6px;
   background-color: var(--color-soft-gold);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+  box-shadow: 0 0 8px 3px rgba(237, 209, 138, 0.8);
+  animation: lightTwinkle 3s ease-in-out infinite alternate;
+}
+
+.tree-light-bulb.active-light {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* CSS Drawn Butterflies */
+.tree-butterflies {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  z-index: 12;
-  border-radius: 1px;
+}
+
+.tree-butterfly {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  transition: opacity 2s ease;
+  animation: butterflyFloat 6s ease-in-out infinite alternate;
+}
+
+.tree-butterfly.active-butterfly {
+  opacity: 0.8;
+}
+
+.bf-wing {
+  position: absolute;
+  width: 5px;
+  height: 8px;
+  background-color: var(--color-lavender);
+  border-radius: 50%;
+  transform-origin: center right;
+  animation: wingFlap 0.2s linear infinite alternate;
+}
+
+.bf-wing.right {
+  left: 5px;
+  transform-origin: center left;
+  animation-name: wingFlapRight;
+}
+
+.tree-click-prompt {
+  font-family: var(--font-elegant);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--color-sage-green);
+  text-transform: uppercase;
+  margin-bottom: 2vh;
+  opacity: 0.6;
+  animation: bouncePrompt 2s infinite ease-in-out;
 }
 
 /* ==========================================================================
-   Animations
+   V5 Cake Celebration Overlay View
    ========================================================================== */
-@keyframes elegantFadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.cake-celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 50px, 0);
+  transition: opacity 2s cubic-bezier(0.25, 1, 0.5, 1), transform 2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-@keyframes dotPulse {
-  0%, 100% {
-    opacity: 0.15;
-    transform: scale(0.85);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.1);
-    box-shadow: 0 0 10px var(--color-warm-beige);
-  }
+.cake-celebration-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
 }
 
-@keyframes moonBreathingGlow {
-  0%, 100% {
-    box-shadow: 
-      inset -10px -10px 25px rgba(0, 0, 0, 0.15),
-      inset 10px 10px 20px rgba(255, 255, 255, 0.5),
-      0 0 45px 5px rgba(254, 251, 247, 0.35),
-      0 0 90px 15px rgba(254, 251, 247, 0.15);
-  }
-  50% {
-    box-shadow: 
-      inset -10px -10px 25px rgba(0, 0, 0, 0.15),
-      inset 10px 10px 20px rgba(255, 255, 255, 0.5),
-      0 0 65px 12px rgba(254, 251, 247, 0.5),
-      0 0 130px 25px rgba(254, 251, 247, 0.25);
-  }
+.cake-stage-wrapper {
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 
-@keyframes rippleSpread {
-  0% {
-    width: 10px;
-    height: 10px;
-    opacity: 1;
-  }
-  100% {
-    width: 250vw;
-    height: 250vw;
-    opacity: 0;
-  }
+.celebration-header {
+  text-align: center;
+  margin-top: 3vh;
 }
 
-@keyframes twinkle {
-  0%, 100% {
-    opacity: var(--star-base-opacity);
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: calc(var(--star-base-opacity) + 0.4);
-    transform: scale(1.1);
-  }
+.celebration-prompt-text {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.8rem, 4vh, 2.8rem);
+  color: var(--color-warm-beige);
+  text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  font-weight: normal;
+  transition: color 0.5s ease;
 }
 
-@keyframes sway {
-  0%, 100% {
-    transform: rotate(calc(var(--sway-angle-base) * -1deg));
-  }
-  50% {
-    transform: rotate(calc(var(--sway-angle-base) * 1deg * var(--wind-strength-multiplier)));
-  }
+.celebration-prompt-text.make-wish-state {
+  color: var(--color-soft-gold);
+  text-shadow: 0 0 15px rgba(237, 209, 138, 0.4);
+  animation: pulseWishText 2s infinite ease-in-out;
 }
 
-@keyframes envelopeLiftCentred {
-  0% {
-    transform: translate(-50%, -50%) translateY(0);
-  }
-  30% {
-    transform: translate(-50%, -50%) translateY(-15px);
-  }
-  100% {
-    transform: translate(-50%, -50%) translateY(15px) scale(0.92);
-    opacity: 0;
-  }
+/* Handcrafted CSS Birthday Cake Structure */
+.cake-display-rack {
+  position: relative;
+  width: 240px;
+  height: clamp(220px, 40vh, 340px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
-@keyframes sparkleOut {
-  0% {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--dest-x), var(--dest-y)) scale(0);
-    opacity: 0;
-  }
+.cake-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-@keyframes heartFlutter {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-    color: #b5707d;
-  }
+/* Cake Tier Bases */
+.cake-tier {
+  position: relative;
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 0 2px 5px rgba(255,255,255,0.3), 0 5px 15px rgba(0,0,0,0.2);
+  overflow: hidden;
 }
 
-/* V4 Object Animation Sequences */
-@keyframes lanternSway {
-  0% { transform: rotate(-3deg); }
-  100% { transform: rotate(3deg); }
+.bottom-tier {
+  height: 60px;
+  background: linear-gradient(to bottom, #d6cde6, #b0a3c7);
+  width: 180px;
+  z-index: 1;
 }
 
-@keyframes lanternGlowPulse {
-  0% { opacity: 0.7; box-shadow: 0 0 10px 2px rgba(237, 209, 138, 0.6); }
-  100% { opacity: 1; box-shadow: 0 0 22px 6px rgba(237, 209, 138, 0.9); }
+.top-tier {
+  height: 50px;
+  background: linear-gradient(to bottom, var(--color-blush-pink), #e6b1bc);
+  width: 140px;
+  z-index: 2;
+  margin-bottom: -2px;
 }
 
-@keyframes catBreathing {
-  0% { transform: scaleY(0.97); }
-  100% { transform: scaleY(1.03); }
-}
-
-@keyframes catTailWag {
-  0% { transform: rotate(-8deg); }
-  100% { transform: rotate(8deg); }
-}
-
-@keyframes teddyBreathing {
-  0% { transform: scaleY(0.98) scaleX(0.99); }
-  100% { transform: scaleY(1.02) scaleX(1.01); }
-}
-
-@keyframes teddyWave {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-40deg); }
-}
-
-@keyframes giftFloating {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-6px); }
-}
-
-@keyframes giftBounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15) translateY(-8px); }
-}
-
-@keyframes flowerSwaySlow {
-  0% { transform: rotate(-6deg); }
-  100% { transform: rotate(6deg); }
-}
-
-@keyframes confettiExplode {
-  0% {
-    transform: translate3d(0,0,0) rotate(0deg) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(var(--cx), var(--cy), 0) rotate(var(--rot)) scale(0.3);
-    opacity: 0;
-  }
-}
+.layer-stri
