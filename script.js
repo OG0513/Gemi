@@ -1,5 +1,5 @@
 /**
- * Interactive Premium Birthday Experience - Version 5
+ * Interactive Premium Birthday Experience - Version 5 (Fast Emerge & Nested Controls)
  * Core Architecture & Living Environmental Engine
  */
 
@@ -13,7 +13,7 @@ const APP_CONFIG = {
 
 /**
  * High-Performance Environmental Rendering Engine (Canvas)
- * Draws 11 unique flower species scattered along the bottom edge, custom winds sways, 
+ * Draws 11 unique flower species scattered along the bottom edge, detailed branching leaf stems,
  * and floating particles with Day/Night rendering overrides at a stable 60FPS.
  */
 class EnvironmentalEngine {
@@ -94,7 +94,7 @@ class EnvironmentalEngine {
         species: spec,
         angleOffset: Math.random() * Math.PI,
         windPhase: Math.random() * Math.PI,
-        swayRange: 0.03 + Math.random() * 0.03 // Gentle swaying values
+        swayRange: 0.045 + Math.random() * 0.025 // Subtle wind sway Resonant Breeze scale
       });
     });
   }
@@ -130,15 +130,14 @@ class EnvironmentalEngine {
   }
 
   updatePhysics() {
-    // Highly optimized calm wind cycle
-    this.windTime += 0.002; 
+    // Calibrated wind cycle rate
+    this.windTime += 0.003; 
 
     // Update floating light particles
     this.particles.forEach(p => {
       p.y += p.speedY;
       p.x += p.speedX + Math.sin(this.windTime * 0.5 + p.phase) * 0.12; 
       
-      // Wrap smoothly
       if (p.y < -10) {
         p.y = this.canvas.height + 10;
         p.x = Math.random() * this.canvas.width;
@@ -153,18 +152,31 @@ class EnvironmentalEngine {
 
     ctx.clearRect(0, 0, width, height);
 
-    // Render Flowers
+    // Render Flowers with swaying secondary branches
     this.flowers.forEach(f => {
       const windAngle = Math.sin(this.windTime * 1.0 + f.angleOffset) * f.swayRange;
       const topX = f.x + Math.sin(windAngle) * f.h;
       const topY = f.y - Math.cos(windAngle) * f.h;
 
-      // Stem Drawing
+      // Draw Main Stem with realistic sway
       ctx.beginPath();
       ctx.moveTo(f.x, f.y);
-      ctx.quadraticCurveTo(f.x + (topX - f.x) * 0.3, f.y - f.h * 0.5, topX, topY);
+      ctx.quadraticCurveTo(f.x + (topX - f.x) * 0.35, f.y - f.h * 0.5, topX, topY);
       ctx.strokeStyle = this.isNight ? 'rgba(25, 45, 30, 0.65)' : 'rgba(120, 150, 100, 0.65)';
       ctx.lineWidth = f.species.stemThickness;
+      ctx.stroke();
+
+      // Draw branching lateral stems for secondary miniature blossoms (different shapes sways)
+      const branchX = f.x + (topX - f.x) * 0.45;
+      const branchY = f.y - f.h * 0.45;
+      const branchAngle = windAngle + 0.35;
+      const branchLen = f.h * 0.28;
+      const branchTopX = branchX - Math.sin(branchAngle) * branchLen;
+      const branchTopY = branchY - Math.cos(branchAngle) * branchLen;
+
+      ctx.beginPath();
+      ctx.moveTo(branchX, branchY);
+      ctx.quadraticCurveTo(branchX - 10, branchY - branchLen * 0.5, branchTopX, branchTopY);
       ctx.stroke();
 
       // Stem Leaves
@@ -177,58 +189,29 @@ class EnvironmentalEngine {
       // Bloom Color Setting
       const color = this.isNight ? f.species.nightColor : f.species.petalColor;
 
-      // Shadow glow layer for neon mode
+      // Primary Bloom Glow Layer
       if (this.isNight) {
         ctx.save();
         ctx.shadowBlur = 15;
         ctx.shadowColor = color;
       }
 
+      // Draw Primary Bloom Node
       ctx.save();
       ctx.translate(topX, topY);
       ctx.rotate(windAngle);
+      this.drawSpeciesBloom(ctx, f.species.name, f.size, color);
+      ctx.restore();
 
-      // Procedural Drawing Profiles for 11 Unique Species
-      switch(f.species.name) {
-        case 'Rose':
-          this.drawRose(ctx, f.size, color);
-          break;
-        case 'Tulip':
-          this.drawTulip(ctx, f.size, color);
-          break;
-        case 'Lily':
-          this.drawLily(ctx, f.size, color);
-          break;
-        case 'Daisy':
-          this.drawDaisy(ctx, f.size, color);
-          break;
-        case 'Sunflower':
-          this.drawSunflower(ctx, f.size, color);
-          break;
-        case 'Lavender':
-          this.drawLavender(ctx, f.size, color);
-          break;
-        case 'Poppy':
-          this.drawPoppy(ctx, f.size, color);
-          break;
-        case 'Orchid':
-          this.drawOrchid(ctx, f.size, color);
-          break;
-        case 'Cherry Blossom':
-          this.drawCherryBlossom(ctx, f.size, color);
-          break;
-        case 'Bluebell':
-          this.drawBluebell(ctx, f.size, color);
-          break;
-        case 'Wildflower':
-          this.drawWildflower(ctx, f.size, color);
-          break;
-      }
-
+      // Draw Secondary Miniature Bloom Node at Branch Tip
+      ctx.save();
+      ctx.translate(branchTopX, branchTopY);
+      ctx.rotate(branchAngle);
+      this.drawSpeciesBloom(ctx, f.species.name, f.size * 0.6, color);
       ctx.restore();
 
       if (this.isNight) {
-        ctx.restore(); // Restore shadows
+        ctx.restore(); // Restore shadow canvas context state
       }
     });
 
@@ -241,6 +224,22 @@ class EnvironmentalEngine {
         : `rgba(255, 255, 255, ${p.alpha})`;
       ctx.fill();
     });
+  }
+
+  drawSpeciesBloom(ctx, name, size, color) {
+    switch(name) {
+      case 'Rose': this.drawRose(ctx, size, color); break;
+      case 'Tulip': this.drawTulip(ctx, size, color); break;
+      case 'Lily': this.drawLily(ctx, size, color); break;
+      case 'Daisy': this.drawDaisy(ctx, size, color); break;
+      case 'Sunflower': this.drawSunflower(ctx, size, color); break;
+      case 'Lavender': this.drawLavender(ctx, size, color); break;
+      case 'Poppy': this.drawPoppy(ctx, size, color); break;
+      case 'Orchid': this.drawOrchid(ctx, size, color); break;
+      case 'Cherry Blossom': this.drawCherryBlossom(ctx, size, color); break;
+      case 'Bluebell': this.drawBluebell(ctx, size, color); break;
+      case 'Wildflower': this.drawWildflower(ctx, size, color); break;
+    }
   }
 
   /* SPECIES 1: Swirling compact layers */
@@ -266,14 +265,13 @@ class EnvironmentalEngine {
     ctx.closePath();
     ctx.fill();
     
-    // Front overlapping petal
     ctx.beginPath();
     ctx.ellipse(0, -size * 0.4, size * 0.45, size * 0.7, 0, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
   }
 
-  /* SPECIES 3: Outward curving elegant trumpet */
+  /* SPECIES 3: Outward curving trumpet */
   drawLily(ctx, size, color) {
     ctx.fillStyle = color;
     for (let i = 0; i < 3; i++) {
@@ -284,12 +282,11 @@ class EnvironmentalEngine {
       ctx.fill();
       ctx.restore();
     }
-    // Gold stamens
     ctx.fillStyle = '#FFD700';
     ctx.fillRect(-1, -size * 0.2, 2, -size * 0.8);
   }
 
-  /* SPECIES 4: Spoke-like radiating narrow petals */
+  /* SPECIES 4: Radiating narrow petals */
   drawDaisy(ctx, size, color) {
     ctx.fillStyle = color;
     for (let i = 0; i < 8; i++) {
@@ -306,7 +303,7 @@ class EnvironmentalEngine {
     ctx.fill();
   }
 
-  /* SPECIES 5: Large sunflower disc with pointed gold petals */
+  /* SPECIES 5: pointed gold petals */
   drawSunflower(ctx, size, color) {
     ctx.fillStyle = color;
     for (let i = 0; i < 12; i++) {
@@ -323,7 +320,7 @@ class EnvironmentalEngine {
     ctx.fill();
   }
 
-  /* SPECIES 6: Vertical tiny stacked nodes */
+  /* SPECIES 6: Stacked buds */
   drawLavender(ctx, size, color) {
     ctx.fillStyle = color;
     for (let i = 0; i < 5; i++) {
@@ -334,7 +331,7 @@ class EnvironmentalEngine {
     }
   }
 
-  /* SPECIES 7: Floppy paper-thin red petals */
+  /* SPECIES 7: Paper-thin wide petals */
   drawPoppy(ctx, size, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
@@ -347,22 +344,20 @@ class EnvironmentalEngine {
     ctx.fill();
   }
 
-  /* SPECIES 8: Asymmetric landing lip orchid */
+  /* SPECIES 8: Orchid lip */
   drawOrchid(ctx, size, color) {
     ctx.fillStyle = color;
-    // Wing petals
     ctx.beginPath();
     ctx.ellipse(-size * 0.8, -size * 0.3, size * 0.7, size * 0.5, -0.4, 0, Math.PI * 2);
     ctx.ellipse(size * 0.8, -size * 0.3, size * 0.7, size * 0.5, 0.4, 0, Math.PI * 2);
     ctx.fill();
-    // Landing lip
     ctx.beginPath();
     ctx.arc(0, size * 0.4, size * 0.6, 0, Math.PI * 2);
     ctx.fillStyle = '#E040FB';
     ctx.fill();
   }
 
-  /* SPECIES 9: Five delicate notched petals */
+  /* SPECIES 9: Notched petals */
   drawCherryBlossom(ctx, size, color) {
     ctx.fillStyle = color;
     for (let i = 0; i < 5; i++) {
@@ -371,7 +366,7 @@ class EnvironmentalEngine {
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(-size * 0.5, -size * 1.1);
-      ctx.lineTo(0, -size * 0.8); // Center notch
+      ctx.lineTo(0, -size * 0.8);
       ctx.lineTo(size * 0.5, -size * 1.1);
       ctx.closePath();
       ctx.fill();
@@ -379,19 +374,19 @@ class EnvironmentalEngine {
     }
   }
 
-  /* SPECIES 10: Drooping bell shaped capsules */
+  /* SPECIES 10: Drooping blue bell shaped capsules */
   drawBluebell(ctx, size, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(0, -size * 0.3, size * 0.65, Math.PI, 0, false);
     ctx.lineTo(size * 0.4, size * 0.3);
-    ctx.lineTo(0, size * 0.05); // center bell ridge
+    ctx.lineTo(0, size * 0.05);
     ctx.lineTo(-size * 0.4, size * 0.3);
     ctx.closePath();
     ctx.fill();
   }
 
-  /* SPECIES 11: Multi-branching tiny stars */
+  /* SPECIES 11: branching tiny stars */
   drawWildflower(ctx, size, color) {
     ctx.fillStyle = color;
     for (let i = 0; i < 4; i++) {
@@ -530,8 +525,7 @@ class Loader {
 
 /**
  * Interactive Birthday Card Scene Controller
- * Manages Envelope unfolding, sliding translation vector animations, and book folds
- * AUTOMATED PRECISE REALISTIC SEQUENCE (VERSION 5)
+ * FAST AUTOMATED TIMELINE SEQUENCE (VERSION 5 UPGRADED FOR SNAP OUT OF ENVELOPE)
  */
 class InteractiveCardController {
   constructor(sceneManager) {
@@ -555,7 +549,7 @@ class InteractiveCardController {
   }
 
   bindEvents() {
-    // Single Tap Event triggers the highly realistic automated cinematic sequence
+    // Single Tap Event triggers the snappy automated cinematic sequence
     this.envelope.addEventListener('click', (e) => {
       if (!this.isInteracting) {
         this.startCinematicSequence();
@@ -565,58 +559,51 @@ class InteractiveCardController {
   }
 
   /**
-   * Version 5: Realistic weight and automated timeline sequence
-   * Envelope Opens -> Card slides halfway -> Card rises completely -> Card Unfolds -> Message visible -> Next Button
+   * Snappy automated sequence timeline
+   * Tap envelope -> quick wiggle (150ms) -> flap opens fast -> smooth rapid slide-up -> unfolds instantly -> message & nested proceed button visible
    */
   startCinematicSequence() {
     this.isInteracting = true;
     this.envelope.classList.remove('floating-envelope'); // Freeze floating loop
     
-    // 1. Tapped Settle/Wiggle Feedback (300ms)
+    // 1. Snappy Wiggle Feedback (150ms)
     this.envelope.classList.add('shake-react');
-    this.hintText.textContent = 'Opening Envelope...';
+    this.hintText.textContent = 'Opening...';
 
     setTimeout(() => {
       this.envelope.classList.remove('shake-react');
       
-      // 2. Rotate envelope flap (800ms)
+      // 2. Open flap fast
       this.isEnvelopeOpen = true;
       this.envelope.classList.add('open');
       
       setTimeout(() => {
-        // 3. Card slides halfway upward and pauses (1000ms)
-        this.envelope.classList.add('emerge-half');
-        
+        // 3. Fast Emerge: Smooth rapid slide-up fully (skip long middle pause states)
+        this.isCardEmerged = true;
+        this.envelope.classList.add('emerge-full');
+        this.envelope.classList.add('dimmed');
+        this.hintText.textContent = '';
+
         setTimeout(() => {
-          // 4. Card rises completely; envelope dims down (1000ms)
-          this.isCardEmerged = true;
-          this.envelope.classList.remove('emerge-half');
-          this.envelope.classList.add('emerge-full');
-          this.envelope.classList.add('dimmed');
-          this.hintText.textContent = 'Unfolding Greeting Card...';
-
+          // 4. Unfolds cover left like a book immediately (400ms transition)
+          this.isCardOpened = true;
+          this.cardBook.classList.add('opened');
+          
           setTimeout(() => {
-            // 5. Unfolds cover left like a book (1500ms)
-            this.isCardOpened = true;
-            this.cardBook.classList.add('opened');
-            
-            setTimeout(() => {
-              // 6. Message inside becomes visible (600ms)
-              this.innerContent.classList.add('visible');
-              this.hintText.textContent = '';
+            // 5. Message inside becomes visible
+            this.innerContent.classList.add('visible');
 
+            setTimeout(() => {
+              // 6. Premium Circular Proceed Button fades in within Card Page layout
+              this.nextButton.classList.add('visible');
               setTimeout(() => {
-                // 7. Premium Navigation circular button fades in with idle hover loop active
-                this.nextButton.classList.add('visible');
-                setTimeout(() => {
-                  this.nextButton.classList.add('floating-btn');
-                }, 600);
-              }, 600);
-            }, 1200);
-          }, 1200);
-        }, 1200);
-      }, 900);
-    }, 300);
+                this.nextButton.classList.add('floating-btn');
+              }, 400);
+            }, 400);
+          }, 450);
+        }, 650);
+      }, 350);
+    }, 150);
   }
 
   /**
