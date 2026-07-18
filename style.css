@@ -8,8 +8,10 @@
   --bg-primary-3: #FFF6FB;
   --bg-primary-4: #FDF9FF;
   
-  --sky-blue-light: #EBF3FC;
-  --horizon-cream: #FFF5EC;
+  /* Rich Cinematic Environment sky-to-ground transition variables */
+  --sky-blue-light: #A3C9E8;
+  --meadow-green-light: #D5EBD3;
+  --meadow-green-rich: #A0C695;
 
   /* Luxury Gold Details */
   --gold-primary: #c5a059;
@@ -72,7 +74,7 @@ html, body {
 }
 
 /* ==========================================================================
-   2. PERSISTENT LIGHT ENVIRONMENTAL CANVAS LAYOUT
+   2. PERSISTENT SKY-TO-GROUND GRADIENT SYSTEM
    ========================================================================== */
 .ambient-background {
   position: fixed;
@@ -82,7 +84,8 @@ html, body {
   height: 100vh;
   z-index: 1;
   overflow: hidden;
-  background: linear-gradient(180deg, var(--sky-blue-light) 0%, var(--horizon-cream) 60%, var(--bg-primary-1) 100%);
+  /* Perfect transition from radiant sky blue to warm meadow green */
+  background: linear-gradient(180deg, var(--sky-blue-light) 0%, var(--meadow-green-light) 65%, var(--meadow-green-rich) 100%);
 }
 
 .gradient-overlay {
@@ -91,7 +94,7 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 10% 20%, rgba(255, 253, 248, 0.5) 0%, rgba(255, 248, 242, 0.8) 90%);
+  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 248, 242, 0.4) 90%);
   pointer-events: none;
 }
 
@@ -125,7 +128,7 @@ html, body {
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.35;
+  opacity: 0.25;
   pointer-events: none;
 }
 
@@ -153,7 +156,7 @@ html, body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .cloud {
@@ -777,57 +780,11 @@ html, body {
 }
 
 /* ==========================================================================
-   9. SCENE 4: MINIMAL NARRATIVE PANEL (THE OUTDOOR GARDEN EXPANSION)
-   ========================================================================== */
-.glass-card-mini {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.35) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: 0 20px 45px rgba(142, 134, 122, 0.06);
-  width: 90%;
-  max-width: 440px;
-  text-align: center;
-  position: relative;
-  z-index: 10;
-}
-
-.garden-narrative-panel {
-  position: absolute;
-  bottom: 12vh; /* Sits elegantly above bottom grass layouts */
-  left: 5%;
-}
-
-.mini-title {
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  font-weight: 400;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-
-.mini-text {
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  line-height: 1.75;
-  color: var(--text-muted);
-}
-
-/* ==========================================================================
-   10. RESPONSIVE COMPATIBILITY MATRIX
+   9. RESPONSIVE COMPATIBILITY MATRIX
    ========================================================================== */
 @media (max-width: 768px) {
   .stage-3d {
     transform: scale(0.85);
-  }
-
-  .garden-narrative-panel {
-    bottom: 15vh;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
   }
 
   .btn-circular-next {
@@ -850,10 +807,5 @@ html, body {
   
   .stage-3d {
     transform: scale(0.55);
-  }
-
-  .garden-narrative-panel {
-    padding: 20px;
-    bottom: 12vh;
   }
 }
