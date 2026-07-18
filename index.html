@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <!-- Google Fonts for Elegant Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -65,18 +65,97 @@
       </div>
     </section>
 
+    <!-- SCENE 3: INTERACTIVE BIRTHDAY CARD SCREEN -->
+    <section id="scene-card" class="scene hidden">
+      <div class="card-scene-container">
+        <!-- Interactive Helper Instruction Hint -->
+        <div class="interaction-hint" id="card-interaction-hint">Click the Envelope to open</div>
+
+        <!-- 3D Card and Envelope Stage -->
+        <div class="stage-3d">
+          
+          <!-- Envelope Container -->
+          <div class="envelope-wrapper" id="envelope-wrapper">
+            <div class="envelope-back"></div>
+            
+            <!-- Hidden sliding Birthday Card (emerges inside the envelope) -->
+            <div class="card-3d-wrapper" id="birthday-card-wrapper">
+              <div class="card-book" id="card-book">
+                <!-- Cover Face of Greeting Card -->
+                <div class="card-cover-container" id="card-cover-container">
+                  <div class="card-page card-cover-front">
+                    <div class="card-cover-design">
+                      <div class="foil-border"></div>
+                      <span class="cover-accent">For You</span>
+                      <div class="gold-embellishment">✿</div>
+                      <span class="cover-instruction">Click to Open Card</span>
+                    </div>
+                  </div>
+                  <div class="card-page card-cover-back">
+                    <div class="inside-left-design">
+                      <div class="decorative-pattern"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Stationary Inside Right Page -->
+                <div class="card-page card-inside-right">
+                  <div class="inside-right-content">
+                    <span class="card-cursive-header">Happy Birthday</span>
+                    <h2 class="recipient-name">Dearest Sarah</h2>
+                    <div class="message-divider">✦</div>
+                    <p class="personal-message">
+                      May your year be filled with beautiful moments, silent peace, and dynamic joy. Today is a celebration of the incredible light you bring into this world.
+                    </p>
+                    <span class="signature">With love & admiration</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Front Envelope Overlays -->
+            <div class="envelope-front-pocket"></div>
+            <div class="envelope-flap" id="envelope-flap">
+              <div class="envelope-flap-inner"></div>
+              <div class="wax-seal" id="wax-seal">
+                <span class="seal-logo">✦</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Hidden navigation control, appears after card opens fully -->
+        <button id="btn-next-scene" class="btn-circular-next hidden">
+          <span class="arrow-icon">→</span>
+          <span class="btn-pulse"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SCENE 4: GARDEN (V2 Placeholder) -->
+    <section id="scene-garden" class="scene hidden">
+      <div class="glass-card garden-placeholder-card">
+        <div class="card-accent-line"></div>
+        <div class="card-header">
+          <span class="subtitle">Next Destination</span>
+          <h1 class="main-title">The Enchanted Garden</h1>
+        </div>
+        <div class="card-body">
+          <p class="welcome-text">
+            The next chapter of your celebration unfolds in the garden. This space is currently under architectural curation and will bloom fully in Version 3.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- FUTURE SCENES PLACEHOLDER HOOKS (Preserved structure for future versions) -->
-    <!-- Scene 3: Birthday Card (Hidden in V1) -->
-    <section id="scene-card" class="scene hidden"></section>
-    <!-- Scene 4: Garden (Hidden in V1) -->
-    <section id="scene-garden" class="scene hidden"></section>
-    <!-- Scene 5: Gift (Hidden in V1) -->
+    <!-- Scene 5: Gift (Hidden in V2) -->
     <section id="scene-gift" class="scene hidden"></section>
-    <!-- Scene 6: Cake (Hidden in V1) -->
+    <!-- Scene 6: Cake (Hidden in V2) -->
     <section id="scene-cake" class="scene hidden"></section>
-    <!-- Scene 7: Celebration (Hidden in V1) -->
+    <!-- Scene 7: Celebration (Hidden in V2) -->
     <section id="scene-celebration" class="scene hidden"></section>
-    <!-- Scene 8: Final Wish (Hidden in V1) -->
+    <!-- Scene 8: Final Wish (Hidden in V2) -->
     <section id="scene-wish" class="scene hidden"></section>
 
   </main>
