@@ -1,15 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A calm, magical moonlit garden scene with interactive objects, a centered envelope, and a memory gallery.">
-  <title>A Quiet Evening | Version 4 (Interactive Edition)</title>
+  <meta name="description" content="A calm, magical moonlit garden scene with interactive objects, a centered envelope, memory gallery, wish tree, and cake celebration.">
+  <title>A Quiet Evening | Version 5 (Celebration Edition)</title>
   
   <!-- Typography Setup -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Sacramento&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
   
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
@@ -70,7 +71,7 @@
       <div class="flower-field" id="flower-field"></div>
 
       <!-- V4 Interactive Objects Integrated Into Garden Scene -->
-      <div class="interactive-objects-layer">
+      <div class="interactive-objects-layer" id="interactive-objects-layer">
         
         <!-- 1. Standing Glowing Lantern -->
         <div id="obj-lantern" class="interactive-object obj-lantern" role="button" tabindex="0" aria-label="Warm Glowing Lantern">
@@ -157,7 +158,7 @@
       </div>
     </div>
 
-    <!-- Centered Envelope Layer (Focal Point of the entire garden) -->
+    <!-- Centered Envelope Layer -->
     <div id="envelope-wrapper" class="envelope-container" role="button" tabindex="0" aria-label="Open the handcrafted envelope">
       <div class="envelope">
         <div class="envelope-back"></div>
@@ -206,7 +207,7 @@
           <p class="gallery-subtitle">A collection of shared memories</p>
         </header>
 
-        <!-- Overlapping Scrapbook collage space -->
+        <!-- Scrapbook collage space -->
         <div class="gallery-collage">
           
           <!-- Polaroid Photo 1 -->
@@ -272,12 +273,80 @@
         </div>
 
         <footer class="gallery-footer">
-          <p class="gallery-footer-text">More beautiful moments to come...</p>
+          <!-- Continue button leads into V5 Wish Tree growth cycle -->
+          <button id="btn-to-tree" class="btn-continue" aria-label="Go to the magical wish tree">
+            <span>Sow a Wish</span>
+            <span class="arrow">→</span>
+          </button>
         </footer>
       </div>
     </div>
 
-    <!-- Active interactive anchor for system generated elements -->
+    <!-- V5 Magical Wish Tree Interface Layer -->
+    <div id="wish-tree-overlay" class="wish-tree-overlay" aria-hidden="true">
+      <div class="tree-stage-wrapper">
+        <header class="tree-header">
+          <h2 class="tree-title">The Wish Tree</h2>
+          <p class="tree-subtitle" id="tree-progress-text">Click the dormant sprout to sow a wish...</p>
+        </header>
+
+        <!-- Pure CSS Crafted Scalable Wish Tree -->
+        <div id="wish-tree" class="wish-tree stage-0" role="button" tabindex="0" aria-label="Growth Wish Tree">
+          <div class="tree-trunk">
+            <div class="tree-branch branch-left"></div>
+            <div class="tree-branch branch-right"></div>
+            <div class="tree-branch branch-top"></div>
+          </div>
+          <div class="tree-leaf-cluster-group" id="tree-leaves-container"></div>
+          <div class="tree-fairy-lights" id="tree-lights-container"></div>
+          <div class="tree-butterflies" id="tree-butterflies-container"></div>
+        </div>
+
+        <div class="tree-click-prompt" id="tree-click-prompt">Click to nurture the tree ✨</div>
+      </div>
+    </div>
+
+    <!-- V5 Birthday Cake Celebration View Layer -->
+    <div id="cake-celebration-overlay" class="cake-celebration-overlay" aria-hidden="true">
+      <div class="cake-stage-wrapper">
+        <header class="celebration-header">
+          <h2 id="celebration-prompt-text" class="celebration-prompt-text">Tap each candle to light them...</h2>
+        </header>
+
+        <!-- Handcrafted CSS Birthday Cake (No External Asset dependencies) -->
+        <div class="cake-display-rack" id="cake-rack">
+          <div class="cake-wrapper">
+            <!-- Dynamically injected candle row holds interactive flickering candle elements -->
+            <div class="cake-candles-row" id="cake-candles-row"></div>
+            
+            <div class="cake-top-frosting">
+              <div class="icing-dripping"></div>
+              <div class="icing-dripping"></div>
+              <div class="icing-dripping"></div>
+              <div class="icing-dripping"></div>
+              <div class="icing-dripping"></div>
+            </div>
+            
+            <div class="cake-tier top-tier">
+              <div class="layer-stripes"></div>
+              <div class="cake-sugar-rose left"></div>
+              <div class="cake-sugar-rose right"></div>
+            </div>
+            
+            <div class="cake-tier bottom-tier">
+              <div class="layer-stripes"></div>
+              <div class="layer-stripes-back"></div>
+            </div>
+            
+            <div class="cake-pedestal"></div>
+            <div class="cake-stand-pole"></div>
+            <div class="cake-stand-base"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Sparkle and Confetti system overlay -->
     <div id="interactive-anchor" class="interactive-overlay"></div>
 
     <!-- Glassmorphic Global Speech / Message Card -->
