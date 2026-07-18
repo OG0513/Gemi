@@ -23,7 +23,7 @@
   --font-handwritten: 'Sacramento', cursive;
   --font-elegant: 'Montserrat', sans-serif;
   
-  /* Dynamic Wind Defaults (Controlled by JS Wind Engine) */
+  /* Dynamic Wind Defaults */
   --wind-strength-multiplier: 1;
   --wind-base-duration: 4s;
 }
@@ -157,6 +157,14 @@ html, body {
   pointer-events: auto;
 }
 
+/* Optimized dimmer override for scrolling memory scrapbook */
+.scene-dimmer.dimmed-timeline {
+  opacity: 0.85;
+  background-color: rgba(3, 7, 18, 0.7);
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+}
+
 /* ==========================================================================
    Main Scene Layout
    ========================================================================== */
@@ -210,7 +218,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Moon
+   V3 Enhanced Realistic Moon
    ========================================================================== */
 .moon-layer {
   z-index: 3;
@@ -228,32 +236,54 @@ html, body {
   width: 100%;
   height: 100%;
   background: radial-gradient(
-    circle at 35% 35%,
-    #fffdf4 0%,
-    #fcf6e2 40%,
-    #ebd9af 80%,
-    #dfc894 100%
+    circle at 30% 30%,
+    #ffffff 0%,
+    #fefbf0 30%,
+    #ebd9af 75%,
+    #d8bfa2 100%
   );
   border-radius: 50%;
-  box-shadow: 
-    0 0 45px 10px rgba(253, 251, 247, 0.45),
-    0 0 90px 25px rgba(253, 251, 247, 0.2);
   position: relative;
   overflow: hidden;
-  animation: moonPulse 8s ease-in-out infinite;
+  box-shadow: 
+    inset -10px -10px 25px rgba(0, 0, 0, 0.15),
+    inset 10px 10px 20px rgba(255, 255, 255, 0.5);
+  animation: moonBreathingGlow 12s ease-in-out infinite;
 }
 
+/* High-fidelity surface details */
 .moon-texture {
   position: absolute;
   width: 100%;
   height: 100%;
-  opacity: 0.12;
+  opacity: 0.18;
   mix-blend-mode: multiply;
   background-image: 
-    radial-gradient(circle at 70% 30%, #5d5236 0%, transparent 20%),
-    radial-gradient(circle at 50% 65%, #5d5236 0%, transparent 25%),
-    radial-gradient(circle at 25% 45%, #5d5236 0%, transparent 15%),
-    radial-gradient(circle at 60% 80%, #5d5236 0%, transparent 18%);
+    radial-gradient(circle at 60% 20%, #7d6b4a 0%, transparent 25%),
+    radial-gradient(circle at 80% 55%, #7d6b4a 0%, transparent 20%),
+    radial-gradient(circle at 40% 75%, #7d6b4a 0%, transparent 35%);
+}
+
+.moon-crater {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.12), 
+    inset -1px -1px 2px rgba(255, 255, 255, 0.25);
+  opacity: 0.45;
+}
+
+.moon-glow-ring {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 251, 247, 0.3) 0%, rgba(254, 251, 247, 0) 70%);
+  pointer-events: none;
+  mix-blend-mode: screen;
 }
 
 /* ==========================================================================
@@ -278,6 +308,7 @@ html, body {
   z-index: 6;
   height: 40vh;
   top: 60vh;
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .meadow-ground {
@@ -373,7 +404,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Interactive Envelope (V2)
+   Interactive Envelope
    ========================================================================== */
 .envelope-container {
   position: absolute;
@@ -386,6 +417,7 @@ html, body {
   z-index: 10;
   pointer-events: auto;
   perspective: 800px;
+  transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .envelope {
@@ -403,7 +435,6 @@ html, body {
   transform: translateY(-8px) rotateX(10deg);
 }
 
-/* Flaps drawn via elegant clip-paths instead of heavy images */
 .envelope-top-flap {
   position: absolute;
   top: 0;
@@ -460,7 +491,6 @@ html, body {
   z-index: 1;
 }
 
-/* Sneak peek of paper inside envelope */
 .paper-preview {
   position: absolute;
   top: 15%;
@@ -502,7 +532,6 @@ html, body {
   opacity: 0.6;
 }
 
-/* Interactive Open Sequence States */
 .envelope-container.active-opening {
   pointer-events: none;
   animation: envelopeLift 1.2s forwards cubic-bezier(0.25, 1, 0.5, 1);
@@ -519,7 +548,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Unfolded Letter Panel Overlay (V2)
+   Unfolded Letter Panel Overlay
    ========================================================================== */
 .letter-overlay {
   position: fixed;
@@ -532,6 +561,7 @@ html, body {
   justify-content: center;
   align-items: center;
   pointer-events: none;
+  transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .letter-overlay.visible {
@@ -566,7 +596,6 @@ html, body {
   flex-grow: 1;
   overflow-y: auto;
   padding-right: 10px;
-  /* Custom thin elegant scrollbar */
   scrollbar-width: thin;
   scrollbar-color: rgba(0,0,0,0.1) transparent;
 }
@@ -580,7 +609,6 @@ html, body {
   border-radius: 4px;
 }
 
-/* Letter Typography & Accents */
 .letter-paragraph {
   font-family: var(--font-handwritten);
   font-size: clamp(1.4rem, 2.5vw, 1.8rem);
@@ -621,7 +649,6 @@ html, body {
   animation: heartFlutter 1.5s ease-in-out infinite;
 }
 
-/* Beautiful Doodles Frame */
 .letter-doodle {
   text-align: center;
   color: var(--color-sage-green);
@@ -638,7 +665,6 @@ html, body {
   margin-top: 0.8rem;
 }
 
-/* Action Trigger Button */
 .btn-continue {
   display: flex;
   align-items: center;
@@ -687,6 +713,348 @@ html, body {
 }
 
 /* ==========================================================================
+   V3 Scrapbook Memory Timeline
+   ========================================================================== */
+.timeline-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  overflow-y: auto;
+  padding: 3vh 1rem 15vh 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 30px, 0);
+  transition: opacity 1.8s cubic-bezier(0.25, 1, 0.5, 1), transform 1.8s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(237, 209, 138, 0.15) transparent;
+}
+
+.timeline-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  background-color: rgba(237, 209, 138, 0.2);
+  border-radius: 4px;
+}
+
+.timeline-container.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+}
+
+.timeline-scroll-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timeline-header {
+  text-align: center;
+  margin-bottom: clamp(4rem, 10vh, 7rem);
+  z-index: 2;
+}
+
+.timeline-title {
+  font-family: var(--font-handwritten);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  color: var(--color-warm-beige);
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  font-weight: normal;
+  margin-bottom: 0.8rem;
+}
+
+.timeline-subtitle {
+  font-family: var(--font-elegant);
+  font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+  color: var(--color-sage-green);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.8;
+}
+
+/* Faint connecting string for scrapbook scrap aesthetics */
+.timeline-hanging-guide {
+  position: absolute;
+  top: 100px;
+  bottom: 50px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(237, 209, 138, 0.05) 0%,
+    rgba(237, 209, 138, 0.2) 20%,
+    rgba(237, 209, 138, 0.2) 80%,
+    rgba(237, 209, 138, 0.05) 100%
+  );
+  z-index: 1;
+}
+
+.timeline-items {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4rem, 12vh, 8rem);
+  z-index: 2;
+}
+
+/* Base reveal layout defaults for scroll triggers */
+.timeline-item {
+  width: min(100%, 380px);
+  opacity: 0;
+  transform: translate3d(0, 45px, 0) scale(0.92) rotate(var(--rotation-offset, 0deg));
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.2s ease;
+  will-change: transform, opacity;
+}
+
+/* Alternate positioning offset loops */
+.timeline-item:nth-child(even) {
+  align-self: flex-end;
+}
+
+.timeline-item:nth-child(odd) {
+  align-self: flex-start;
+}
+
+/* Overriding positioning details on tight responsive screens */
+@media (max-width: 580px) {
+  .timeline-item {
+    align-self: center !important;
+  }
+}
+
+.timeline-item.revealed-node {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1) rotate(var(--rotation-offset, 0deg));
+}
+
+/* 1. Polaroid Scrapbook Theme */
+.memory-polaroid .polaroid-wrapper {
+  background-color: var(--color-cream);
+  padding: 12px 12px 30px 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+  border-radius: 1px;
+}
+
+.polaroid-image-placeholder {
+  width: 100%;
+  height: 240px;
+  border-radius: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.img-grad-1 {
+  background: linear-gradient(135deg, #dfdaf1 0%, #f2d5dc 100%);
+}
+
+.polaroid-decor {
+  font-size: 2rem;
+  opacity: 0.45;
+  animation: heartFlutter 3s infinite ease-in-out;
+}
+
+.polaroid-caption {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+  color: #4a3f35;
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* 2. Sticky Note Scrapbook Theme */
+.memory-sticky .sticky-wrapper {
+  position: relative;
+}
+
+.sticky-pin {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-15deg);
+  font-size: 1.5rem;
+  z-index: 3;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+}
+
+.sticky-note-paper {
+  background: radial-gradient(circle at top right, #fdf6cc 0%, #f7ea9b 100%);
+  padding: 24px;
+  box-shadow: 3px 12px 25px rgba(0, 0, 0, 0.25);
+  transform: rotate(-1deg);
+  border-radius: 1px;
+}
+
+.sticky-text {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.3rem, 3.2vw, 1.6rem);
+  line-height: 1.5;
+  color: #473e1c;
+}
+
+.sticky-footer {
+  display: block;
+  text-align: right;
+  font-family: var(--font-handwritten);
+  font-size: 1.2rem;
+  color: #7a6e3c;
+  margin-top: 10px;
+}
+
+/* 3. Postcard Scrapbook Theme */
+.memory-postcard .postcard-wrapper {
+  background: #fdfaf4;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+  position: relative;
+  border-radius: 2px;
+}
+
+.postcard-stamp {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 1.8rem;
+  color: var(--color-sage-green);
+  opacity: 0.45;
+  border: 1px dashed rgba(0,0,0,0.15);
+  padding: 2px 6px;
+  transform: rotate(5deg);
+}
+
+.postcard-body {
+  display: flex;
+  gap: 15px;
+  min-height: 150px;
+}
+
+.postcard-left {
+  flex: 1.3;
+}
+
+.postcard-text {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.15rem, 3vw, 1.4rem);
+  line-height: 1.4;
+  color: #5c5243;
+}
+
+.postcard-divider {
+  width: 1px;
+  background-color: rgba(0,0,0,0.08);
+}
+
+.postcard-right {
+  flex: 0.7;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.postcard-address-line {
+  height: 1px;
+  background-color: rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+/* 4. Ticket Stub Theme */
+.memory-ticket .ticket-wrapper {
+  position: relative;
+  background: linear-gradient(135deg, #fcead2 0%, #ecd0a1 100%);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+  border-radius: 4px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.ticket-notch {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: #0d172e; /* Matches overlay atmosphere shade directly */
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.ticket-notch.left {
+  left: -8px;
+}
+
+.ticket-notch.right {
+  right: -8px;
+}
+
+.ticket-inner {
+  border: 1px dashed rgba(92, 75, 55, 0.3);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ticket-heading {
+  font-family: var(--font-elegant);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #705b3e;
+}
+
+.ticket-content {
+  margin: 5px 0;
+}
+
+.ticket-title {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.5rem, 3.5vw, 1.9rem);
+  color: #4a3b25;
+}
+
+.ticket-meta {
+  font-family: var(--font-elegant);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: #856f4e;
+  margin-top: 4px;
+}
+
+.ticket-barcode {
+  text-align: center;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: rgba(74, 59, 37, 0.65);
+  letter-spacing: 2px;
+}
+
+/* Timeline Footer */
+.timeline-footer {
+  margin-top: clamp(4rem, 10vh, 7rem);
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+.timeline-footer-text {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  color: var(--color-warm-beige);
+  opacity: 0.5;
+}
+
+/* ==========================================================================
    Fireflies (JS Rendered)
    ========================================================================== */
 .firefly-container {
@@ -719,7 +1087,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Sparkles Generator System (V2)
+   Sparkles Generator System
    ========================================================================== */
 .sparkle {
   position: absolute;
@@ -789,16 +1157,20 @@ html, body {
   }
 }
 
-@keyframes moonPulse {
+@keyframes moonBreathingGlow {
   0%, 100% {
     box-shadow: 
-      0 0 45px 10px rgba(253, 251, 247, 0.45),
-      0 0 90px 25px rgba(253, 251, 247, 0.2);
+      inset -10px -10px 25px rgba(0, 0, 0, 0.15),
+      inset 10px 10px 20px rgba(255, 255, 255, 0.5),
+      0 0 45px 5px rgba(254, 251, 247, 0.35),
+      0 0 90px 15px rgba(254, 251, 247, 0.15);
   }
   50% {
     box-shadow: 
-      0 0 55px 15px rgba(253, 251, 247, 0.55),
-      0 0 110px 35px rgba(253, 251, 247, 0.35);
+      inset -10px -10px 25px rgba(0, 0, 0, 0.15),
+      inset 10px 10px 20px rgba(255, 255, 255, 0.5),
+      0 0 65px 12px rgba(254, 251, 247, 0.5),
+      0 0 130px 25px rgba(254, 251, 247, 0.25);
   }
 }
 
