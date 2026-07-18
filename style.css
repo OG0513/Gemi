@@ -1,1112 +1,473 @@
 /* ==========================================================================
-   1. VARIABLES & RESET (REDESIGNED FOR DAY/NIGHT TRANSITIONS & GPU PERFORMANCE)
+   Variables & Theme Setup
    ========================================================================== */
 :root {
-  /* Day Mode Environments (Default) */
-  --sky-top: #A3C9E8;
-  --sky-mid-high: #D2F1F7;
-  --sky-mid: #FFF3E3;
-  --meadow-mid-low: #C8E7B5;
-  --meadow-bottom: #9BC785;
-
-  /* Luxury Gold Details */
-  --gold-primary: #c5a059;
-  --gold-secondary: #967438;
-  --gold-light: #f7edd6;
-  --gold-glow-shadow: rgba(197, 160, 89, 0.05);
-
-  /* Refined Typography Gray Tones (Day Mode) */
-  --text-primary: #2F2F35;
-  --text-muted: #55545A;
-  --text-dim: rgba(47, 47, 53, 0.4);
-
-  /* Optimized Mobile backdrop filters to mitigate layout lag */
-  --glass-bg: rgba(255, 255, 255, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-border-hover: rgba(197, 160, 89, 0.3);
-  --glass-shadow: rgba(142, 134, 122, 0.04);
-
-  /* Pastel Luxe Accents */
-  --blush-pink: #f4dcd6;
-  --soft-peach: #fcece7;
-  --lavender-light: #f3effc;
-  --rose-gold: #e2b4bd;
-
-  /* Fonts */
-  --font-serif: 'Cinzel', Georgia, serif;
-  --font-sans: 'Montserrat', sans-serif;
-  --font-script: 'Playfair Display', Georgia, serif;
-
-  /* Cinematic Scene Transitions */
-  --transition-lens: 1.8s cubic-bezier(0.25, 1, 0.22, 1);
-  --transition-medium: 0.6s cubic-bezier(0.25, 1, 0.3, 1);
-  --transition-fast: 0.25s cubic-bezier(0.25, 1, 0.3, 1);
+  /* Ambient Color Palette */
+  --color-sky-top: #050a18;
+  --color-sky-mid: #0b1532;
+  --color-sky-bot: #162447;
+  --color-meadow-blend: #101c36;
   
-  /* Envelope/Card Structural Styling */
-  --envelope-outer: #f3e6dd;
-  --envelope-inner: #fbf9f6;
-  --envelope-pocket: #ebdcd2;
-  --envelope-shadow: rgba(165, 155, 145, 0.12);
-  --paper-cream: #fdfcf9;
-  --paper-border: #f2ebd9;
-
-  /* Day Mode Glossy Card Gradients */
-  --card-grad-start: rgba(254, 230, 232, 0.88);
-  --card-grad-mid: rgba(247, 215, 219, 0.88);
-  --card-grad-end: rgba(253, 232, 215, 0.88);
-  --card-border-luxe: rgba(255, 255, 255, 0.6);
-  --card-shadow-luxe: rgba(165, 155, 145, 0.08);
+  --color-cream: #fdfbf7;
+  --color-warm-beige: #f3ebd9;
+  --color-lavender: #dfdaf1;
+  --color-blush-pink: #f2d5dc;
+  --color-baby-blue: #d2e4f1;
+  --color-sage-green: #b2c29c;
+  --color-muted-green: #4a5c3d;
+  --color-dark-green: #25331a;
+  --color-soft-gold: #edd18a;
+  
+  /* Typography */
+  --font-handwritten: 'Sacramento', cursive;
+  --font-elegant: 'Montserrat', sans-serif;
+  
+  /* Dynamic Wind Defaults (Controlled by JS Wind Engine) */
+  --wind-strength-multiplier: 1;
+  --wind-base-duration: 4s;
 }
 
-/* Night Mode Global Override Variables */
-body.night-mode {
-  --sky-top: #080B1E;
-  --sky-mid-high: #121535;
-  --sky-mid: #221C3D;
-  --meadow-mid-low: #13261F;
-  --meadow-bottom: #0A1713;
-
-  --text-primary: #F3ECF8;
-  --text-muted: #BCB9C4;
-  --text-dim: rgba(243, 236, 248, 0.4);
-
-  --glass-bg: rgba(25, 22, 43, 0.55);
-  --glass-border: rgba(183, 143, 255, 0.25);
-  --glass-border-hover: rgba(183, 143, 255, 0.4);
-  --glass-shadow: rgba(0, 0, 0, 0.35);
-
-  /* Night Mode Glossy Card Gradients */
-  --card-grad-start: rgba(34, 18, 48, 0.92);
-  --card-grad-mid: rgba(74, 21, 75, 0.92);
-  --card-grad-end: rgba(26, 16, 60, 0.92);
-  --card-border-luxe: rgba(183, 143, 255, 0.35);
-  --card-shadow-luxe: rgba(0, 0, 0, 0.3);
-}
-
-* {
+/* ==========================================================================
+   Reset & Accessibility
+   ========================================================================== */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Prevent scrolling strictly */
-  background-color: var(--sky-top);
-  font-family: var(--font-sans);
-  color: var(--text-primary);
+  overflow: hidden;
+  background-color: var(--color-sky-top);
+  font-family: var(--font-elegant);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Accessibility settings for users preferring reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ==========================================================================
-   2. SEAMLESS PERSISTENT ENVIRONMENTAL BACKGROUND
+   Loading Screen
    ========================================================================== */
-.ambient-background {
+.loading-screen {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, var(--color-sky-mid) 0%, var(--color-sky-top) 100%);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loader-bg-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
   overflow: hidden;
-  background: linear-gradient(180deg, 
-    var(--sky-top) 0%, 
-    var(--sky-mid-high) 30%, 
-    var(--sky-mid) 55%, 
-    var(--meadow-mid-low) 75%, 
-    var(--meadow-bottom) 100%
-  );
-  transition: background 2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.gradient-overlay {
+.loader-particle {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.1) 90%);
-  pointer-events: none;
-}
-
-.sun-glow {
-  position: absolute;
-  top: -10%;
-  left: 20%;
-  width: clamp(300px, 60vw, 800px);
-  height: clamp(300px, 60vw, 800px);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 251, 242, 0.2) 50%, rgba(255, 255, 255, 0) 70%);
+  background-color: var(--color-warm-beige);
   border-radius: 50%;
-  filter: blur(20px);
-  pointer-events: none;
-  transition: opacity 2s ease;
+  opacity: 0.3;
 }
 
-body.night-mode .sun-glow {
-  opacity: 0.35;
-  background: radial-gradient(circle, rgba(200, 220, 255, 0.6) 0%, rgba(18, 25, 60, 0.1) 60%, rgba(255, 255, 255, 0) 70%);
+.loader-content {
+  text-align: center;
+  z-index: 2;
+  padding: 2rem;
+  max-width: 90%;
 }
 
-.sun-rays {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(105deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 20px, transparent 20px, transparent 60px);
-  mask-image: radial-gradient(circle at 50% 0%, black, transparent 80%);
-  -webkit-mask-image: radial-gradient(circle at 50% 0%, black, transparent 80%);
-  pointer-events: none;
-  transition: opacity 2s ease;
+.loader-text {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  color: var(--color-warm-beige);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: elegantFadeInUp 2s forwards 0.5s;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 2rem;
+  font-weight: normal;
 }
 
-body.night-mode .sun-rays {
-  opacity: 0.15;
+.loader-indicator {
+  display: inline-flex;
+  gap: 12px;
 }
 
-.glow-sphere {
-  position: absolute;
+.loader-indicator .dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-warm-beige);
   border-radius: 50%;
-  filter: blur(120px);
   opacity: 0.2;
-  pointer-events: none;
+  transform: scale(0.8);
+  animation: dotPulse 1.8s infinite ease-in-out;
 }
 
-.glow-1 {
-  width: 45vw;
-  height: 45vw;
-  top: 15%;
-  right: -5%;
-  background: radial-gradient(circle, var(--blush-pink) 0%, rgba(255,255,255,0) 70%);
+.loader-indicator .dot:nth-child(2) {
+  animation-delay: 0.3s;
 }
 
-.glow-2 {
-  width: 50vw;
-  height: 50vw;
-  bottom: -15%;
-  left: -5%;
-  background: radial-gradient(circle, var(--lavender-light) 0%, rgba(255,255,255,0) 70%);
+.loader-indicator .dot:nth-child(3) {
+  animation-delay: 0.6s;
 }
 
-.cloud-container {
+/* ==========================================================================
+   Main Scene Layout
+   ========================================================================== */
+.scene-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: opacity 2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.sky-background {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  opacity: 0.35;
-  transition: opacity 2s ease;
+  background: linear-gradient(
+    to bottom,
+    var(--color-sky-top) 0%,
+    var(--color-sky-mid) 45%,
+    var(--color-sky-bot) 75%,
+    var(--color-meadow-blend) 100%
+  );
+  z-index: 1;
 }
 
-body.night-mode .cloud-container {
-  opacity: 0.15;
+.parallax-layer {
+  position: absolute;
+  top: 0;
+  left: -2%; /* Buffer area for parallax scaling */
+  width: 104%;
+  height: 104%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Stars
+   ========================================================================== */
+.stars-layer {
+  z-index: 2;
+}
+
+.star {
+  position: absolute;
+  background-color: #ffffff;
+  border-radius: 50%;
+  will-change: opacity;
+}
+
+/* ==========================================================================
+   Moon
+   ========================================================================== */
+.moon-layer {
+  z-index: 3;
+}
+
+.moon-container {
+  position: absolute;
+  top: 12%;
+  right: 15%;
+  width: clamp(100px, 16vw, 190px);
+  height: clamp(100px, 16vw, 190px);
+}
+
+.moon {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fffdf4 0%,
+    #fcf6e2 40%,
+    #ebd9af 80%,
+    #dfc894 100%
+  );
+  border-radius: 50%;
+  box-shadow: 
+    0 0 45px 10px rgba(253, 251, 247, 0.45),
+    0 0 90px 25px rgba(253, 251, 247, 0.2);
+  position: relative;
+  overflow: hidden;
+  animation: moonPulse 8s ease-in-out infinite;
+}
+
+.moon-texture {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0.12;
+  mix-blend-mode: multiply;
+  background-image: 
+    radial-gradient(circle at 70% 30%, #5d5236 0%, transparent 20%),
+    radial-gradient(circle at 50% 65%, #5d5236 0%, transparent 25%),
+    radial-gradient(circle at 25% 45%, #5d5236 0%, transparent 15%),
+    radial-gradient(circle at 60% 80%, #5d5236 0%, transparent 18%);
+}
+
+/* ==========================================================================
+   Clouds
+   ========================================================================== */
+.clouds-layer {
+  z-index: 4;
 }
 
 .cloud {
   position: absolute;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 254, 252, 0.45) 50%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(253, 251, 247, 0.08) 0%, rgba(11, 21, 50, 0) 70%);
   border-radius: 50%;
-  filter: blur(30px);
-}
-
-.cloud-1 { width: 550px; height: 260px; top: 10%; left: -10%; animation: moveCloud 150s linear infinite; }
-.cloud-2 { width: 750px; height: 350px; bottom: 35%; right: -20%; animation: moveCloudReverse 190s linear infinite; }
-.cloud-3 { width: 400px; height: 200px; top: 35%; left: 15%; animation: moveCloud 110s linear infinite; animation-delay: -40s; }
-
-@keyframes moveCloud {
-  0% { transform: translateX(-100vw); }
-  100% { transform: translateX(120vw); }
-}
-
-@keyframes moveCloudReverse {
-  0% { transform: translateX(100vw); }
-  100% { transform: translateX(-120vw); }
-}
-
-#environmental-canvas {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 5;
-}
-
-/* ==========================================================================
-   3. PERSISTENT INTERACTIVE THEME TOGGLE (GLASS BUTTON)
-   ========================================================================== */
-.theme-toggle-container {
-  position: fixed;
-  top: clamp(16px, 4vw, 32px);
-  right: clamp(16px, 4vw, 32px);
-  z-index: 100;
-  pointer-events: auto;
-}
-
-.theme-toggle-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  transition: transform var(--transition-fast), border-color var(--transition-fast), background 1.5s ease;
-  overflow: hidden;
-}
-
-.theme-toggle-btn:hover {
-  transform: scale(1.05);
-  border-color: var(--gold-primary);
-}
-
-.toggle-icon-wrapper {
-  position: relative;
-  width: 20px;
-  height: 20px;
-}
-
-.sun-icon, .moon-icon {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transition: transform var(--transition-medium), opacity var(--transition-medium);
-  color: var(--text-primary);
-}
-
-body.night-mode .sun-icon {
-  opacity: 0;
-  transform: rotate(45deg) scale(0.5);
-}
-
-body:not(.night-mode) .moon-icon {
-  opacity: 0;
-  transform: rotate(-45deg) scale(0.5);
-}
-
-/* ==========================================================================
-   4. CINEMATIC SCENE STAGE (TRANSITIONS & CAMERA LENS)
-   ========================================================================== */
-#app-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1200px;
-}
-
-.scene {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate3d(0, 40px, -100px) scale(0.93);
-  filter: blur(15px) brightness(1.2);
-  transition: opacity var(--transition-lens), 
-              transform var(--transition-lens), 
-              filter var(--transition-lens);
-  will-change: transform, opacity;
-}
-
-.scene.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate3d(0, 0, 0) scale(1);
-  filter: blur(0) brightness(1);
-}
-
-.scene.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translate3d(0, -40px, 100px) scale(1.07);
-  filter: blur(15px) brightness(1.2);
-}
-
-/* ==========================================================================
-   5. LOADING SCREEN
-   ========================================================================== */
-#scene-loading {
-  background: linear-gradient(-45deg, #FFF6F8, #E3F2FD, #FFFDF0, #F3E5F5);
-  background-size: 400% 400%;
-  animation: loaderGradFlow 15s ease infinite;
-  z-index: 200;
-}
-
-@keyframes loaderGradFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.loader-bg-ambient {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 80%);
-  pointer-events: none;
-}
-
-.loader-wrapper {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: min(340px, 90vw);
-  width: 100%;
-  position: relative;
-  z-index: 10;
-}
-
-.loader-logo-container {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin-bottom: 24px;
-}
-
-.loader-logo {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 1px solid rgba(197, 160, 89, 0.4);
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 10px 30px rgba(165, 155, 145, 0.15);
-  animation: floatLogo 4s ease-in-out infinite alternate;
-}
-
-.logo-initial {
-  font-family: var(--font-serif);
-  font-size: 2.6rem;
-  color: var(--gold-primary);
-  text-shadow: 0 1px 4px rgba(197, 160, 89, 0.15);
-}
-
-.logo-glow-ring {
-  position: absolute;
-  top: -4px; left: -4px; right: -4px; bottom: -4px;
-  border-radius: 50%;
-  border: 1.5px solid transparent;
-  border-top-color: var(--gold-primary);
-  border-bottom-color: var(--gold-primary);
-  animation: ringRotate 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-@keyframes ringRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes floatLogo {
-  0% { transform: translateY(0px) scale(1); }
-  100% { transform: translateY(-8px) scale(1.02); }
-}
-
-.loader-typography {
-  margin-bottom: 32px;
-}
-
-.loader-brand {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 5px;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.loader-sub {
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 2px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.loader-bar-container {
-  width: 100%;
-  height: 3px;
-  background: rgba(47, 47, 53, 0.04);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 16px;
-  position: relative;
-}
-
-.loader-bar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--rose-gold), var(--gold-primary), var(--gold-light));
-  border-radius: 3px;
-  box-shadow: 0 0 8px rgba(197, 160, 89, 0.4);
-  transition: width 0.1s linear;
-}
-
-.loader-status-wrapper {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.loader-text {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 1px;
-  color: var(--text-muted);
-}
-
-.loader-percentage {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  color: var(--gold-secondary);
-  font-weight: 600;
-}
-
-/* ==========================================================================
-   6. APPLE-QUALITY GLASSMORPHIC CARDS
-   ========================================================================== */
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px) saturate(125%);
-  -webkit-backdrop-filter: blur(10px) saturate(125%);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
-  width: 90%;
-  max-width: 560px;
-  box-shadow: 0 20px 45px -10px var(--glass-shadow), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(24px, 3.5vw, 36px);
-  transition: border-color var(--transition-medium), box-shadow var(--transition-medium), background 1.5s ease;
-}
-
-.glass-card:hover {
-  border-color: var(--glass-border-hover);
-  box-shadow: 0 30px 60px -10px var(--glass-shadow), 
-              0 0 30px var(--gold-glow-shadow);
-}
-
-.card-accent-line {
-  position: absolute;
-  top: 0;
-  left: 20%;
-  right: 20%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
-}
-
-.card-header { text-align: center; }
-
-.subtitle {
-  font-family: var(--font-sans);
-  font-size: clamp(0.65rem, 1.5vw, 0.75rem);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 5px;
-  color: var(--gold-secondary);
-  display: inline-block;
-  margin-bottom: 12px;
-}
-
-.main-title {
-  font-family: var(--font-serif);
-  font-size: clamp(1.75rem, 4vw, 2.35rem);
-  font-weight: 400;
-  line-height: 1.35;
-  color: var(--text-primary);
-  letter-spacing: 1px;
-  transition: color 1.5s ease;
-}
-
-.welcome-text {
-  font-family: var(--font-sans);
-  font-size: clamp(0.85rem, 2vw, 0.95rem);
-  line-height: 1.85;
-  color: var(--text-muted);
-  text-align: center;
-  font-weight: 400;
-  transition: color 1.5s ease;
-}
-
-.card-footer { display: flex; justify-content: center; }
-
-/* ==========================================================================
-   7. LUXURY CTA BUTTONS WITH REFLECTIONS
-   ========================================================================== */
-.btn-premium {
-  position: relative;
-  background: linear-gradient(135deg, #FFFAF4, #FFF0E2);
-  border: 1px solid rgba(197, 160, 89, 0.35);
-  padding: 16px 44px;
-  border-radius: 40px;
-  cursor: pointer;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 8px 20px rgba(197, 160, 89, 0.08);
-  transition: transform var(--transition-fast), 
-              border-color var(--transition-fast), 
-              box-shadow var(--transition-fast);
-}
-
-.btn-text {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: #2F2F35;
-  z-index: 2;
-  transition: color var(--transition-fast);
-}
-
-.btn-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(255,255,255,0.4));
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  filter: blur(10px);
-  transition: width 0.7s ease, height 0.7s ease, opacity 0.7s ease;
-  z-index: 1;
-}
-
-.btn-premium:hover {
-  transform: scale(1.025) translateY(-1px);
-  border-color: var(--gold-primary);
-  box-shadow: 0 12px 25px rgba(197, 160, 89, 0.12);
-}
-
-.btn-premium:hover .btn-text {
-  color: var(--gold-secondary);
-}
-
-.btn-premium:hover .btn-glow {
-  width: 300px;
-  height: 300px;
-  opacity: 1;
-  border-radius: 40px;
-}
-
-.btn-premium:active {
-  transform: scale(0.975) translateY(0);
-}
-
-/* ==========================================================================
-   8. REALISTIC ENVELOPE INTERACTION
-   ========================================================================== */
-.paper-texture {
-  background-color: var(--paper-cream);
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.7) 0%, rgba(240, 230, 218, 0.1) 100%),
-    repeating-linear-gradient(45deg, rgba(0,0,0,0.003) 0px, rgba(0,0,0,0.003) 1px, transparent 1px, transparent 10px),
-    repeating-linear-gradient(-45deg, rgba(0,0,0,0.003) 0px, rgba(0,0,0,0.003) 1px, transparent 1px, transparent 10px);
-}
-
-.card-scene-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.stage-3d {
-  width: 100%;
-  max-width: 480px;
-  height: 480px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1500px;
-}
-
-.envelope-wrapper {
-  position: relative;
-  width: min(360px, 85vw);
-  height: min(240px, 56.6vw);
-  background-color: var(--envelope-inner);
-  border-radius: 8px;
-  box-shadow: 0 15px 35px var(--envelope-shadow);
-  transform-style: preserve-3d;
-  cursor: pointer;
-  transition: transform 1s cubic-bezier(0.2, 1, 0.2, 1), box-shadow 1s, opacity 1s ease;
-  will-change: transform, opacity;
-}
-
-.envelope-wrapper.floating-envelope {
-  animation: floatEnvelope 6s ease-in-out infinite alternate;
-}
-
-@keyframes floatEnvelope {
-  0% { transform: translate3d(0, 0, 0) rotateX(1deg) rotateY(-1deg); }
-  50% { transform: translate3d(0, -10px, 0) rotateX(-2deg) rotateY(2deg); }
-  100% { transform: translate3d(0, 0, 0) rotateX(1deg) rotateY(-1deg); }
-}
-
-.envelope-wrapper.shake-react {
-  animation: shakeReaction 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-
-@keyframes shakeReaction {
-  10%, 90% { transform: translate3d(-1px, 0, 0) rotateZ(-0.5deg); }
-  20%, 80% { transform: translate3d(2px, 0, 0) rotateZ(1deg); }
-  30%, 50%, 70% { transform: translate3d(-3px, 0, 0) rotateZ(-1.5deg); }
-  40%, 60% { transform: translate3d(3px, 0, 0) rotateZ(1.5deg); }
-}
-
-.envelope-wrapper:hover {
-  box-shadow: 0 25px 50px rgba(165, 155, 145, 0.22);
-}
-
-.envelope-front-pocket {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--envelope-pocket);
-  clip-path: polygon(0 40%, 50% 68%, 100% 40%, 100% 100%, 0% 100%);
-  border-radius: 0 0 8px 8px;
-  z-index: 3;
-}
-
-.envelope-flap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60%;
-  transform-origin: top center;
-  transform: rotateX(0deg);
-  transition: transform 0.9s cubic-bezier(0.3, 1, 0.3, 1), z-index 0.9s;
-  z-index: 4;
-}
-
-.envelope-flap-inner {
-  width: 100%;
-  height: 100%;
-  background-color: var(--envelope-outer);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  border-radius: 8px 8px 0 0;
-}
-
-.wax-seal {
-  position: absolute;
-  bottom: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 46px;
-  height: 46px;
-  background: radial-gradient(circle, var(--rose-gold) 0%, var(--gold-primary) 100%);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(165, 155, 145, 0.25);
-  z-index: 5;
-  transition: opacity 0.4s var(--transition-fast), transform 0.4s;
-}
-
-.wax-seal::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
-  border: 1px dashed rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-}
-
-.seal-logo {
-  color: #fff;
-  font-size: 1.15rem;
-  pointer-events: none;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* OPEN ACTIVE STATE TRIGGERS */
-.envelope-wrapper.open {
-  animation-play-state: paused;
-}
-
-.envelope-wrapper.open .envelope-flap {
-  transform: rotateX(180deg);
-  z-index: 2;
-}
-
-.envelope-wrapper.open .wax-seal {
-  opacity: 0;
-  transform: translateX(-50%) scale(0.5);
-}
-
-.envelope-wrapper.dimmed {
-  opacity: 0.15;
-  transform: scale(0.9) translate3d(0, 80px, -50px);
-  pointer-events: none;
-}
-
-/* ==========================================================================
-   9. CARD RESIZING & FAST AUTOMATED TRANSITIONS (VERSION 5 UPGRADE)
-   ========================================================================== */
-.birthday-card-wrapper {
-  position: absolute;
-  top: 10px;
-  left: 5%;
-  width: 90%;
-  height: 90%;
-  z-index: 2;
-  transform: translate3d(0, 0, 0) scale(0.95);
-  transition: transform 0.6s cubic-bezier(0.25, 1, 0.25, 1), z-index 0.6s;
-  pointer-events: none;
+  filter: blur(12px);
   will-change: transform;
 }
 
-/* FAST OPEN: Combined slide states for immediate feel */
-.envelope-wrapper.emerge-full .birthday-card-wrapper {
-  transform: translate3d(0, -210px, 80px) scale(1.3) rotateX(0deg);
-  z-index: 10;
-  pointer-events: auto;
+/* ==========================================================================
+   Meadow & Ground
+   ========================================================================== */
+.meadow-layer {
+  z-index: 6;
+  height: 40vh;
+  top: 60vh;
 }
 
-/* UPGRADED CARD SIZE: Visually larger and optimized spacing */
-.card-book {
-  width: min(420px, 85vw);
-  height: min(300px, 60vw);
-  position: relative;
-  margin: 0 auto;
-  transform-style: preserve-3d;
-  transition: transform 1s cubic-bezier(0.25, 1, 0.25, 1);
-}
-
-.gloss-overlay {
+.meadow-ground {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.05) 100%);
-  pointer-events: none;
-  z-index: 10;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(16, 28, 54, 0.85) 30%,
+    var(--color-sky-top) 100%
+  );
 }
 
-.card-page {
+/* ==========================================================================
+   Procedural Grass
+   ========================================================================== */
+.grass-field {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  backface-visibility: hidden;
-  border: 1px solid var(--card-border-luxe);
-  background: linear-gradient(135deg, var(--card-grad-start) 0%, var(--card-grad-mid) 50%, var(--card-grad-end) 100%);
-  box-shadow: 0 12px 30px var(--card-shadow-luxe), 
-              inset 0 1px 2px rgba(255, 255, 255, 0.5);
-  transition: background 1.5s ease, border-color 1.5s ease, box-shadow 1.5s ease;
-}
-
-.card-cover-container {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  transform-origin: left center;
-  transform-style: preserve-3d;
-  transition: transform 1.2s cubic-bezier(0.25, 1, 0.2, 1);
-  z-index: 5;
-}
-
-.card-cover-front { z-index: 2; }
-
-.card-cover-design {
-  width: 100%;
-  height: 100%;
+  height: 150px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-  border-radius: 10px;
-  position: relative;
+  align-items: flex-end;
+}
+
+.grass-blade {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  border-radius: 60% 60% 0 0 / 100% 100% 0 0;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Procedural Flowers
+   ========================================================================== */
+.flower-field {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+}
+
+.flower {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  will-change: transform;
+}
+
+.flower-stem {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background-color: var(--color-muted-green);
+  transform-origin: bottom center;
+}
+
+.flower-head {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+}
+
+.flower-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-soft-gold);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.flower-petal {
+  position: absolute;
+  background-color: var(--color-cream);
+  border-radius: 45%;
+  transform-origin: center bottom;
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   Fireflies (JS Rendered)
+   ========================================================================== */
+.firefly-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.firefly {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #ffe699 0%, rgba(237, 209, 138, 0) 70%);
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+.firefly-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--color-soft-gold);
+  filter: blur(2px);
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   Petals (Falling & Drifting)
+   ========================================================================== */
+.petals-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 7;
+  pointer-events: none;
   overflow: hidden;
 }
 
-.foil-border {
+.petal-element {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  border: 1px solid var(--gold-primary);
-  opacity: 0.65;
-}
-
-.cover-accent {
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  letter-spacing: 5px;
-  color: var(--gold-secondary);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.gold-embellishment {
-  font-size: 1.6rem;
-  color: var(--gold-primary);
-  margin-bottom: 16px;
-}
-
-.cover-instruction {
-  font-family: var(--font-serif);
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  letter-spacing: 1px;
-  transition: color 1.5s ease;
-}
-
-.card-cover-back {
-  transform: rotateY(180deg);
-  z-index: 1;
-}
-
-.inside-left-design {
-  width: 100%;
-  height: 100%;
-  padding: 16px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.decorative-pattern {
-  width: 90%;
-  height: 90%;
-  border: 1px dashed rgba(197, 160, 89, 0.25);
-  border-radius: 6px;
-  background: radial-gradient(circle, rgba(197,160,89,0.02) 0%, rgba(0,0,0,0) 80%);
-}
-
-.card-inside-right {
-  z-index: 0;
-  border-left: 1px solid rgba(0,0,0,0.05);
-}
-
-.inside-right-content {
-  width: 100%;
-  height: 100%;
-  padding: clamp(14px, 2.5vw, 20px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  opacity: 0;
-  transform: translate3d(0, 10px, 0);
-  transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  background-color: var(--color-blush-pink);
+  border-radius: 60% 10% 60% 40% / 60% 40% 60% 20%;
+  opacity: 0.75;
+  transform-origin: center;
   will-change: transform, opacity;
-  position: relative;
-}
-
-.inside-right-content.visible {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-.card-cursive-header {
-  font-family: var(--font-script);
-  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
-  font-style: italic;
-  color: var(--gold-secondary);
-  margin-bottom: 2px;
-}
-
-.recipient-name {
-  font-family: var(--font-serif);
-  font-size: clamp(1.25rem, 3.2vw, 1.55rem);
-  color: var(--text-primary);
-  font-weight: 600;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-  transition: color 1.5s ease;
-}
-
-.message-divider {
-  font-size: 0.7rem;
-  color: var(--gold-primary);
-  margin-bottom: clamp(4px, 1.5vw, 8px);
-}
-
-.personal-message {
-  font-family: var(--font-sans);
-  font-size: clamp(0.68rem, 1.6vw, 0.76rem);
-  line-height: 1.6;
-  color: var(--text-muted);
-  font-weight: 500;
-  max-width: 270px;
-  margin-bottom: clamp(6px, 2vw, 12px);
-  transition: color 1.5s ease;
-}
-
-.signature {
-  font-family: var(--font-script);
-  font-size: clamp(0.7rem, 1.8vw, 0.8rem);
-  color: var(--text-muted);
-  transition: color 1.5s ease;
-}
-
-/* OPEN ACTIVE STATE TRIGGERS */
-.card-book.opened .card-cover-container {
-  transform: rotateY(-145deg);
 }
 
 /* ==========================================================================
-   10. NEXT BUTTON (NESTED WITHIN GREETING CARD LAYOUT)
+   Interactive Overlay Anchor
    ========================================================================== */
-.btn-circular-next {
+.interactive-overlay {
   position: absolute;
-  bottom: 8px;
-  right: 12px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1.5px solid var(--gold-primary);
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  outline: none;
-  z-index: 50;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.8) translate3d(0,0,0);
-  box-shadow: 0 6px 15px rgba(165, 155, 145, 0.12);
-  transition: opacity var(--transition-medium), 
-              transform var(--transition-medium), 
-              border-color var(--transition-fast),
-              background 1.5s ease;
-  will-change: transform, opacity;
-}
-
-.btn-circular-next.floating-btn {
-  animation: floatNextBtn 4s ease-in-out infinite alternate;
-}
-
-@keyframes floatNextBtn {
-  0% { transform: scale(1) translate3d(0, 0, 0); }
-  100% { transform: scale(1) translate3d(0, -4px, 0); }
-}
-
-.btn-circular-next.visible {
-  opacity: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 8;
   pointer-events: auto;
-  transform: scale(1);
-}
-
-.arrow-icon {
-  color: var(--gold-secondary);
-  font-size: 1.1rem;
-  transition: transform var(--transition-fast);
-}
-
-.btn-circular-next:hover {
-  border-color: var(--gold-secondary);
-  background: rgba(197, 160, 89, 0.08);
-}
-
-.btn-circular-next:hover .arrow-icon {
-  transform: translateX(3px);
-}
-
-.btn-circular-next:active {
-  transform: scale(0.9) translate3d(0,0,0);
-}
-
-.btn-pulse {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 50%;
-  border: 1.5px solid var(--gold-primary);
-  opacity: 0;
-  animation: rippleGlow 2.5s infinite ease-out;
-  pointer-events: none;
-}
-
-@keyframes rippleGlow {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(1.3); opacity: 0; }
 }
 
 /* ==========================================================================
-   11. RESPONSIVE COMPATIBILITY MATRIX
+   Animations
    ========================================================================== */
-@media (max-width: 768px) {
-  .stage-3d {
+@keyframes elegantFadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    opacity: 0.15;
     transform: scale(0.85);
   }
-}
-
-@media (max-width: 480px) {
-  .stage-3d {
-    transform: scale(0.72);
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px var(--color-warm-beige);
   }
 }
 
-@media (max-height: 600px) {
-  .glass-card {
-    padding: 24px;
-    gap: 16px;
+@keyframes moonPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 45px 10px rgba(253, 251, 247, 0.45),
+      0 0 90px 25px rgba(253, 251, 247, 0.2);
   }
-  
-  .stage-3d {
-    transform: scale(0.55);
+  50% {
+    box-shadow: 
+      0 0 55px 15px rgba(253, 251, 247, 0.55),
+      0 0 110px 35px rgba(253, 251, 247, 0.35);
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: var(--star-base-opacity);
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: calc(var(--star-base-opacity) + 0.4);
+    transform: scale(1.1);
+  }
+}
+
+/* Sway animation applied dynamic variables for responsive timing */
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(calc(var(--sway-angle-base) * -1deg));
+  }
+  50% {
+    transform: rotate(calc(var(--sway-angle-base) * 1deg * var(--wind-strength-multiplier)));
   }
 }
