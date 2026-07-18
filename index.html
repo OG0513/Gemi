@@ -2,190 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>A Premium Celebration</title>
-  <!-- Google Fonts for Elegant Typography -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A calm, magical moonlit garden scene created as a special gift.">
+  <title>A Quiet Evening | Version 1</title>
+  
+  <!-- Typography Setup -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Sacramento&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Ambient Living Background System -->
-  <div class="ambient-background" id="ambient-bg">
-    <div class="gradient-overlay"></div>
-    <div class="sun-glow"></div>
-    <div class="sun-rays"></div>
-    <div class="glow-sphere glow-1"></div>
-    <div class="glow-sphere glow-2"></div>
+  <!-- Loading Screen Sequence -->
+  <div id="loader" class="loading-screen" aria-hidden="false">
+    <div class="loader-bg-particles" id="loader-particles"></div>
+    <div class="loader-content">
+      <h1 class="loader-text">Someone made something special for you...</h1>
+      <div class="loader-indicator" aria-label="Loading scene">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Immersive Main Scene -->
+  <main id="main-scene" class="scene-wrapper" aria-hidden="true" style="opacity: 0; pointer-events: none;">
     
-    <!-- Multi-Layer Moving Clouds -->
-    <div class="cloud-container" id="cloud-container">
-      <div class="cloud cloud-1"></div>
-      <div class="cloud cloud-2"></div>
-      <div class="cloud cloud-3"></div>
+    <!-- Parallax-controlled Sky Environment -->
+    <div class="sky-background"></div>
+    
+    <div class="parallax-layer stars-layer" data-depth="0.05" id="stars-container"></div>
+    
+    <div class="parallax-layer clouds-layer" data-depth="0.1" id="clouds-container"></div>
+    
+    <div class="parallax-layer moon-layer" data-depth="0.15">
+      <div class="moon-container">
+        <div class="moon" role="img" aria-label="Glowing full moon">
+          <div class="moon-texture"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Interactive Environmental Canvas (60FPS Flowers & Particles) -->
-    <canvas id="environmental-canvas"></canvas>
-  </div>
+    <!-- Active Firefly Ecosystem -->
+    <div class="firefly-container" id="firefly-container"></div>
 
-  <!-- Persistent Day/Night Toggle Switch -->
-  <div class="theme-toggle-container" id="theme-toggle">
-    <button class="theme-toggle-btn" aria-label="Toggle Day and Night Mode">
-      <div class="toggle-icon-wrapper">
-        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      </div>
-    </button>
-  </div>
+    <!-- Floating Petals Layer -->
+    <div class="petals-container" id="petals-container"></div>
 
-  <!-- Main Viewport Container (Cinematic Lens/Perspective stage) -->
-  <main id="app-container">
+    <!-- Magical Meadow / Garden Layer -->
+    <div class="parallax-layer meadow-layer" data-depth="0.03" id="meadow-container">
+      <div class="meadow-ground"></div>
+      <div class="grass-field" id="grass-field"></div>
+      <div class="flower-field" id="flower-field"></div>
+    </div>
 
-    <!-- SCENE 1: PREMIUM LOADING SCREEN -->
-    <section id="scene-loading" class="scene active">
-      <div class="loader-bg-ambient"></div>
-      <div class="loader-wrapper">
-        <div class="loader-logo-container">
-          <div class="loader-logo">
-            <span class="logo-initial">M</span>
-          </div>
-          <div class="logo-glow-ring"></div>
-        </div>
-        <div class="loader-typography">
-          <h2 class="loader-brand">MUSEUM OF CELEBRATION</h2>
-          <p class="loader-sub">Curating your interactive sensory experience</p>
-        </div>
-        <div class="loader-bar-container">
-          <div class="loader-bar" id="loader-progress"></div>
-        </div>
-        <div class="loader-status-wrapper">
-          <span class="loader-text" id="loader-status">Initializing Environment...</span>
-          <span class="loader-percentage" id="loader-percentage">0%</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCENE 2: WELCOME SCREEN -->
-    <section id="scene-welcome" class="scene hidden">
-      <div class="glass-card welcome-card">
-        <div class="card-accent-line"></div>
-        <div class="card-header">
-          <span class="subtitle">An Invitation</span>
-          <h1 class="main-title">A Journey of Celebration</h1>
-        </div>
-        <div class="card-body">
-          <p class="welcome-text">
-            Step into an interactive, curated experience crafted exclusively to celebrate your special day. A series of moments, memories, and wonders await your discovery.
-          </p>
-        </div>
-        <div class="card-footer">
-          <button id="btn-start-celebration" class="btn-premium">
-            <span class="btn-text">Begin the Celebration</span>
-            <span class="btn-glow"></span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCENE 3: INTERACTIVE BIRTHDAY CARD SCREEN -->
-    <section id="scene-card" class="scene hidden">
-      <div class="card-scene-container">
-        <!-- Interactive Helper Instruction Hint -->
-        <div class="interaction-hint" id="card-interaction-hint">Click the Envelope to open</div>
-
-        <!-- 3D Card and Envelope Stage -->
-        <div class="stage-3d">
-          
-          <!-- Envelope Container with Float/Bounce Physics -->
-          <div class="envelope-wrapper floating-envelope" id="envelope-wrapper">
-            <div class="envelope-back paper-texture"></div>
-            
-            <!-- Hidden sliding Birthday Card (emerges inside the envelope) -->
-            <div class="card-3d-wrapper" id="birthday-card-wrapper">
-              <div class="card-book" id="card-book">
-                <!-- Cover Face of Greeting Card -->
-                <div class="card-cover-container" id="card-cover-container">
-                  <div class="card-page card-cover-front">
-                    <!-- Premium Gloss Reflection Highlight -->
-                    <div class="gloss-overlay"></div>
-                    <div class="card-cover-design">
-                      <div class="foil-border"></div>
-                      <span class="cover-accent">For You</span>
-                      <div class="gold-embellishment">✿</div>
-                      <span class="cover-instruction">Opening...</span>
-                    </div>
-                  </div>
-                  <div class="card-page card-cover-back">
-                    <div class="gloss-overlay"></div>
-                    <div class="inside-left-design">
-                      <div class="decorative-pattern"></div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Stationary Inside Right Page -->
-                <div class="card-page card-inside-right">
-                  <div class="gloss-overlay"></div>
-                  <div class="inside-right-content">
-                    <span class="card-cursive-header">Happy Birthday</span>
-                    <h2 class="recipient-name">Dearest Sarah</h2>
-                    <div class="message-divider">✦</div>
-                    <p class="personal-message">
-                      May your year be filled with beautiful moments, silent peace, and dynamic joy. Today is a celebration of the incredible light you bring into this world.
-                    </p>
-                    <span class="signature">With love & admiration</span>
-
-                    <!-- Proceed button integrated elegantly within the Card Layout -->
-                    <button id="btn-next-scene" class="btn-circular-next hidden" aria-label="Continue Celebration">
-                      <span class="arrow-icon">→</span>
-                      <span class="btn-pulse"></span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Front Envelope Overlays -->
-            <div class="envelope-front-pocket paper-texture"></div>
-            <div class="envelope-flap" id="envelope-flap">
-              <div class="envelope-flap-inner paper-texture"></div>
-              <div class="wax-seal" id="wax-seal">
-                <span class="seal-logo">✦</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- SCENE 4: GARDEN (V5 Unobstructed Immersive Environment Scene) -->
-    <section id="scene-garden" class="scene hidden">
-      <!-- Unobstructed viewing of the blooming species and sway branches -->
-    </section>
-
-    <!-- FUTURE SCENES PLACEHOLDER HOOKS -->
-    <section id="scene-gift" class="scene hidden"></section>
-    <section id="scene-cake" class="scene hidden"></section>
-    <section id="scene-celebration" class="scene hidden"></section>
-    <section id="scene-wish" class="scene hidden"></section>
+    <!-- Future Expansion Anchor -->
+    <!-- Content containers for envelopes, letters, trees, etc. can be dynamically injected here in future versions -->
+    <div id="interactive-anchor" class="interactive-overlay"></div>
 
   </main>
 
+  <!-- Main JavaScript Logic -->
   <script src="script.js"></script>
 </body>
 </html>
