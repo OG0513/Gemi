@@ -1,5 +1,5 @@
 /**
- * Interactive Premium Birthday Experience - Version 2
+ * Interactive Premium Birthday Experience - Version 3
  * Core Architecture & Scene Manager
  */
 
