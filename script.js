@@ -1,674 +1,475 @@
 /**
- * Interactive Premium Birthday Experience - Version 5 (Fast Emerge & Nested Controls)
- * Core Architecture & Living Environmental Engine
+ * Dreamy Landscape - Version 1 Engine
+ * Architectural elements structured modularly for performance and maintainability.
  */
 
-'use strict';
-
-// Global App Configuration
-const APP_CONFIG = {
-  loadingSimulationTime: 2500, // Speed calibration of virtual asset initialization
-  transitionDelay: 1200,      // Sync matching style.css transition speed
-};
-
-/**
- * High-Performance Environmental Rendering Engine (Canvas)
- * Draws 11 unique flower species scattered along the bottom edge, detailed branching leaf stems,
- * and floating particles with Day/Night rendering overrides at a stable 60FPS.
- */
-class EnvironmentalEngine {
-  constructor() {
-    this.canvas = document.getElementById('environmental-canvas');
-    this.ctx = this.canvas.getContext('2d');
-    
-    this.particles = [];
-    this.flowers = [];
-    this.windTime = 0;
-    this.isNight = false;
-    this.isTicking = false;
-    this.activeState = 'loading';
-    
-    this.init();
-  }
-
-  init() {
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
-
-    this.generateParticles(15); // Kept minimal to optimize rendering speed
-    this.generateFlowers();
-
-    this.start();
-  }
-
-  resizeCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-    
-    // Smoothly re-establish flower coordinates without computational layout spikes
-    this.generateFlowers();
-  }
-
-  /**
-   * Set Night Mode flags inside rendering calculations
-   * @param {boolean} active 
-   */
-  setNightMode(active) {
-    this.isNight = active;
-  }
-
-  /**
-   * Procedurally generates exactly 11 unique flower species with specific drawing profiles,
-   * heights, stem thicknesses, color spaces, and wind phase intervals.
-   */
-  generateFlowers() {
-    this.flowers = [];
-    const width = this.canvas.width;
-    const height = this.canvas.height;
-    
-    // Defining 11 distinct flower species
-    const speciesDefinitions = [
-      { name: 'Rose', petalColor: '#F48FB1', nightColor: '#FF4081', stemThickness: 2.8, size: 10, offsetFactor: 0.1 },
-      { name: 'Tulip', petalColor: '#FFAB91', nightColor: '#FF6E40', stemThickness: 2.5, size: 9, offsetFactor: 0.2 },
-      { name: 'Lily', petalColor: '#FFF59D', nightColor: '#FFFF00', stemThickness: 2.2, size: 12, offsetFactor: 0.3 },
-      { name: 'Daisy', petalColor: '#FFFFFF', nightColor: '#E040FB', stemThickness: 1.8, size: 8, offsetFactor: 0.4 },
-      { name: 'Sunflower', petalColor: '#FFE082', nightColor: '#FFD700', stemThickness: 3.5, size: 14, offsetFactor: 0.5 },
-      { name: 'Lavender', petalColor: '#B39DDB', nightColor: '#7C4DFF', stemThickness: 1.5, size: 7, offsetFactor: 0.6 },
-      { name: 'Poppy', petalColor: '#EF9A9A', nightColor: '#FF1744', stemThickness: 2.0, size: 11, offsetFactor: 0.7 },
-      { name: 'Orchid', petalColor: '#F48FB1', nightColor: '#D500F9', stemThickness: 2.1, size: 10, offsetFactor: 0.8 },
-      { name: 'Cherry Blossom', petalColor: '#FFCDD2', nightColor: '#F50057', stemThickness: 1.9, size: 7, offsetFactor: 0.95 },
-      { name: 'Bluebell', petalColor: '#9FA8DA', nightColor: '#2979FF', stemThickness: 1.6, size: 8, offsetFactor: 0.85 },
-      { name: 'Wildflower', petalColor: '#80CBC4', nightColor: '#00E5FF', stemThickness: 1.4, size: 6, offsetFactor: 0.15 }
-    ];
-
-    // Distribute species cleanly along bottom line
-    speciesDefinitions.forEach((spec, index) => {
-      // Calculate layout coordinates using distinct spacing offsets
-      const step = width / 12;
-      const x = step * (index + 1) + (Math.random() - 0.5) * (step * 0.4);
-      
-      this.flowers.push({
-        x: x,
-        y: height,
-        h: Math.random() * 50 + (window.innerHeight < 600 ? 70 : 120), // Taller on large displays
-        species: spec,
-        angleOffset: Math.random() * Math.PI,
-        windPhase: Math.random() * Math.PI,
-        swayRange: 0.045 + Math.random() * 0.025 // Subtle wind sway Resonant Breeze scale
-      });
-    });
-  }
-
-  generateParticles(count) {
-    this.particles = [];
-    for (let i = 0; i < count; i++) {
-      this.particles.push({
-        x: Math.random() * this.canvas.width,
-        y: Math.random() * this.canvas.height,
-        r: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.4 + 0.1,
-        speedX: (Math.random() - 0.5) * 0.25,
-        speedY: -Math.random() * 0.2 - 0.05,
-        phase: Math.random() * Math.PI
-      });
-    }
-  }
-
-  start() {
-    this.isTicking = true;
-    const tick = () => {
-      if (!this.isTicking) return;
-      this.updatePhysics();
-      this.render();
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }
-
-  stop() {
-    this.isTicking = false;
-  }
-
-  updatePhysics() {
-    // Calibrated wind cycle rate
-    this.windTime += 0.003; 
-
-    // Update floating light particles
-    this.particles.forEach(p => {
-      p.y += p.speedY;
-      p.x += p.speedX + Math.sin(this.windTime * 0.5 + p.phase) * 0.12; 
-      
-      if (p.y < -10) {
-        p.y = this.canvas.height + 10;
-        p.x = Math.random() * this.canvas.width;
-      }
-    });
-  }
-
-  render() {
-    const ctx = this.ctx;
-    const width = this.canvas.width;
-    const height = this.canvas.height;
-
-    ctx.clearRect(0, 0, width, height);
-
-    // Render Flowers with swaying secondary branches
-    this.flowers.forEach(f => {
-      const windAngle = Math.sin(this.windTime * 1.0 + f.angleOffset) * f.swayRange;
-      const topX = f.x + Math.sin(windAngle) * f.h;
-      const topY = f.y - Math.cos(windAngle) * f.h;
-
-      // Draw Main Stem with realistic sway
-      ctx.beginPath();
-      ctx.moveTo(f.x, f.y);
-      ctx.quadraticCurveTo(f.x + (topX - f.x) * 0.35, f.y - f.h * 0.5, topX, topY);
-      ctx.strokeStyle = this.isNight ? 'rgba(25, 45, 30, 0.65)' : 'rgba(120, 150, 100, 0.65)';
-      ctx.lineWidth = f.species.stemThickness;
-      ctx.stroke();
-
-      // Draw branching lateral stems for secondary miniature blossoms (different shapes sways)
-      const branchX = f.x + (topX - f.x) * 0.45;
-      const branchY = f.y - f.h * 0.45;
-      const branchAngle = windAngle + 0.35;
-      const branchLen = f.h * 0.28;
-      const branchTopX = branchX - Math.sin(branchAngle) * branchLen;
-      const branchTopY = branchY - Math.cos(branchAngle) * branchLen;
-
-      ctx.beginPath();
-      ctx.moveTo(branchX, branchY);
-      ctx.quadraticCurveTo(branchX - 10, branchY - branchLen * 0.5, branchTopX, branchTopY);
-      ctx.stroke();
-
-      // Stem Leaves
-      ctx.beginPath();
-      ctx.ellipse(topX - 6, topY + 20, 6, 2, windAngle - 0.4, 0, Math.PI * 2);
-      ctx.ellipse(topX + 6, topY + 40, 5, 2.2, windAngle + 0.4, 0, Math.PI * 2);
-      ctx.fillStyle = this.isNight ? 'rgba(30, 55, 35, 0.55)' : 'rgba(130, 160, 110, 0.55)';
-      ctx.fill();
-
-      // Bloom Color Setting
-      const color = this.isNight ? f.species.nightColor : f.species.petalColor;
-
-      // Primary Bloom Glow Layer
-      if (this.isNight) {
-        ctx.save();
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = color;
-      }
-
-      // Draw Primary Bloom Node
-      ctx.save();
-      ctx.translate(topX, topY);
-      ctx.rotate(windAngle);
-      this.drawSpeciesBloom(ctx, f.species.name, f.size, color);
-      ctx.restore();
-
-      // Draw Secondary Miniature Bloom Node at Branch Tip
-      ctx.save();
-      ctx.translate(branchTopX, branchTopY);
-      ctx.rotate(branchAngle);
-      this.drawSpeciesBloom(ctx, f.species.name, f.size * 0.6, color);
-      ctx.restore();
-
-      if (this.isNight) {
-        ctx.restore(); // Restore shadow canvas context state
-      }
-    });
-
-    // Draw Particles
-    this.particles.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = this.isNight 
-        ? `rgba(180, 220, 255, ${p.alpha * 0.8})` 
-        : `rgba(255, 255, 255, ${p.alpha})`;
-      ctx.fill();
-    });
-  }
-
-  drawSpeciesBloom(ctx, name, size, color) {
-    switch(name) {
-      case 'Rose': this.drawRose(ctx, size, color); break;
-      case 'Tulip': this.drawTulip(ctx, size, color); break;
-      case 'Lily': this.drawLily(ctx, size, color); break;
-      case 'Daisy': this.drawDaisy(ctx, size, color); break;
-      case 'Sunflower': this.drawSunflower(ctx, size, color); break;
-      case 'Lavender': this.drawLavender(ctx, size, color); break;
-      case 'Poppy': this.drawPoppy(ctx, size, color); break;
-      case 'Orchid': this.drawOrchid(ctx, size, color); break;
-      case 'Cherry Blossom': this.drawCherryBlossom(ctx, size, color); break;
-      case 'Bluebell': this.drawBluebell(ctx, size, color); break;
-      case 'Wildflower': this.drawWildflower(ctx, size, color); break;
-    }
-  }
-
-  /* SPECIES 1: Swirling compact layers */
-  drawRose(ctx, size, color) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 3; i++) {
-      ctx.beginPath();
-      ctx.arc(0, 0, size - (i * 2.5), 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
-      ctx.lineWidth = 1;
-      ctx.fill();
-      ctx.stroke();
-    }
-  }
-
-  /* SPECIES 2: Upward chalice design */
-  drawTulip(ctx, size, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.6, 0);
-    ctx.bezierCurveTo(-size * 0.8, -size * 1.2, 0, -size * 1.5, 0, -size * 0.3);
-    ctx.bezierCurveTo(0, -size * 1.5, size * 0.8, -size * 1.2, size * 0.6, 0);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.beginPath();
-    ctx.ellipse(0, -size * 0.4, size * 0.45, size * 0.7, 0, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-  }
-
-  /* SPECIES 3: Outward curving trumpet */
-  drawLily(ctx, size, color) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 3; i++) {
-      ctx.save();
-      ctx.rotate((i * Math.PI) / 1.5);
-      ctx.beginPath();
-      ctx.ellipse(0, -size * 0.5, size * 0.4, size * 1.2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    ctx.fillStyle = '#FFD700';
-    ctx.fillRect(-1, -size * 0.2, 2, -size * 0.8);
-  }
-
-  /* SPECIES 4: Radiating narrow petals */
-  drawDaisy(ctx, size, color) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 8; i++) {
-      ctx.save();
-      ctx.rotate((i * Math.PI) / 4);
-      ctx.beginPath();
-      ctx.ellipse(0, -size, size * 0.22, size * 1.1, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.45, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFD700';
-    ctx.fill();
-  }
-
-  /* SPECIES 5: pointed gold petals */
-  drawSunflower(ctx, size, color) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 12; i++) {
-      ctx.save();
-      ctx.rotate((i * Math.PI) / 6);
-      ctx.beginPath();
-      ctx.ellipse(0, -size * 0.9, size * 0.25, size * 0.8, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.6, 0, Math.PI * 2);
-    ctx.fillStyle = '#4E342E';
-    ctx.fill();
-  }
-
-  /* SPECIES 6: Stacked buds */
-  drawLavender(ctx, size, color) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 5; i++) {
-      ctx.beginPath();
-      ctx.ellipse(0, -i * 8, size * 0.65, size * 0.45, 0.4, 0, Math.PI * 2);
-      ctx.ellipse(0, -i * 8, size * 0.65, size * 0.45, -0.4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  /* SPECIES 7: Paper-thin wide petals */
-  drawPoppy(ctx, size, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.ellipse(-size * 0.4, 0, size * 0.9, size * 0.7, 0, 0, Math.PI * 2);
-    ctx.ellipse(size * 0.4, 0, size * 0.9, size * 0.7, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
-    ctx.fillStyle = '#1A1A1A';
-    ctx.fill();
-  }
-
-  /* SPECIES 8: Orchid lip */
-  drawOrchid(ctx, size, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.ellipse(-size * 0.8, -size * 0.3, size * 0.7, size * 0.5, -0.4, 0, Math.PI * 2);
-    ctx.ellipse(size * 0.8, -size * 0.3, size * 0.7, size * 0.5, 0.4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(0, size * 0.4, size * 0.6, 0, Math.PI * 2);
-    ctx.fillStyle = '#E040FB';
-    ctx.fill();
-  }
-
-  /* SPECIES 9: Notched petals */
-  drawCherryBlossom(ctx, size, color) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 5; i++) {
-      ctx.save();
-      ctx.rotate((i * Math.PI * 2) / 5);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(-size * 0.5, -size * 1.1);
-      ctx.lineTo(0, -size * 0.8);
-      ctx.lineTo(size * 0.5, -size * 1.1);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  /* SPECIES 10: Drooping blue bell shaped capsules */
-  drawBluebell(ctx, size, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(0, -size * 0.3, size * 0.65, Math.PI, 0, false);
-    ctx.lineTo(size * 0.4, size * 0.3);
-    ctx.lineTo(0, size * 0.05);
-    ctx.lineTo(-size * 0.4, size * 0.3);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  /* SPECIES 11: branching tiny stars */
-  drawWildflower(ctx, size, color) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.arc((i - 1.5) * 6, -i * 5, size * 0.45, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-}
-
-/**
- * Scene Manager Module
- * Controls application flow, viewport sizing checks, and high-performance scene rendering
- */
-class SceneManager {
-  constructor() {
-    this.scenes = ['scene-loading', 'scene-welcome', 'scene-card', 'scene-garden'];
-    this.currentSceneId = 'scene-loading';
-    this.init();
-  }
-
-  init() {
-    this.validateViewports();
-    window.addEventListener('resize', () => this.validateViewports());
-  }
-
-  /**
-   * Transitions smoothly from one screen to another
-   * @param {string} targetSceneId ID string of target scene element
-   */
-  transitionTo(targetSceneId) {
-    const activeScene = document.getElementById(this.currentSceneId);
-    const targetScene = document.getElementById(targetSceneId);
-
-    if (!targetScene) {
-      console.warn(`Target scene "${targetSceneId}" does not exist in the DOM.`);
-      return;
-    }
-
-    // Step 1: Transition Out Active Scene (applies .hidden scale/zoom camera blur)
-    activeScene.classList.add('hidden');
-    activeScene.classList.remove('active');
-
-    // Step 2: Swap state indicator flags after visual fade completes
-    setTimeout(() => {
-      activeScene.style.display = 'none';
-      targetScene.style.display = 'flex';
-      
-      // Step 3: Trigger entrance transition on targeted elements (fades in lens settle)
-      setTimeout(() => {
-        targetScene.classList.remove('hidden');
-        targetScene.classList.add('active');
-        this.currentSceneId = targetSceneId;
-        
-        // Dispatch localized hook for newly focused scenes
-        this.onSceneFocus(targetSceneId);
-      }, 50); // Small margin to force browser layout recalculation
-    }, APP_CONFIG.transitionDelay);
-  }
-
-  /**
-   * Evaluates logic processes tied to newly navigated boundaries
-   * @param {string} sceneId Targeted Scene Identifier
-   */
-  onSceneFocus(sceneId) {
-    if (sceneId === 'scene-card') {
-      if (window.birthdayCardController) {
-        window.birthdayCardController.reset();
-      }
-    }
-  }
-
-  /**
-   * Asserts window bounds structure to guarantee layout preservation and avoid vertical clipping overflow
-   */
-  validateViewports() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-  }
-}
-
-/**
- * Asset Loading Simulation Module
- * Simulates high-fidelity rendering pipeline progress for optimal user immersion setup
- */
-class Loader {
-  constructor(duration, onCompleteCallback) {
-    this.duration = duration;
-    this.onCompleteCallback = onCompleteCallback;
-    this.progressBar = document.getElementById('loader-progress');
-    this.percentageText = document.getElementById('loader-percentage');
-    this.statusText = document.getElementById('loader-status');
-    this.statuses = [
-      'Loading interface assets...',
-      'Optimizing atmospheric cloud rendering...',
-      'Generating ambient light profiles...',
-      'Structuring sensory flow paths...',
-      'Ready'
-    ];
-    this.start();
-  }
-
-  start() {
-    const startTime = performance.now();
-    
-    const updateLoader = (timestamp) => {
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / this.duration, 1);
-      const percentage = Math.floor(progress * 100);
-
-      // DOM Updates
-      this.progressBar.style.width = `${percentage}%`;
-      this.percentageText.textContent = `${percentage}%`;
-
-      // Interpolate loading narrative phases
-      const statusIdx = Math.min(
-        Math.floor(progress * this.statuses.length), 
-        this.statuses.length - 1
-      );
-      this.statusText.textContent = this.statuses[statusIdx];
-
-      if (progress < 1) {
-        requestAnimationFrame(updateLoader);
-      } else {
-        setTimeout(() => {
-          if (typeof this.onCompleteCallback === 'function') {
-            this.onCompleteCallback();
-          }
-        }, 400); // Buffer for micro-UX confirmation display
-      }
-    };
-
-    requestAnimationFrame(updateLoader);
-  }
-}
-
-/**
- * Interactive Birthday Card Scene Controller
- * FAST AUTOMATED TIMELINE SEQUENCE (VERSION 5 UPGRADED FOR SNAP OUT OF ENVELOPE)
- */
-class InteractiveCardController {
-  constructor(sceneManager) {
-    this.sceneManager = sceneManager;
-    
-    // Core Elements
-    this.envelope = document.getElementById('envelope-wrapper');
-    this.cardBook = document.getElementById('card-book');
-    this.cardCover = document.getElementById('card-cover-container');
-    this.hintText = document.getElementById('card-interaction-hint');
-    this.nextButton = document.getElementById('btn-next-scene');
-    this.innerContent = document.querySelector('.inside-right-content');
-
-    // Progression State Flags
-    this.isInteracting = false;
-    this.isEnvelopeOpen = false;
-    this.isCardEmerged = false;
-    this.isCardOpened = false;
-
-    this.bindEvents();
-  }
-
-  bindEvents() {
-    // Single Tap Event triggers the snappy automated cinematic sequence
-    this.envelope.addEventListener('click', (e) => {
-      if (!this.isInteracting) {
-        this.startCinematicSequence();
-        e.stopPropagation();
-      }
-    });
-  }
-
-  /**
-   * Snappy automated sequence timeline
-   * Tap envelope -> quick wiggle (150ms) -> flap opens fast -> smooth rapid slide-up -> unfolds instantly -> message & nested proceed button visible
-   */
-  startCinematicSequence() {
-    this.isInteracting = true;
-    this.envelope.classList.remove('floating-envelope'); // Freeze floating loop
-    
-    // 1. Snappy Wiggle Feedback (150ms)
-    this.envelope.classList.add('shake-react');
-    this.hintText.textContent = 'Opening...';
-
-    setTimeout(() => {
-      this.envelope.classList.remove('shake-react');
-      
-      // 2. Open flap fast
-      this.isEnvelopeOpen = true;
-      this.envelope.classList.add('open');
-      
-      setTimeout(() => {
-        // 3. Fast Emerge: Smooth rapid slide-up fully (skip long middle pause states)
-        this.isCardEmerged = true;
-        this.envelope.classList.add('emerge-full');
-        this.envelope.classList.add('dimmed');
-        this.hintText.textContent = '';
-
-        setTimeout(() => {
-          // 4. Unfolds cover left like a book immediately (400ms transition)
-          this.isCardOpened = true;
-          this.cardBook.classList.add('opened');
-          
-          setTimeout(() => {
-            // 5. Message inside becomes visible
-            this.innerContent.classList.add('visible');
-
-            setTimeout(() => {
-              // 6. Premium Circular Proceed Button fades in within Card Page layout
-              this.nextButton.classList.add('visible');
-              setTimeout(() => {
-                this.nextButton.classList.add('floating-btn');
-              }, 400);
-            }, 400);
-          }, 450);
-        }, 650);
-      }, 350);
-    }, 150);
-  }
-
-  /**
-   * Restore initial defaults for full repeatable navigability
-   */
-  reset() {
-    this.isInteracting = false;
-    this.isEnvelopeOpen = false;
-    this.isCardEmerged = false;
-    this.isCardOpened = false;
-
-    this.envelope.classList.remove('open', 'card-emerged', 'emerge-half', 'emerge-full', 'dimmed', 'shake-react');
-    this.envelope.classList.add('floating-envelope');
-    this.cardBook.classList.remove('opened');
-    this.innerContent.classList.remove('visible');
-    this.hintText.textContent = 'Click the Envelope to open';
-    this.nextButton.classList.remove('visible', 'floating-btn');
-  }
-}
-
-// Utility Clamp Helper Function
-function clamp(min, val, max) {
-  return Math.max(min, Math.min(val, max));
-}
-
-// Global App Initialization
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Canvas background physics
-  const environment = new EnvironmentalEngine();
-  window.environmentalEngine = environment;
+  // Global Wind Parameters
+  const windState = {
+    strength: 1.0,
+    speed: 1.0,
+    targetStrength: 1.0,
+    time: 0
+  };
 
-  // Initialize primary Scene Architecture Manager
-  const app = new SceneManager();
+  // Environment Configs
+  const config = {
+    starsCount: 90,
+    cloudsCount: 4,
+    firefliesCount: 18,
+    flowersCount: 22,
+    grassDensity: 160
+  };
 
-  // Day/Night Interaction Bindings
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const isNight = document.body.classList.toggle('night-mode');
-      environment.setNightMode(isNight);
-    });
+  // Cache major selectors
+  const loader = document.getElementById('loader');
+  const mainScene = document.getElementById('main-scene');
+
+  /**
+   * 1. Dynamic Loading Screen Setup
+   */
+  function initLoading() {
+    const container = document.getElementById('loader-particles');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Soft loading background elements
+    for (let i = 0; i < 15; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'loader-particle';
+      
+      const size = Math.random() * 5 + 3;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${Math.random() * width}px`;
+      particle.style.top = `${Math.random() * height}px`;
+      
+      // Infinite float animation properties
+      const floatDuration = Math.random() * 10 + 10;
+      particle.style.transition = `transform ${floatDuration}s linear, opacity 2s ease`;
+      
+      container.appendChild(particle);
+
+      // Loop floating coordinates safely without causing browser thrashing
+      setTimeout(() => {
+        particle.style.transform = `translate(${Math.random() * 40 - 20}px, -${Math.random() * 200 + 50}px)`;
+        particle.style.opacity = '0';
+      }, 50);
+    }
+
+    // Elegant Transition Out of loading panel
+    setTimeout(() => {
+      loader.style.opacity = '0';
+      mainScene.setAttribute('aria-hidden', 'false');
+      mainScene.style.opacity = '1';
+      mainScene.style.pointerEvents = 'auto';
+
+      setTimeout(() => {
+        loader.style.display = 'none';
+      }, 1500);
+    }, 3800);
   }
 
-  // Instantiate localized view controllers
-  const cardController = new InteractiveCardController(app);
-  window.birthdayCardController = cardController; // Global expose for hook resets
-
-  // Wire Welcome CTA elements safely to navigate into Scene 2 (Greeting Card)
-  const btnStart = document.getElementById('btn-start-celebration');
-  if (btnStart) {
-    btnStart.addEventListener('click', () => {
-      app.transitionTo('scene-card');
-    });
+  /**
+   * 2. Natural Wind Simulation Engine
+   */
+  function startWind() {
+    function updateWind() {
+      // Wind strength changes smoothly via pseudo-random interpolation
+      windState.time += 0.002;
+      
+      // Introduce base sinus breeze patterns combined with gentle noise spikes
+      const baseWave = Math.sin(windState.time * 2);
+      const spike = Math.sin(windState.time * 5.5) * 0.3;
+      
+      windState.targetStrength = Math.max(0.4, (baseWave + spike + 1.2));
+      
+      // Interpolate current values safely
+      windState.strength += (windState.targetStrength - windState.strength) * 0.01;
+      
+      // Commit dynamic metrics to responsive CSS global variables
+      document.documentElement.style.setProperty('--wind-strength-multiplier', windState.strength.toFixed(3));
+      
+      requestAnimationFrame(updateWind);
+    }
+    requestAnimationFrame(updateWind);
   }
 
-  // Wire Greeting Card Scene "Next" CTA to step forward into the placeholder Garden
-  const btnNextScene = document.getElementById('btn-next-scene');
-  if (btnNextScene) {
-    btnNextScene.addEventListener('click', () => {
-      app.transitionTo('scene-garden');
-    });
+  /**
+   * 3. Stars Field Construction
+   */
+  function createStars() {
+    const container = document.getElementById('stars-container');
+    const colors = ['#ffffff', '#fdfbf7', '#d2e4f1', '#dfdaf1'];
+
+    for (let i = 0; i < config.starsCount; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      
+      const size = Math.random() * 1.8 + 0.6;
+      const x = Math.random() * 100;
+      const y = Math.random() * 75; // Stay upper-mid horizon
+      const baseOpacity = Math.random() * 0.6 + 0.2;
+      
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${x}%`;
+      star.style.top = `${y}%`;
+      star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      star.style.setProperty('--star-base-opacity', baseOpacity);
+      
+      // Asymmetric unique twinkling delay parameters
+      const duration = Math.random() * 4 + 3;
+      const delay = Math.random() * 5;
+      star.style.animation = `twinkle ${duration}s ease-in-out infinite ${delay}s`;
+
+      container.appendChild(star);
+    }
   }
 
-  // Kickstart system simulation loading
-  new Loader(APP_CONFIG.loadingSimulationTime, () => {
-    app.transitionTo('scene-welcome');
-  });
+  /**
+   * 4. Slow Ambient Cloud Assembly
+   */
+  function createClouds() {
+    const container = document.getElementById('clouds-container');
+
+    for (let i = 0; i < config.cloudsCount; i++) {
+      const cloud = document.createElement('div');
+      cloud.className = 'cloud';
+      
+      const width = Math.random() * 300 + 250;
+      const height = width * 0.4;
+      const x = Math.random() * 90;
+      const y = Math.random() * 40 + 10;
+      
+      cloud.style.width = `${width}px`;
+      cloud.style.height = `${height}px`;
+      cloud.style.left = `${x}%`;
+      cloud.style.top = `${y}%`;
+
+      // Drift physics variables
+      let driftX = 0;
+      const speed = Math.random() * 0.015 + 0.005;
+
+      function stepDrift() {
+        driftX += speed;
+        // Wrap gracefully at boundaries to maintain infinite horizontal loops
+        if (driftX > window.innerWidth * 1.1) {
+          driftX = -width;
+        }
+        cloud.style.transform = `translateX(${driftX}px)`;
+        requestAnimationFrame(stepDrift);
+      }
+      
+      container.appendChild(cloud);
+      requestAnimationFrame(stepDrift);
+    }
+  }
+
+  /**
+   * 5. Procedural Grass Cultivation
+   */
+  function createGrass() {
+    const field = document.getElementById('grass-field');
+    const colors = [
+      'var(--color-muted-green)',
+      '#566a42',
+      '#3f512f',
+      '#404d30',
+      '#4d5a37'
+    ];
+
+    for (let i = 0; i < config.grassDensity; i++) {
+      const blade = document.createElement('div');
+      blade.className = 'grass-blade';
+      
+      const width = Math.random() * 4 + 2;
+      const height = Math.random() * 85 + 40;
+      const posX = Math.random() * 100;
+      
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const baseSwayAngle = Math.random() * 5 + 3; 
+      
+      blade.style.width = `${width}px`;
+      blade.style.height = `${height}px`;
+      blade.style.left = `${posX}%`;
+      blade.style.backgroundColor = color;
+      blade.style.zIndex = Math.floor(height); // Depth sorting
+      
+      // Connect CSS properties to wind timing offsets
+      blade.style.setProperty('--sway-angle-base', baseSwayAngle);
+      const swayDuration = Math.random() * 1.5 + 2.5;
+      const swayDelay = Math.random() * -4; // Negated delay sets starting frame variation
+      blade.style.animation = `sway ${swayDuration}s ease-in-out infinite alternate ${swayDelay}s`;
+
+      field.appendChild(blade);
+    }
+  }
+
+  /**
+   * 6. Procedural Flower Garden Setup
+   */
+  function createFlowers() {
+    const field = document.getElementById('flower-field');
+    const colorThemes = [
+      { petal: 'var(--color-blush-pink)', center: 'var(--color-soft-gold)' },
+      { petal: 'var(--color-cream)', center: 'var(--color-soft-gold)' },
+      { petal: 'var(--color-lavender)', center: 'var(--color-cream)' },
+      { petal: 'var(--color-baby-blue)', center: 'var(--color-soft-gold)' }
+    ];
+
+    for (let i = 0; i < config.flowersCount; i++) {
+      const flower = document.createElement('div');
+      flower.className = 'flower';
+      
+      const posX = Math.random() * 92 + 4; // Avoid screen edge clips
+      const height = Math.random() * 50 + 35;
+      const zIndexIndex = Math.floor(height);
+      
+      flower.style.left = `${posX}%`;
+      flower.style.zIndex = zIndexIndex;
+      
+      // Stem logic
+      const stem = document.createElement('div');
+      stem.className = 'flower-stem';
+      stem.style.height = `${height}px`;
+      
+      // Flower assembly
+      const head = document.createElement('div');
+      head.className = 'flower-head';
+      
+      const theme = colorThemes[Math.floor(Math.random() * colorThemes.length)];
+      
+      // Center disc
+      const center = document.createElement('div');
+      center.className = 'flower-center';
+      center.style.backgroundColor = theme.center;
+      head.appendChild(center);
+
+      // Radial Petal Placement
+      const petalCount = Math.floor(Math.random() * 3) + 5; // 5 to 7 petals
+      const petalSize = Math.random() * 3 + 4;
+      
+      for (let p = 0; p < petalCount; p++) {
+        const petal = document.createElement('div');
+        petal.className = 'flower-petal';
+        petal.style.backgroundColor = theme.petal;
+        petal.style.width = `${petalSize}px`;
+        petal.style.height = `${petalSize * 1.8}px`;
+        
+        // Rotate petals outward
+        const rotation = (p * (360 / petalCount));
+        petal.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+        head.appendChild(petal);
+      }
+
+      flower.appendChild(stem);
+      flower.appendChild(head);
+      
+      // Align head relative to stem length
+      head.style.bottom = `${height}px`;
+
+      // Apply animated sway synced to Wind Engine parameters
+      flower.style.setProperty('--sway-angle-base', (Math.random() * 4 + 2));
+      const swayDuration = Math.random() * 1.5 + 3.0;
+      const swayDelay = Math.random() * -5;
+      flower.style.animation = `sway ${swayDuration}s ease-in-out infinite alternate ${swayDelay}s`;
+
+      field.appendChild(flower);
+    }
+  }
+
+  /**
+   * 7. Adaptive Fireflies Controller
+   */
+  function createFireflies() {
+    const container = document.getElementById('firefly-container');
+    const swarm = [];
+
+    for (let i = 0; i < config.firefliesCount; i++) {
+      const f = document.createElement('div');
+      f.className = 'firefly';
+      
+      const glow = document.createElement('div');
+      glow.className = 'firefly-glow';
+      f.appendChild(glow);
+      
+      container.appendChild(f);
+
+      // Firefly spatial motion profiles
+      swarm.push({
+        element: f,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * (window.innerHeight * 0.7) + (window.innerHeight * 0.2),
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        angle: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.02 + 0.005,
+        brightness: Math.random(),
+        brightening: Math.random() > 0.5,
+        targetX: Math.random() * window.innerWidth,
+        targetY: Math.random() * window.innerHeight
+      });
+    }
+
+    function updateSwarm() {
+      swarm.forEach(fly => {
+        // Naturally wander toward new dynamic coordinates
+        fly.angle += (Math.random() - 0.5) * 0.15;
+        
+        // Dynamic acceleration curves
+        fly.vx += Math.cos(fly.angle) * fly.speed * 0.1;
+        fly.vy += Math.sin(fly.angle) * fly.speed * 0.1;
+        
+        // Damp velocity to prevent speed runaways
+        fly.vx *= 0.98;
+        fly.vy *= 0.98;
+        
+        fly.x += fly.vx;
+        fly.y += fly.vy;
+        
+        // Wrap boundaries elegantly
+        const pad = 20;
+        if (fly.x < -pad) fly.x = window.innerWidth + pad;
+        if (fly.x > window.innerWidth + pad) fly.x = -pad;
+        if (fly.y < -pad) fly.y = window.innerHeight + pad;
+        if (fly.y > window.innerHeight + pad) fly.y = -pad;
+
+        // Fluctuating organic glowing pattern logic
+        if (fly.brightening) {
+          fly.brightness += 0.012;
+          if (fly.brightness >= 1.0) fly.brightening = false;
+        } else {
+          fly.brightness -= 0.012;
+          if (fly.brightness <= 0.15) fly.brightening = true;
+        }
+
+        // Apply visual positions with performance-optimized hardware acceleration
+        fly.element.style.transform = `translate3d(${fly.x.toFixed(1)}px, ${fly.y.toFixed(1)}px, 0)`;
+        fly.element.style.opacity = fly.brightness.toFixed(2);
+      });
+      requestAnimationFrame(updateSwarm);
+    }
+    
+    requestAnimationFrame(updateSwarm);
+  }
+
+  /**
+   * 8. Floating Petals Generator
+   */
+  function animatePetals() {
+    const container = document.getElementById('petals-container');
+    
+    function spawnPetal() {
+      // Respect performance targets; throttle active floating petal volume
+      if (container.childElementCount > 15) return;
+
+      const petal = document.createElement('div');
+      petal.className = 'petal-element';
+      
+      const size = Math.random() * 8 + 6;
+      petal.style.width = `${size}px`;
+      petal.style.height = `${size * 0.8}px`;
+      
+      // Spawn at dynamic locations from top edge
+      const startX = Math.random() * window.innerWidth;
+      const startY = -20;
+      
+      petal.style.left = `${startX}px`;
+      petal.style.top = `${startY}px`;
+      
+      container.appendChild(petal);
+
+      // Simulation parameters
+      let posX = startX;
+      let posY = startY;
+      let angle = Math.random() * 360;
+      let angleSpeed = (Math.random() - 0.5) * 1.5;
+      
+      const fallSpeed = Math.random() * 0.8 + 0.6;
+      const driftAmplitude = Math.random() * 1.5 + 0.5;
+      let driftTime = Math.random() * 100;
+
+      function driftStep() {
+        if (!petal.parentNode) return;
+
+        driftTime += 0.01;
+        posY += fallSpeed;
+        // Sway drift influenced directly by active system wind strength
+        posX += (Math.sin(driftTime) * driftAmplitude) + (windState.strength * 0.5);
+        angle += angleSpeed;
+
+        petal.style.transform = `translate3d(${(posX - startX).toFixed(1)}px, ${(posY - startY).toFixed(1)}px, 0) rotate(${angle.toFixed(1)}deg)`;
+
+        // Clean up when leaving viewport boundaries
+        if (posY > window.innerHeight + 20 || posX < -20 || posX > window.innerWidth + 20) {
+          petal.remove();
+        } else {
+          requestAnimationFrame(driftStep);
+        }
+      }
+
+      requestAnimationFrame(driftStep);
+    }
+
+    // Attempt petal creation periodically
+    setInterval(spawnPetal, 1800);
+  }
+
+  /**
+   * 9. Parallax Camera Navigation System
+   */
+  function initParallax() {
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Smooth, low impact fallback for touch hardware
+    if (isTouch) return;
+
+    const layers = document.querySelectorAll('.parallax-layer');
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+    let currentMouseX = 0;
+    let currentMouseY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      // Capture coordinates normalized around screen center points
+      targetMouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+      targetMouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+    });
+
+    function runLerpParallax() {
+      // Linear interpolation smoothing filter (lerp)
+      currentMouseX += (targetMouseX - currentMouseX) * 0.05;
+      currentMouseY += (targetMouseY - currentMouseY) * 0.05;
+
+      layers.forEach(layer => {
+        const depth = parseFloat(layer.getAttribute('data-depth')) || 0;
+        const moveX = currentMouseX * depth * -50; // Shift multiplier scale
+        const moveY = currentMouseY * depth * -30;
+        
+        layer.style.transform = `translate3d(${moveX.toFixed(2)}px, ${moveY.toFixed(2)}px, 0)`;
+      });
+
+      requestAnimationFrame(runLerpParallax);
+    }
+    
+    requestAnimationFrame(runLerpParallax);
+  }
+
+  /**
+   * Complete Scene Orchestration Core
+   */
+  function initScene() {
+    initLoading();
+    startWind();
+    createStars();
+    createClouds();
+    createGrass();
+    createFlowers();
+    createFireflies();
+    animatePetals();
+    initParallax();
+  }
+
+  initScene();
 });
