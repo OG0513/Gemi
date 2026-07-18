@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A Premium Birthday Journey</title>
+    <!-- Premium Fonts: Playfair Display for headers, Montserrat for UI elements -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Global Luxury Background Ambient System -->
+    <div class="global-background-container">
+        <div class="sky-gradient"></div>
+        <!-- Animated Cloud Elements -->
+        <div class="cloud-layer layer-back"></div>
+        <div class="cloud-layer layer-mid"></div>
+        <div class="ambient-glow glow-gold"></div>
+        <div class="ambient-glow glow-indigo"></div>
+        <div class="cloud-layer layer-front"></div>
+    </div>
+
+    <!-- UI Overlay: Global Scene Navigation Indicators (Minimalist design) -->
+    <nav class="global-nav-indicators" aria-label="Journey progress">
+        <div class="indicator-track">
+            <span class="indicator-dot active" data-scene-step="1"></span>
+            <span class="indicator-dot" data-scene-step="2"></span>
+            <span class="indicator-dot" data-scene-step="3"></span>
+            <span class="indicator-dot" data-scene-step="4"></span>
+            <span class="indicator-dot" data-scene-step="5"></span>
+            <span class="indicator-dot" data-scene-step="6"></span>
+            <span class="indicator-dot" data-scene-step="7"></span>
+            <span class="indicator-dot" data-scene-step="8"></span>
+        </div>
+    </nav>
+
+    <!-- Main Scene Container -->
+    <main class="viewport-wrapper">
+
+        <!-- SCENE 1: LOADING SCREEN -->
+        <section class="scene-section active" id="scene-loading" data-scene-index="1">
+            <div class="glass-card loading-card-layout">
+                <div class="luxury-preloader">
+                    <svg class="preloader-svg" viewBox="0 0 100 100">
+                        <circle class="track-circle" cx="50" cy="50" r="45"></circle>
+                        <circle class="progress-circle" id="preloader-progress" cx="50" cy="50" r="45"></circle>
+                    </svg>
+                    <div class="preloader-counter"><span id="loader-percent">0</span>%</div>
+                </div>
+                <h2 class="scene-heading serif-font">An Invitation Awaits</h2>
+                <p class="scene-subtext sans-font">Preparing your personalized interactive journey...</p>
+                <button class="action-btn hidden" id="enter-journey-btn">Enter Experience</button>
+            </div>
+        </section>
+
+        <!-- SCENE 2: WELCOME SCREEN -->
+        <section class="scene-section" id="scene-welcome" data-scene-index="2">
+            <div class="glass-card welcome-card-layout">
+                <span class="card-badge sans-font">Chapter I</span>
+                <h1 class="main-title serif-font">The Journey Ahead</h1>
+                <p class="scene-subtext sans-font">Welcome. Today, we step beyond traditional greetings into a curated experience engineered to celebrate another milestone year of your unique story.</p>
+                <button class="action-btn next-scene-trigger" data-target="3">Begin Journey</button>
+            </div>
+        </section>
+
+        <!-- SCENE 3: BIRTHDAY CARD (PREMIUM START CELEBRATION CARD) -->
+        <section class="scene-section" id="scene-card" data-scene-index="3">
+            <div class="interactive-envelope-container">
+                <div class="card-assembly" id="card-assembly-element">
+                    <!-- Front Face of Card -->
+                    <div class="card-face front-face">
+                        <div class="card-texture-layer"></div>
+                        <div class="card-content">
+                            <span class="stamp-badge">Gold Ribbon Edition</span>
+                            <div class="monogram">★</div>
+                            <h2 class="card-title serif-font">Unveil Your Greeting</h2>
+                            <p class="card-action-cue sans-font">Click to unfold the chapter</p>
+                        </div>
+                    </div>
+                    <!-- Back Face of Card (The Inside Message) -->
+                    <div class="card-face back-face">
+                        <div class="card-texture-layer"></div>
+                        <div class="card-content">
+                            <h3 class="letter-salutation serif-font">To Someone Exceptional,</h3>
+                            <p class="letter-body sans-font">Today is a milestone dedicated entirely to celebrating you. This interactive world is customized to guide you through beautiful moments curated in your honor. Enjoy each step.</p>
+                            <div class="letter-signature serif-font">With Warmest Regards</div>
+                            <button class="action-btn compact next-scene-trigger" data-target="4">Continue the Journey</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 4: GARDEN (Structural Placeholder) -->
+        <section class="scene-section" id="scene-garden" data-scene-index="4">
+            <div class="glass-card status-card">
+                <span class="card-badge sans-font">Chapter II</span>
+                <h2 class="scene-heading serif-font">The Virtual Garden</h2>
+                <p class="scene-subtext sans-font">A tranquil place designed to cultivate growth and reflect on achievements.</p>
+                <div class="modular-placeholder-box">
+                    <p class="placeholder-note sans-font">Architectural space reserved for Version 2: Garden Interaction</p>
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn outline next-scene-trigger" data-target="3">Back</button>
+                    <button class="action-btn next-scene-trigger" data-target="5">Continue</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 5: GIFT (Structural Placeholder) -->
+        <section class="scene-section" id="scene-gift" data-scene-index="5">
+            <div class="glass-card status-card">
+                <span class="card-badge sans-font">Chapter III</span>
+                <h2 class="scene-heading serif-font">The Gift Container</h2>
+                <p class="scene-subtext sans-font">A sensory experience revealing a symbolic token of celebration.</p>
+                <div class="modular-placeholder-box">
+                    <p class="placeholder-note sans-font">Architectural space reserved for Version 3: Present Unboxing</p>
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn outline next-scene-trigger" data-target="4">Back</button>
+                    <button class="action-btn next-scene-trigger" data-target="6">Continue</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 6: CAKE (Structural Placeholder) -->
+        <section class="scene-section" id="scene-cake" data-scene-index="6">
+            <div class="glass-card status-card">
+                <span class="card-badge sans-font">Chapter IV</span>
+                <h2 class="scene-heading serif-font">The Celebration Cake</h2>
+                <p class="scene-subtext sans-font">Make a wish, trigger the flame, and watch the visual spectrum come to life.</p>
+                <div class="modular-placeholder-box">
+                    <p class="placeholder-note sans-font">Architectural space reserved for Version 4: Cake & Candle simulation</p>
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn outline next-scene-trigger" data-target="5">Back</button>
+                    <button class="action-btn next-scene-trigger" data-target="7">Continue</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 7: CELEBRATION (Structural Placeholder) -->
+        <section class="scene-section" id="scene-celebration" data-scene-index="7">
+            <div class="glass-card status-card">
+                <span class="card-badge sans-font">Chapter V</span>
+                <h2 class="scene-heading serif-font">Visual Symphony</h2>
+                <p class="scene-subtext sans-font">An burst of synchronized particle light trails and dynamic visuals.</p>
+                <div class="modular-placeholder-box">
+                    <p class="placeholder-note sans-font">Architectural space reserved for Version 5: Interactive particle displays</p>
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn outline next-scene-trigger" data-target="6">Back</button>
+                    <button class="action-btn next-scene-trigger" data-target="8">Continue</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 8: FINAL WISH (Structural Placeholder) -->
+        <section class="scene-section" id="scene-wish" data-scene-index="8">
+            <div class="glass-card status-card">
+                <span class="card-badge sans-font">Chapter VI</span>
+                <h2 class="scene-heading serif-font">The Perpetual Wish</h2>
+                <p class="scene-subtext sans-font">Seal your journey with an interactive signature of aspirations.</p>
+                <div class="modular-placeholder-box">
+                    <p class="placeholder-note sans-font">Architectural space reserved for Version 6: Custom wishes database/interaction</p>
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn outline next-scene-trigger" data-target="7">Back</button>
+                    <button class="action-btn" id="restart-experience-btn">Restart Journey</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
