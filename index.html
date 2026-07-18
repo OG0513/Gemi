@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A calm, magical moonlit garden scene created as a special gift.">
-  <title>A Quiet Evening | Version 1</title>
+  <meta name="description" content="A calm, magical moonlit garden scene with an interactive surprise gift.">
+  <title>A Quiet Evening | Version 2</title>
   
   <!-- Typography Setup -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Sacramento&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Sacramento&display=swap" rel="stylesheet">
   
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
@@ -28,6 +28,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Ambient Scene Dimmer (Activated when letter is opened) -->
+  <div id="scene-dimmer" class="scene-dimmer"></div>
 
   <!-- Immersive Main Scene -->
   <main id="main-scene" class="scene-wrapper" aria-hidden="true" style="opacity: 0; pointer-events: none;">
@@ -58,10 +61,51 @@
       <div class="meadow-ground"></div>
       <div class="grass-field" id="grass-field"></div>
       <div class="flower-field" id="flower-field"></div>
+      
+      <!-- Interactive Envelope Target (Sits beautifully in the meadow) -->
+      <div id="envelope-wrapper" class="envelope-container" role="button" tabindex="0" aria-label="Open the handcrafted envelope">
+        <div class="envelope">
+          <div class="envelope-back"></div>
+          <div class="paper-preview">
+            <span class="preview-heart">♥</span>
+          </div>
+          <div class="envelope-left-flap"></div>
+          <div class="envelope-right-flap"></div>
+          <div class="envelope-bottom-flap"></div>
+          <div class="envelope-top-flap"></div>
+        </div>
+        <div class="envelope-shadow"></div>
+      </div>
     </div>
 
-    <!-- Future Expansion Anchor -->
-    <!-- Content containers for envelopes, letters, trees, etc. can be dynamically injected here in future versions -->
+    <!-- Interactive Letter Paper Overlay (Unfolded / Readable State) -->
+    <div id="letter-overlay" class="letter-overlay" aria-modal="true" role="dialog" aria-hidden="true">
+      <div class="letter-paper">
+        <!-- Elegant Hand-Crafted Decorative Accents -->
+        <div class="letter-doodle letter-doodle-top">❦</div>
+        
+        <div class="letter-scroll-content">
+          <div class="letter-text-body">
+            <p class="letter-paragraph">Dear One,</p>
+            <p class="letter-paragraph">Amidst the quiet of this beautiful moonlit evening, I wanted to craft a safe space just for you. A sanctuary of <span class="glow-word">calm</span> and soft light, away from the rush of the world.</p>
+            <p class="letter-paragraph">You bring a unique and gentle <span class="glow-word">brilliance</span> into the lives of everyone around you, much like the steady glow of these fireflies dancing in the night.</p>
+            <p class="letter-paragraph">May this coming year bring you peaceful moments, deep warmth, and the quiet joy of dreams unfolding at their own gentle pace.</p>
+            <p class="letter-paragraph signature">With love,</p>
+            <p class="letter-paragraph signature-name">Your Someone Special <span class="letter-heart">♥</span></p>
+          </div>
+        </div>
+
+        <div class="letter-doodle letter-doodle-bottom">❦</div>
+
+        <!-- Navigation / Action Anchor -->
+        <button id="btn-continue" class="btn-continue" disabled aria-label="Proceed to next scene">
+          <span>Continue</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active interactive anchor for system generated elements (sparkles etc.) -->
     <div id="interactive-anchor" class="interactive-overlay"></div>
 
   </main>
