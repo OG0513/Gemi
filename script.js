@@ -1,5 +1,5 @@
 /**
- * Interactive Premium Birthday Experience - Version 4 (Optimized)
+ * Interactive Premium Birthday Experience - Version 5
  * Core Architecture & Living Environmental Engine
  */
 
@@ -531,6 +531,7 @@ class Loader {
 /**
  * Interactive Birthday Card Scene Controller
  * Manages Envelope unfolding, sliding translation vector animations, and book folds
+ * AUTOMATED PRECISE REALISTIC SEQUENCE (VERSION 5)
  */
 class InteractiveCardController {
   constructor(sceneManager) {
@@ -542,8 +543,10 @@ class InteractiveCardController {
     this.cardCover = document.getElementById('card-cover-container');
     this.hintText = document.getElementById('card-interaction-hint');
     this.nextButton = document.getElementById('btn-next-scene');
+    this.innerContent = document.querySelector('.inside-right-content');
 
     // Progression State Flags
+    this.isInteracting = false;
     this.isEnvelopeOpen = false;
     this.isCardEmerged = false;
     this.isCardOpened = false;
@@ -552,67 +555,85 @@ class InteractiveCardController {
   }
 
   bindEvents() {
-    // Stage 1: Interact envelope flap
+    // Single Tap Event triggers the highly realistic automated cinematic sequence
     this.envelope.addEventListener('click', (e) => {
-      if (!this.isEnvelopeOpen) {
-        this.openEnvelope();
-        e.stopPropagation();
-      }
-    });
-
-    // Stage 2: Click floating card body to book fold open/close
-    this.cardBook.addEventListener('click', (e) => {
-      if (this.isCardEmerged && !this.isCardOpened) {
-        this.openCard();
+      if (!this.isInteracting) {
+        this.startCinematicSequence();
         e.stopPropagation();
       }
     });
   }
 
   /**
-   * Step 1: Open envelope flap, then slide card upward in dynamic sequence
+   * Version 5: Realistic weight and automated timeline sequence
+   * Envelope Opens -> Card slides halfway -> Card rises completely -> Card Unfolds -> Message visible -> Next Button
    */
-  openEnvelope() {
-    this.isEnvelopeOpen = true;
-    this.envelope.classList.add('open');
-    this.envelope.classList.remove('floating-envelope'); // Pause structural float animations
+  startCinematicSequence() {
+    this.isInteracting = true;
+    this.envelope.classList.remove('floating-envelope'); // Freeze floating loop
+    
+    // 1. Tapped Settle/Wiggle Feedback (300ms)
+    this.envelope.classList.add('shake-react');
     this.hintText.textContent = 'Opening Envelope...';
 
-    // Slide up Card out of the envelope body after flap animation finishes rotation
     setTimeout(() => {
-      this.isCardEmerged = true;
-      this.envelope.classList.add('card-emerged');
-      this.hintText.textContent = 'Click Card to Open';
-    }, 1000);
-  }
+      this.envelope.classList.remove('shake-react');
+      
+      // 2. Rotate envelope flap (800ms)
+      this.isEnvelopeOpen = true;
+      this.envelope.classList.add('open');
+      
+      setTimeout(() => {
+        // 3. Card slides halfway upward and pauses (1000ms)
+        this.envelope.classList.add('emerge-half');
+        
+        setTimeout(() => {
+          // 4. Card rises completely; envelope dims down (1000ms)
+          this.isCardEmerged = true;
+          this.envelope.classList.remove('emerge-half');
+          this.envelope.classList.add('emerge-full');
+          this.envelope.classList.add('dimmed');
+          this.hintText.textContent = 'Unfolding Greeting Card...';
 
-  /**
-   * Step 2: Swing Cover page leftwards, expose personalized elements and reveal next button
-   */
-  openCard() {
-    this.isCardOpened = true;
-    this.cardBook.classList.add('opened');
-    this.hintText.textContent = ''; // Clear prompt as interaction completes
+          setTimeout(() => {
+            // 5. Unfolds cover left like a book (1500ms)
+            this.isCardOpened = true;
+            this.cardBook.classList.add('opened');
+            
+            setTimeout(() => {
+              // 6. Message inside becomes visible (600ms)
+              this.innerContent.classList.add('visible');
+              this.hintText.textContent = '';
 
-    // Expose circular navigation path after cover fold rotation completes
-    setTimeout(() => {
-      this.nextButton.classList.add('visible');
-    }, 1200);
+              setTimeout(() => {
+                // 7. Premium Navigation circular button fades in with idle hover loop active
+                this.nextButton.classList.add('visible');
+                setTimeout(() => {
+                  this.nextButton.classList.add('floating-btn');
+                }, 600);
+              }, 600);
+            }, 1200);
+          }, 1200);
+        }, 1200);
+      }, 900);
+    }, 300);
   }
 
   /**
    * Restore initial defaults for full repeatable navigability
    */
   reset() {
+    this.isInteracting = false;
     this.isEnvelopeOpen = false;
     this.isCardEmerged = false;
     this.isCardOpened = false;
 
-    this.envelope.classList.remove('open', 'card-emerged');
+    this.envelope.classList.remove('open', 'card-emerged', 'emerge-half', 'emerge-full', 'dimmed', 'shake-react');
     this.envelope.classList.add('floating-envelope');
     this.cardBook.classList.remove('opened');
+    this.innerContent.classList.remove('visible');
     this.hintText.textContent = 'Click the Envelope to open';
-    this.nextButton.classList.remove('visible');
+    this.nextButton.classList.remove('visible', 'floating-btn');
   }
 }
 
