@@ -1,5 +1,5 @@
 /**
- * Dreamy Landscape - Version 3 Engine
+ * Dreamy Landscape - Version 3 Gallery Engine
  * Architectural elements structured modularly for performance and maintainability.
  */
 
@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    // Soft loading background elements
     for (let i = 0; i < 15; i++) {
       const particle = document.createElement('div');
       particle.className = 'loader-particle';
@@ -44,20 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
       particle.style.left = `${Math.random() * width}px`;
       particle.style.top = `${Math.random() * height}px`;
       
-      // Infinite float animation properties
       const floatDuration = Math.random() * 10 + 10;
       particle.style.transition = `transform ${floatDuration}s linear, opacity 2s ease`;
       
       container.appendChild(particle);
 
-      // Loop floating coordinates safely without causing browser thrashing
       setTimeout(() => {
         particle.style.transform = `translate(${Math.random() * 40 - 20}px, -${Math.random() * 200 + 50}px)`;
         particle.style.opacity = '0';
       }, 50);
     }
 
-    // Elegant Transition Out of loading panel
     setTimeout(() => {
       loader.style.opacity = '0';
       mainScene.setAttribute('aria-hidden', 'false');
@@ -75,19 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function startWind() {
     function updateWind() {
-      // Wind strength changes smoothly via pseudo-random interpolation
       windState.time += 0.002;
-      
-      // Introduce base sinus breeze patterns combined with gentle noise spikes
       const baseWave = Math.sin(windState.time * 2);
       const spike = Math.sin(windState.time * 5.5) * 0.3;
       
       windState.targetStrength = Math.max(0.4, (baseWave + spike + 1.2));
-      
-      // Interpolate current values safely
       windState.strength += (windState.targetStrength - windState.strength) * 0.01;
       
-      // Commit dynamic metrics to responsive CSS global variables
       document.documentElement.style.setProperty('--wind-strength-multiplier', windState.strength.toFixed(3));
       
       requestAnimationFrame(updateWind);
@@ -108,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const size = Math.random() * 1.8 + 0.6;
       const x = Math.random() * 100;
-      const y = Math.random() * 75; // Stay upper-mid horizon
+      const y = Math.random() * 75;
       const baseOpacity = Math.random() * 0.6 + 0.2;
       
       star.style.width = `${size}px`;
@@ -118,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
       star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
       star.style.setProperty('--star-base-opacity', baseOpacity);
       
-      // Asymmetric unique twinkling delay parameters
       const duration = Math.random() * 4 + 3;
       const delay = Math.random() * 5;
       star.style.animation = `twinkle ${duration}s ease-in-out infinite ${delay}s`;
@@ -147,13 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
       cloud.style.left = `${x}%`;
       cloud.style.top = `${y}%`;
 
-      // Drift physics variables
       let driftX = 0;
       const speed = Math.random() * 0.015 + 0.005;
 
       function stepDrift() {
         driftX += speed;
-        // Wrap gracefully at boundaries to maintain infinite horizontal loops
         if (driftX > window.innerWidth * 1.1) {
           driftX = -width;
         }
@@ -194,12 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
       blade.style.height = `${height}px`;
       blade.style.left = `${posX}%`;
       blade.style.backgroundColor = color;
-      blade.style.zIndex = Math.floor(height); // Depth sorting
+      blade.style.zIndex = Math.floor(height);
       
-      // Connect CSS properties to wind timing offsets
       blade.style.setProperty('--sway-angle-base', baseSwayAngle);
       const swayDuration = Math.random() * 1.5 + 2.5;
-      const swayDelay = Math.random() * -4; // Negated delay sets starting frame variation
+      const swayDelay = Math.random() * -4;
       blade.style.animation = `sway ${swayDuration}s ease-in-out infinite alternate ${swayDelay}s`;
 
       field.appendChild(blade);
@@ -222,32 +208,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const flower = document.createElement('div');
       flower.className = 'flower';
       
-      const posX = Math.random() * 92 + 4; // Avoid screen edge clips
+      const posX = Math.random() * 92 + 4;
       const height = Math.random() * 50 + 35;
       const zIndexIndex = Math.floor(height);
       
       flower.style.left = `${posX}%`;
       flower.style.zIndex = zIndexIndex;
       
-      // Stem logic
       const stem = document.createElement('div');
       stem.className = 'flower-stem';
       stem.style.height = `${height}px`;
       
-      // Flower assembly
       const head = document.createElement('div');
       head.className = 'flower-head';
       
       const theme = colorThemes[Math.floor(Math.random() * colorThemes.length)];
       
-      // Center disc
       const center = document.createElement('div');
       center.className = 'flower-center';
       center.style.backgroundColor = theme.center;
       head.appendChild(center);
 
-      // Radial Petal Placement
-      const petalCount = Math.floor(Math.random() * 3) + 5; // 5 to 7 petals
+      const petalCount = Math.floor(Math.random() * 3) + 5;
       const petalSize = Math.random() * 3 + 4;
       
       for (let p = 0; p < petalCount; p++) {
@@ -257,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
         petal.style.width = `${petalSize}px`;
         petal.style.height = `${petalSize * 1.8}px`;
         
-        // Rotate petals outward
         const rotation = (p * (360 / petalCount));
         petal.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
         head.appendChild(petal);
@@ -266,10 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
       flower.appendChild(stem);
       flower.appendChild(head);
       
-      // Align head relative to stem length
       head.style.bottom = `${height}px`;
 
-      // Apply animated sway synced to Wind Engine parameters
       flower.style.setProperty('--sway-angle-base', (Math.random() * 4 + 2));
       const swayDuration = Math.random() * 1.5 + 3.0;
       const swayDelay = Math.random() * -5;
@@ -296,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       container.appendChild(f);
 
-      // Firefly spatial motion profiles
       swarm.push({
         element: f,
         x: Math.random() * window.innerWidth,
@@ -314,28 +292,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSwarm() {
       swarm.forEach(fly => {
-        // Naturally wander toward new dynamic coordinates
         fly.angle += (Math.random() - 0.5) * 0.15;
         
-        // Dynamic acceleration curves
         fly.vx += Math.cos(fly.angle) * fly.speed * 0.1;
         fly.vy += Math.sin(fly.angle) * fly.speed * 0.1;
         
-        // Damp velocity to prevent speed runaways
         fly.vx *= 0.98;
         fly.vy *= 0.98;
         
         fly.x += fly.vx;
         fly.y += fly.vy;
         
-        // Wrap boundaries elegantly
         const pad = 20;
         if (fly.x < -pad) fly.x = window.innerWidth + pad;
         if (fly.x > window.innerWidth + pad) fly.x = -pad;
         if (fly.y < -pad) fly.y = window.innerHeight + pad;
         if (fly.y > window.innerHeight + pad) fly.y = -pad;
 
-        // Fluctuating organic glowing pattern logic
         if (fly.brightening) {
           fly.brightness += 0.012;
           if (fly.brightness >= 1.0) fly.brightening = false;
@@ -344,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
           if (fly.brightness <= 0.15) fly.brightening = true;
         }
 
-        // Apply visual positions with performance-optimized hardware acceleration
         fly.element.style.transform = `translate3d(${fly.x.toFixed(1)}px, ${fly.y.toFixed(1)}px, 0)`;
         fly.element.style.opacity = fly.brightness.toFixed(2);
       });
@@ -427,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
       sparkle.style.left = `${startX}px`;
       sparkle.style.top = `${startY}px`;
 
-      // Calculate path outwards
       const angle = Math.random() * Math.PI * 2;
       const distance = Math.random() * 90 + 30;
       const destX = Math.cos(angle) * distance;
@@ -507,62 +478,44 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // V3 Hook: Transition smoothly to the Scrapbook Timeline
+    // Gallery Transition Trigger
     btnContinue.addEventListener('click', () => {
-      // 1. Fade out the letter modal
       letterOverlay.classList.remove('visible');
       letterOverlay.setAttribute('aria-hidden', 'true');
       
-      // 2. Shift active meadow downwards slightly to highlight scrapbook focus
       const meadowContainer = document.getElementById('meadow-container');
       meadowContainer.style.transform = 'translateY(15vh)';
 
-      // 3. Update dimmer filters to optimize visual background legibility
       sceneDimmer.classList.remove('dimmed');
-      sceneDimmer.classList.add('dimmed-timeline');
+      sceneDimmer.classList.add('dimmed-gallery');
 
-      // 4. Smoothly display the scrapbook timeline
       setTimeout(() => {
-        initMemoryTimeline();
+        initMemoryGallery();
       }, 500);
     });
   }
 
   /**
-   * 11. V3 Memory Timeline Scroll Orchestrator
+   * 11. V3 Single-Screen Memory Gallery Sequential Reveal Setup
    */
-  function initMemoryTimeline() {
-    const timelineContainer = document.getElementById('timeline-container');
-    const timelineItems = document.querySelectorAll('.timeline-item');
+  function initMemoryGallery() {
+    const galleryContainer = document.getElementById('gallery-container');
+    const collageItems = document.querySelectorAll('.collage-item');
     
-    // Reveal main container
-    timelineContainer.classList.add('visible');
-    timelineContainer.setAttribute('aria-hidden', 'false');
+    galleryContainer.classList.add('visible');
+    galleryContainer.setAttribute('aria-hidden', 'false');
 
-    // Establish rotation values based on designated markup data attributes
-    timelineItems.forEach(item => {
+    collageItems.forEach(item => {
       const rot = item.getAttribute('data-rotation') || '0';
       item.style.setProperty('--rotation-offset', `${rot}deg`);
     });
 
-    // Use IntersectionObserver to elegantly animate memory objects as the user scrolls
-    const observerOptions = {
-      root: timelineContainer,
-      threshold: 0.15,
-      rootMargin: '0px 0px -5% 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed-node');
-          // Unobserve to retain animation state on scroll-back
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    timelineItems.forEach(item => observer.observe(item));
+    // Cascaded sequential fade-and-scale animations
+    collageItems.forEach((item, index) => {
+      setTimeout(() => {
+        item.classList.add('revealed-node');
+      }, 250 * index);
+    });
   }
 
   /**
@@ -574,6 +527,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isTouch) return;
 
     const layers = document.querySelectorAll('.parallax-layer');
+    const envelope = document.getElementById('envelope-wrapper');
+    
     let targetMouseX = 0;
     let targetMouseY = 0;
     let currentMouseX = 0;
@@ -595,6 +550,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         layer.style.transform = `translate3d(${moveX.toFixed(2)}px, ${moveY.toFixed(2)}px, 0)`;
       });
+
+      // Subtle parallax shift applied to centered envelope to maintain three-dimensional space
+      if (envelope && !envelope.classList.contains('active-opening')) {
+        const moveX = currentMouseX * 0.05 * -35;
+        const moveY = currentMouseY * 0.05 * -20;
+        envelope.style.transform = `translate3d(calc(-50% + ${moveX.toFixed(2)}px), calc(-50% + ${moveY.toFixed(2)}px), 0)`;
+      }
 
       requestAnimationFrame(runLerpParallax);
     }
