@@ -24,11 +24,21 @@
   /* Fonts */
   --font-serif: 'Cinzel', Georgia, serif;
   --font-sans: 'Montserrat', sans-serif;
+  --font-script: 'Playfair Display', Georgia, serif;
 
   /* Transitions */
   --transition-slow: 1.2s cubic-bezier(0.25, 1, 0.5, 1);
   --transition-medium: 0.6s cubic-bezier(0.25, 1, 0.5, 1);
   --transition-fast: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  
+  /* Envelope and Card Specific Palettes (Pastel Luxe) */
+  --envelope-outer: #dfd4ca;
+  --envelope-inner: #ece4db;
+  --envelope-pocket: #d3c6ba;
+  --envelope-shadow: rgba(18, 14, 11, 0.35);
+  --paper-cream: #fbf9f4;
+  --paper-border: #f0e6d6;
+  --rose-gold: #e2b4bd;
 }
 
 * {
@@ -437,10 +447,423 @@ html, body {
 }
 
 /* ==========================================================================
-   7. RESPONSIVENESS AND CLIPPING MITIGATION
+   7. SCENE 3: INTERACTIVE BIRTHDAY CARD & ENVELOPE STYLING (VERSION 2)
+   ========================================================================== */
+.card-scene-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Hint Text Banner */
+.interaction-hint {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  opacity: 0.8;
+  animation: pulsingHint 2s infinite ease-in-out;
+  text-align: center;
+}
+
+@keyframes pulsingHint {
+  0%, 100% { opacity: 0.5; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* Responsive 3D Stage limiting dimensions to stay completely in viewport */
+.stage-3d {
+  width: 100%;
+  max-width: 480px;
+  height: 480px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1500px; /* Gives realistic 3D spatial separation */
+}
+
+/* Envelope Box Wrapping */
+.envelope-wrapper {
+  position: relative;
+  width: 360px;
+  height: 240px;
+  background-color: var(--envelope-inner);
+  border-radius: 6px;
+  box-shadow: 0 15px 40px var(--envelope-shadow);
+  transform-style: preserve-3d;
+  cursor: pointer;
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s;
+}
+
+.envelope-wrapper:hover {
+  transform: translateY(-5px) rotateX(5deg);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+}
+
+/* Real-feel Paper Texture Effect Overlay */
+.envelope-back, 
+.envelope-front-pocket,
+.envelope-flap-inner,
+.card-page {
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.02) 100%);
+}
+
+.envelope-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--envelope-inner);
+  border-radius: 6px;
+  z-index: 1;
+}
+
+/* Front triangular pocket created using vector path overlays */
+.envelope-front-pocket {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--envelope-pocket);
+  clip-path: polygon(0 40%, 50% 70%, 100% 40%, 100% 100%, 0% 100%);
+  border-radius: 0 0 6px 6px;
+  z-index: 3;
+}
+
+/* Rotating Envelope Opening Flap */
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  transform-origin: top center;
+  transform: rotateX(0deg);
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.8s;
+  z-index: 4; /* Sits above front pocket initially */
+}
+
+.envelope-flap-inner {
+  width: 100%;
+  height: 100%;
+  background-color: var(--envelope-outer);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  border-radius: 6px 6px 0 0;
+}
+
+/* Wax Seal Accent */
+.wax-seal {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
+  background: radial-gradient(circle, #b83d54 0%, #8b1e32 80%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  z-index: 5;
+  transition: opacity 0.4s ease, transform 0.4s;
+}
+
+.seal-logo {
+  color: var(--gold-light);
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+/* ACTIVE ENVELOPE STATES */
+.envelope-wrapper.open .envelope-flap {
+  transform: rotateX(180deg);
+  z-index: 2; /* Drops behind card path as it opens */
+}
+
+.envelope-wrapper.open .wax-seal {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.6);
+}
+
+/* ==========================================================================
+   8. BIRTHDAY GREETING BOOK CARD (3D FOLD)
+   ========================================================================== */
+.card-3d-wrapper {
+  position: absolute;
+  top: 10px;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  z-index: 2; /* Sits inside envelope initially */
+  transform: translateY(0) scale(0.96);
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), z-index 1.2s;
+  pointer-events: none; /* Block interactions until sliding finishes */
+}
+
+/* Card emerges state (Triggered via JS) */
+.envelope-wrapper.card-emerged .card-3d-wrapper {
+  transform: translateY(-160px) scale(1.1);
+  z-index: 10; /* Raises above the envelope completely */
+  pointer-events: auto;
+}
+
+/* Elegant Book Folding Layout container */
+.card-book {
+  width: 320px;
+  height: 240px;
+  position: relative;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+  transition: transform 1s ease-in-out;
+}
+
+/* Individual Book Pages */
+.card-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background-color: var(--paper-cream);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.05), 
+              0 6px 15px rgba(0,0,0,0.1);
+  backface-visibility: hidden;
+}
+
+/* Swinging Card Cover Plate */
+.card-cover-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1.6s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 5;
+}
+
+.card-cover-front {
+  z-index: 2;
+}
+
+/* Decorative Gold Cover Face */
+.card-cover-design {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--paper-border);
+  padding: 24px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.foil-border {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 1px solid var(--gold-primary);
+  opacity: 0.5;
+}
+
+.cover-accent {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  color: var(--gold-secondary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.gold-embellishment {
+  font-size: 1.5rem;
+  color: var(--gold-primary);
+  margin-bottom: 16px;
+}
+
+.cover-instruction {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: #333;
+  letter-spacing: 1px;
+}
+
+/* Inner Left Page face design */
+.card-cover-back {
+  transform: rotateY(180deg); /* Reverses visibility in 3D projection */
+  z-index: 1;
+}
+
+.inside-left-design {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--paper-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.decorative-pattern {
+  width: 90%;
+  height: 90%;
+  border: 1px dashed rgba(212, 175, 55, 0.2);
+  border-radius: 6px;
+  background: radial-gradient(circle, rgba(212,175,55,0.03) 0%, rgba(0,0,0,0) 80%);
+}
+
+/* Stationary Inside Right Page Face (Calligraphy Content) */
+.card-inside-right {
+  z-index: 0; /* Base page */
+  border-radius: 10px;
+  border-left: 2px solid rgba(0,0,0,0.04); /* Simulates binding crease shadow */
+}
+
+.inside-right-content {
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 1px solid var(--paper-border);
+  border-radius: 0 10px 10px 0;
+}
+
+.card-cursive-header {
+  font-family: var(--font-script);
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--gold-secondary);
+  margin-bottom: 4px;
+}
+
+.recipient-name {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: #222;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.message-divider {
+  font-size: 0.75rem;
+  color: var(--gold-primary);
+  margin-bottom: 12px;
+}
+
+.personal-message {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: #555;
+  font-weight: 400;
+  max-width: 240px;
+  margin-bottom: 12px;
+}
+
+.signature {
+  font-family: var(--font-script);
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* ACTIVE CARD TRANSITIONS */
+.card-book.opened .card-cover-container {
+  transform: rotateY(-140deg); /* Swings cover open elegant flat layout angle */
+}
+
+/* ==========================================================================
+   9. CIRCULAR NEXT SCENE NAVIGATION BUTTON
+   ========================================================================== */
+.btn-circular-next {
+  position: absolute;
+  bottom: 10%;
+  right: 15%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--gold-primary);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: none;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+  transition: opacity var(--transition-slow), transform var(--transition-slow), border-color var(--transition-fast);
+}
+
+.btn-circular-next.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.arrow-icon {
+  color: var(--gold-primary);
+  font-size: 1.5rem;
+  transition: transform var(--transition-fast);
+}
+
+.btn-circular-next:hover {
+  border-color: var(--gold-light);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.btn-circular-next:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+/* Infinite Ambient Ring Pulse for UX call-to-action */
+.btn-pulse {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-primary);
+  opacity: 0;
+  animation: rippleGlow 2.5s infinite ease-out;
+  pointer-events: none;
+}
+
+@keyframes rippleGlow {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* ==========================================================================
+   10. RESPONSIVENESS AND CLIPPING MITIGATION
    ========================================================================== */
 @media (max-width: 768px) {
-  /* Portrait phones layout control */
+  /* Portrait and landscape phones styling */
   .glass-card {
     padding: 32px 24px;
     gap: 24px;
@@ -470,10 +893,26 @@ html, body {
   .logo-initial {
     font-size: 1.75rem;
   }
+
+  /* 3D Stage Scaling adjustments to eliminate mobile layout clipping completely */
+  .stage-3d {
+    transform: scale(0.85);
+  }
+
+  .btn-circular-next {
+    right: 10%;
+    bottom: 5%;
+  }
 }
 
+@media (max-width: 480px) {
+  .stage-3d {
+    transform: scale(0.72);
+  }
+}
+
+/* Landscape Phone Heights Specific layout adjustment */
 @media (max-height: 568px) {
-  /* Prevent clipping on extremely small vertical height screens (e.g. older/smaller mobile layouts) */
   .glass-card {
     padding: 20px;
     gap: 16px;
@@ -486,5 +925,13 @@ html, body {
   .welcome-text {
     font-size: 0.8rem;
     line-height: 1.4;
+  }
+
+  .stage-3d {
+    transform: scale(0.6);
+  }
+
+  .interaction-hint {
+    margin-bottom: 8px;
   }
 }
