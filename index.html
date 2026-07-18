@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A calm, magical moonlit garden scene with an interactive centered surprise gift and scrapbook gallery.">
-  <title>A Quiet Evening | Version 3 (Gallery Edition)</title>
+  <meta name="description" content="A calm, magical moonlit garden scene with interactive objects, a centered envelope, and a memory gallery.">
+  <title>A Quiet Evening | Version 4 (Interactive Edition)</title>
   
   <!-- Typography Setup -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,8 +44,8 @@
     
     <div class="parallax-layer moon-layer" data-depth="0.12">
       <div class="moon-container">
-        <!-- High-Fidelity Realistic Moon -->
-        <div class="moon" role="img" aria-label="Detailed realistic glowing moon">
+        <!-- High-Fidelity Interactive Moon -->
+        <div class="moon interactive-moon" id="interactive-moon" role="button" tabindex="0" aria-label="Detailed realistic glowing moon. Click for moonlight ripple.">
           <div class="moon-texture"></div>
           <div class="moon-crater crater-large" style="top: 25%; left: 22%; width: 22%; height: 22%;"></div>
           <div class="moon-crater crater-medium" style="top: 58%; left: 58%; width: 15%; height: 15%;"></div>
@@ -68,6 +68,93 @@
       <div class="meadow-ground"></div>
       <div class="grass-field" id="grass-field"></div>
       <div class="flower-field" id="flower-field"></div>
+
+      <!-- V4 Interactive Objects Integrated Into Garden Scene -->
+      <div class="interactive-objects-layer">
+        
+        <!-- 1. Standing Glowing Lantern -->
+        <div id="obj-lantern" class="interactive-object obj-lantern" role="button" tabindex="0" aria-label="Warm Glowing Lantern">
+          <div class="lantern-hook"></div>
+          <div class="lantern-body">
+            <div class="lantern-cap"></div>
+            <div class="lantern-glass">
+              <div class="lantern-glow-core"></div>
+            </div>
+            <div class="lantern-base"></div>
+          </div>
+        </div>
+
+        <!-- 2. Cozy Sleeping Cat -->
+        <div id="obj-cat" class="interactive-object obj-cat" role="button" tabindex="0" aria-label="Sleeping Cozy Cat">
+          <div class="cat-body">
+            <div class="cat-head">
+              <div class="cat-ear left"></div>
+              <div class="cat-ear right"></div>
+              <div class="cat-eye left"></div>
+              <div class="cat-eye right"></div>
+              <div class="cat-nose"></div>
+            </div>
+            <div class="cat-tail"></div>
+          </div>
+        </div>
+
+        <!-- 3. Teddy Bear sitting in the meadow -->
+        <div id="obj-teddy" class="interactive-object obj-teddy" role="button" tabindex="0" aria-label="Cozy Teddy Bear">
+          <div class="teddy-ears">
+            <div class="teddy-ear left"></div>
+            <div class="teddy-ear right"></div>
+          </div>
+          <div class="teddy-head">
+            <div class="teddy-eye left"></div>
+            <div class="teddy-eye right"></div>
+            <div class="teddy-snout">
+              <div class="teddy-nose"></div>
+            </div>
+          </div>
+          <div class="teddy-body">
+            <div class="teddy-paws">
+              <div class="teddy-paw left" id="teddy-paw-left"></div>
+              <div class="teddy-paw right"></div>
+            </div>
+            <div class="teddy-legs">
+              <div class="teddy-foot left"></div>
+              <div class="teddy-foot right"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Surprise Gift Box hidden in meadow -->
+        <div id="obj-gift" class="interactive-object obj-gift" role="button" tabindex="0" aria-label="Surprise Gift Box">
+          <div class="gift-box-wrapper">
+            <div class="gift-lid"></div>
+            <div class="gift-box-body">
+              <div class="gift-ribbon-vertical"></div>
+              <div class="gift-ribbon-horizontal"></div>
+            </div>
+            <div class="gift-bow">
+              <div class="bow-loop left"></div>
+              <div class="bow-loop right"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Interactive Golden Bloom Flower -->
+        <div id="obj-flower" class="interactive-object obj-flower" role="button" tabindex="0" aria-label="Interactive Golden Bloom">
+          <div class="interactive-flower-stem"></div>
+          <div class="interactive-flower-head">
+            <div class="interactive-flower-center"></div>
+            <div class="interactive-flower-petals">
+              <span class="int-petal"></span>
+              <span class="int-petal"></span>
+              <span class="int-petal"></span>
+              <span class="int-petal"></span>
+              <span class="int-petal"></span>
+              <span class="int-petal"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- Centered Envelope Layer (Focal Point of the entire garden) -->
@@ -103,7 +190,7 @@
 
         <div class="letter-doodle letter-doodle-bottom">❦</div>
 
-        <!-- Continue Button Transitions into V3 Memory Gallery -->
+        <!-- Continue Button -->
         <button id="btn-continue" class="btn-continue" disabled aria-label="Continue to your memories">
           <span>Continue</span>
           <span class="arrow">→</span>
@@ -192,6 +279,12 @@
 
     <!-- Active interactive anchor for system generated elements -->
     <div id="interactive-anchor" class="interactive-overlay"></div>
+
+    <!-- Glassmorphic Global Speech / Message Card -->
+    <div id="object-message-card" class="object-message-card" aria-hidden="true">
+      <p id="object-message-text" class="object-message-text"></p>
+      <div class="card-tail"></div>
+    </div>
 
   </main>
 
