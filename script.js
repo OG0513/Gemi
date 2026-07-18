@@ -1,6 +1,6 @@
 /**
- * Interactive Premium Birthday Experience - Version 3
- * Core Architecture & Scene Manager
+ * Interactive Premium Birthday Experience - Version 4
+ * Core Architecture & Living Environmental Engine
  */
 
 'use strict';
@@ -10,6 +10,230 @@ const APP_CONFIG = {
   loadingSimulationTime: 2500, // Speed calibration of virtual asset initialization
   transitionDelay: 1200,      // Sync matching style.css transition speed
 };
+
+/**
+ * High-Performance Environmental Rendering Engine (Canvas)
+ * Creates real-time dynamic, wind-swept individual grass blades, floating light particles,
+ * and elegant interactive flower stems at 60FPS.
+ */
+class EnvironmentalEngine {
+  constructor() {
+    this.canvas = document.getElementById('environmental-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    
+    this.blades = [];
+    this.particles = [];
+    this.flowers = [];
+    this.windTime = 0;
+    this.activeState = 'loading'; // Syncs with currently active scene ID to govern density
+    
+    this.isTicking = false;
+    this.init();
+  }
+
+  init() {
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
+
+    this.generateParticles(25); // Baseline floating pollen count
+    this.generateGrass();
+    this.generateFlowers();
+
+    this.start();
+  }
+
+  resizeCanvas() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    
+    // Regenerate layout structure safely to adapt to device orientation changes
+    this.generateGrass();
+    this.generateFlowers();
+  }
+
+  /**
+   * Procedurally generate grass blades with varying heights, widths, and spring-wave settings
+   */
+  generateGrass() {
+    this.blades = [];
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    
+    // Calibrate blade count to screen width to maximize mobile performance
+    const bladeCount = Math.floor(width / (window.innerWidth < 768 ? 4 : 2)); 
+
+    for (let i = 0; i < bladeCount; i++) {
+      const x = Math.random() * width;
+      // Grass sits locked strictly at the bottom border of the screen
+      const y = height; 
+      
+      const bladeHeight = clamp(40, Math.random() * 85 + 45, 140);
+      const bladeWidth = Math.random() * 3.5 + 1.5;
+      
+      // Depth layering colors (Front: Golden green / Back: Deep sage green)
+      const colorDepth = Math.random();
+      const color = colorDepth > 0.5 
+        ? `rgba(180, 196, 160, ${0.45 + Math.random() * 0.3})`  // soft golden-sage
+        : `rgba(148, 168, 128, ${0.5 + Math.random() * 0.45})`;  // deep meadow sage
+
+      this.blades.push({
+        x: x,
+        y: y,
+        h: bladeHeight,
+        w: bladeWidth,
+        color: color,
+        angleOffset: Math.random() * Math.PI, // Random phase offsets
+        speed: 0.02 + Math.random() * 0.025,
+        springiness: 12 + Math.random() * 8
+      });
+    }
+  }
+
+  /**
+   * Instantiate flower systems resting directly within structural grass coordinates
+   */
+  generateFlowers() {
+    this.flowers = [];
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    
+    const flowerCount = window.innerWidth < 768 ? 4 : 8;
+    const colors = ['#f4dcd6', '#fcece7', '#f3effc', '#eae0d5']; // Premium light pastel shades
+
+    for (let i = 0; i < flowerCount; i++) {
+      const x = (width * 0.1) + (Math.random() * width * 0.8);
+      this.flowers.push({
+        x: x,
+        y: height,
+        h: Math.random() * 50 + 90, // taller than average grass blades
+        petalColor: colors[Math.floor(Math.random() * colors.length)],
+        angleOffset: Math.random() * Math.PI,
+        size: Math.random() * 3 + 4
+      });
+    }
+  }
+
+  /**
+   * Generate gentle floating ambient light particles
+   */
+  generateParticles(count) {
+    this.particles = [];
+    for (let i = 0; i < count; i++) {
+      this.particles.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        r: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.4 + 0.1,
+        speedX: (Math.random() - 0.5) * 0.4,
+        speedY: -Math.random() * 0.5 - 0.1,
+        phase: Math.random() * Math.PI
+      });
+    }
+  }
+
+  /**
+   * High performance continuous paint loops using requestAnimationFrame
+   */
+  start() {
+    this.isTicking = true;
+    const tick = () => {
+      if (!this.isTicking) return;
+      this.updatePhysics();
+      this.render();
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  stop() {
+    this.isTicking = false;
+  }
+
+  updatePhysics() {
+    this.windTime += 0.005; // Governs global wind ripple speed
+
+    // Update floating light particles
+    this.particles.forEach(p => {
+      p.y += p.speedY;
+      // Sine wave lateral sway to mimic organic flight drift
+      p.x += p.speedX + Math.sin(this.windTime + p.phase) * 0.2; 
+      
+      // Recycle particles wrapping out of top bounds smoothly
+      if (p.y < -10) {
+        p.y = this.canvas.height + 10;
+        p.x = Math.random() * this.canvas.width;
+      }
+    });
+  }
+
+  render() {
+    const ctx = this.ctx;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+
+    // Clear frames cleanly
+    ctx.clearRect(0, 0, width, height);
+
+    // 1. Draw Flowers (Distant Layer)
+    this.flowers.forEach(f => {
+      const windAngle = Math.sin(this.windTime * 2 + f.angleOffset) * 0.1;
+      const topX = f.x + Math.sin(windAngle) * f.h;
+      const topY = f.y - Math.cos(windAngle) * f.h;
+
+      // Draw elegant stem
+      ctx.beginPath();
+      ctx.moveTo(f.x, f.y);
+      ctx.quadraticCurveTo(f.x, f.y - f.h * 0.5, topX, topY);
+      ctx.strokeStyle = 'rgba(148, 168, 128, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Draw delicate soft pastel bud
+      ctx.beginPath();
+      ctx.arc(topX, topY, f.size, 0, Math.PI * 2);
+      ctx.fillStyle = f.petalColor;
+      ctx.fill();
+
+      // Golden core highlights
+      ctx.beginPath();
+      ctx.arc(topX, topY, f.size * 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(212, 175, 55, 0.6)';
+      ctx.fill();
+    });
+
+    // 2. Draw Grass Blades (Midground layer)
+    ctx.lineCap = 'round';
+    this.blades.forEach(b => {
+      // Wind wave offset maps using the horizontal position creating an elegant continuous wave effect
+      const wave = Math.sin(this.windTime * b.springiness + (b.x * 0.01) + b.angleOffset);
+      const angle = wave * 0.15; // Limit max flex parameters to stay realistic
+
+      const tipX = b.x + Math.sin(angle) * b.h;
+      const tipY = b.y - Math.cos(angle) * b.h;
+
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y);
+      // Quadratic bezier curve structure yields a natural weighted taper
+      ctx.quadraticCurveTo(b.x, b.y - b.h * 0.5, tipX, tipY); 
+      
+      ctx.strokeStyle = b.color;
+      ctx.lineWidth = b.w;
+      ctx.stroke();
+    });
+
+    // 3. Draw Floating Particles (Foreground layer)
+    this.particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+      ctx.fill();
+      // Reset shadows immediately to avoid heavy Canvas draw overheads
+      ctx.shadowBlur = 0; 
+    });
+  }
+}
 
 /**
  * Scene Manager Module
@@ -40,7 +264,7 @@ class SceneManager {
       return;
     }
 
-    // Step 1: Transition Out Active Scene
+    // Step 1: Transition Out Active Scene (applies .hidden scale/zoom camera blur)
     activeScene.classList.add('hidden');
     activeScene.classList.remove('active');
 
@@ -49,7 +273,7 @@ class SceneManager {
       activeScene.style.display = 'none';
       targetScene.style.display = 'flex';
       
-      // Step 3: Trigger entrance transition on targeted elements
+      // Step 3: Trigger entrance transition on targeted elements (fades in lens settle)
       setTimeout(() => {
         targetScene.classList.remove('hidden');
         targetScene.classList.add('active');
@@ -67,7 +291,6 @@ class SceneManager {
    */
   onSceneFocus(sceneId) {
     if (sceneId === 'scene-card') {
-      // Re-trigger envelope controller instantiation to bind click handlers clean
       if (window.birthdayCardController) {
         window.birthdayCardController.reset();
       }
@@ -164,7 +387,6 @@ class InteractiveCardController {
   bindEvents() {
     // Stage 1: Interact envelope flap
     this.envelope.addEventListener('click', (e) => {
-      // Direct envelope logic blocks from triggering once card is detached
       if (!this.isEnvelopeOpen) {
         this.openEnvelope();
         e.stopPropagation();
@@ -186,6 +408,7 @@ class InteractiveCardController {
   openEnvelope() {
     this.isEnvelopeOpen = true;
     this.envelope.classList.add('open');
+    this.envelope.classList.remove('floating-envelope'); // Pause structural float animations
     this.hintText.textContent = 'Opening Envelope...';
 
     // Slide up Card out of the envelope body after flap animation finishes rotation
@@ -219,14 +442,24 @@ class InteractiveCardController {
     this.isCardOpened = false;
 
     this.envelope.classList.remove('open', 'card-emerged');
+    this.envelope.classList.add('floating-envelope');
     this.cardBook.classList.remove('opened');
     this.hintText.textContent = 'Click the Envelope to open';
     this.nextButton.classList.remove('visible');
   }
 }
 
+// Utility Clamp Helper Function
+function clamp(min, val, max) {
+  return Math.max(min, Math.min(val, max));
+}
+
 // Global App Initialization
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Canvas background physics
+  const environment = new EnvironmentalEngine();
+  window.environmentalEngine = environment;
+
   // Initialize primary Scene Architecture Manager
   const app = new SceneManager();
 
