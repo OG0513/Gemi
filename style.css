@@ -1,0 +1,691 @@
+/* ==========================================================================
+   1. VARIABLES & RESET
+   ========================================================================== */
+:root {
+    --bg-base: #040209;
+    --primary-gold: #d4af37;
+    --gold-light: #f4e0c8;
+    --gold-dark: #aa7c11;
+    --text-white: #ffffff;
+    --text-muted: #b5afc4;
+    --glass-background: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    --font-heading: 'Playfair Display', serif;
+    --font-ui: 'Montserrat', sans-serif;
+    --transition-premium: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-base);
+    font-family: var(--font-ui);
+    color: var(--text-white);
+    position: relative;
+}
+
+/* ==========================================================================
+   2. GLOBAL BACKDROP SYSTEM (GRADIENTS & ANMATED CLOUDS)
+   ========================================================================== */
+.global-background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.sky-gradient {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #050409 0%, #0d0c1b 50%, #1a102f 100%);
+}
+
+/* Luxury Ambient Glows */
+.ambient-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.glow-gold {
+    width: 50vw;
+    height: 50vw;
+    top: -10vw;
+    right: -10vw;
+    background: radial-gradient(circle, var(--primary-gold) 0%, rgba(0,0,0,0) 70%);
+    animation: pulse-glow-one 12s ease-in-out infinite alternate;
+}
+
+.glow-indigo {
+    width: 60vw;
+    height: 60vw;
+    bottom: -15vw;
+    left: -15vw;
+    background: radial-gradient(circle, #4d31a5 0%, rgba(0,0,0,0) 70%);
+    animation: pulse-glow-two 15s ease-in-out infinite alternate-reverse;
+}
+
+/* Luxury Animated Cloud Layers */
+.cloud-layer {
+    position: absolute;
+    width: 300%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.layer-back {
+    background-image: radial-gradient(circle at 50% 120%, rgba(212, 175, 55, 0.04) 0%, rgba(0,0,0,0) 60%);
+    animation: horizontal-drift 120s linear infinite;
+    z-index: 1;
+}
+
+.layer-mid {
+    background-image: radial-gradient(circle at 30% 110%, rgba(13, 12, 27, 0.4) 0%, rgba(0,0,0,0) 70%);
+    opacity: 0.6;
+    animation: horizontal-drift 80s linear infinite reverse;
+    z-index: 3;
+}
+
+.layer-front {
+    background-image: radial-gradient(circle at 80% 105%, rgba(212, 175, 55, 0.02) 0%, rgba(0,0,0,0) 50%);
+    opacity: 0.3;
+    animation: horizontal-drift 50s linear infinite;
+    z-index: 5;
+}
+
+/* ==========================================================================
+   3. VIEWPORT WRAPPER & SCENE SYSTEM
+   ========================================================================== */
+.viewport-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    perspective: 1200px;
+}
+
+.scene-section {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    max-width: 1440px;
+    max-height: 900px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.96) translate3d(0, 10px, 0);
+    transition: opacity 1s var(--transition-premium), 
+                transform 1s var(--transition-premium);
+    z-index: 1;
+}
+
+.scene-section.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1) translate3d(0, 0, 0);
+    z-index: 10;
+}
+
+/* Fade out transition state */
+.scene-section.fade-out {
+    opacity: 0;
+    transform: scale(1.04) translate3d(0, -10px, 0);
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   4. GLASSMORPHISM CARDS & REUSABLE UI
+   ========================================================================== */
+.glass-card {
+    background: var(--glass-background);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 3.5rem;
+    width: 100%;
+    max-width: 580px;
+    box-shadow: var(--glass-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.03) 50%, 
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    pointer-events: none;
+}
+
+/* Badges & Text Styling */
+.card-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--primary-gold);
+    margin-bottom: 1.5rem;
+}
+
+.serif-font {
+    font-family: var(--font-heading);
+    font-weight: 400;
+}
+
+.sans-font {
+    font-family: var(--font-ui);
+    font-weight: 300;
+}
+
+.main-title {
+    font-size: 2.8rem;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--text-white);
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.scene-heading {
+    font-size: 2rem;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+    color: var(--text-white);
+}
+
+.scene-subtext {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    max-width: 440px;
+}
+
+/* Premium Buttons Styling */
+.action-btn {
+    position: relative;
+    background: linear-gradient(135deg, var(--gold-dark) 0%, var(--primary-gold) 100%);
+    border: none;
+    color: #000;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 1.1rem 2.8rem;
+    border-radius: 30px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.4s var(--transition-premium), 
+                box-shadow 0.4s var(--transition-premium);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-20deg);
+    transition: transform 0.8s var(--transition-premium);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+}
+
+.action-btn:hover::after {
+    transform: skewX(-20deg) translateX(150%);
+}
+
+.action-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+}
+
+.action-btn.outline {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-white);
+    box-shadow: none;
+}
+
+.action-btn.outline:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary-gold);
+    box-shadow: none;
+}
+
+.action-btn.compact {
+    padding: 0.8rem 2rem;
+    font-size: 0.75rem;
+}
+
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.action-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.9);
+}
+
+/* ==========================================================================
+   5. COMPONENT-SPECIFIC STYLES
+   ========================================================================== */
+
+/* Circular Preloader */
+.luxury-preloader {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 2rem;
+}
+
+.preloader-svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.track-circle {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.04);
+    stroke-width: 4;
+}
+
+.progress-circle {
+    fill: none;
+    stroke: var(--primary-gold);
+    stroke-width: 4;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.1s linear;
+}
+
+.preloader-counter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--gold-light);
+    letter-spacing: 0.05em;
+}
+
+/* Scene 3: The 3D Birthday Card System */
+.interactive-envelope-container {
+    perspective: 1200px;
+    width: 100%;
+    max-width: 500px;
+    height: 380px;
+    z-index: 10;
+}
+
+.card-assembly {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+    cursor: pointer;
+}
+
+.card-assembly.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+}
+
+.front-face {
+    background: linear-gradient(135deg, #151121 0%, #0c0814 100%);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.back-face {
+    background: linear-gradient(135deg, #181426 0%, #110d1c 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: rotateY(180deg);
+}
+
+/* Intricate Card Texture Overlay */
+.card-texture-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    border: 1px solid rgba(212, 175, 55, 0.05);
+    background-image: 
+        radial-gradient(circle, rgba(212, 175, 55, 0.015) 1px, transparent 1px),
+        radial-gradient(circle, rgba(212, 175, 55, 0.015) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    pointer-events: none;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.stamp-badge {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--primary-gold);
+    text-transform: uppercase;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+}
+
+.monogram {
+    font-size: 2rem;
+    color: var(--primary-gold);
+    margin-bottom: 1.5rem;
+    opacity: 0.85;
+}
+
+.card-title {
+    font-size: 2.2rem;
+    line-height: 1.3;
+    color: var(--gold-light);
+    margin-bottom: 1.5rem;
+}
+
+.card-action-cue {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 8px;
+}
+
+.card-action-cue::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 25%;
+    width: 50%;
+    height: 1px;
+    background: var(--primary-gold);
+    opacity: 0.5;
+}
+
+/* Inside message styling (Back Face) */
+.letter-salutation {
+    font-size: 1.4rem;
+    color: var(--gold-light);
+    margin-bottom: 1rem;
+    align-self: flex-start;
+}
+
+.letter-body {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.letter-signature {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--primary-gold);
+    margin-bottom: 2rem;
+    align-self: flex-start;
+}
+
+/* Modular Structural Placeholders (For upcoming scenes) */
+.modular-placeholder-box {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.placeholder-note {
+    font-size: 0.8rem;
+    color: var(--primary-gold);
+    opacity: 0.8;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   6. NAVIGATION INDICATORS & GLOBAL OVERLAYS
+   ========================================================================== */
+.global-nav-indicators {
+    position: absolute;
+    bottom: 3.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    pointer-events: auto;
+}
+
+.indicator-track {
+    display: flex;
+    gap: 1.2rem;
+    padding: 0.6rem 1.2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 30px;
+}
+
+.indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    transition: background-color 0.4s var(--transition-premium), 
+                transform 0.4s var(--transition-premium), 
+                box-shadow 0.4s var(--transition-premium);
+}
+
+.indicator-dot:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1.2);
+}
+
+.indicator-dot.active {
+    background: var(--primary-gold);
+    transform: scale(1.4);
+    box-shadow: 0 0 10px var(--primary-gold);
+}
+
+/* ==========================================================================
+   7. KEYFRAME ANIMATIONS
+   ========================================================================== */
+@keyframes horizontal-drift {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-66.666%, 0, 0);
+    }
+}
+
+@keyframes pulse-glow-one {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.2;
+    }
+    100% {
+        transform: translate3d(-5vw, 5vw, 0) scale(1.1);
+        opacity: 0.3;
+    }
+}
+
+@keyframes pulse-glow-two {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.15;
+    }
+    100% {
+        transform: translate3d(8vw, -8vw, 0) scale(1.15);
+        opacity: 0.25;
+    }
+}
+
+/* ==========================================================================
+   8. MEDIA QUERIES (RESPONSIVENESS WITH NO OVERFLOW OR CLIPPING)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .glass-card {
+        padding: 2.2rem;
+        max-width: 90%;
+    }
+
+    .main-title {
+        font-size: 2rem;
+    }
+
+    .scene-heading {
+        font-size: 1.6rem;
+    }
+
+    .scene-subtext {
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-btn {
+        padding: 0.9rem 2.2rem;
+        font-size: 0.8rem;
+    }
+
+    .interactive-envelope-container {
+        height: 340px;
+        max-width: 90vw;
+    }
+
+    .card-face {
+        padding: 1.8rem;
+    }
+
+    .card-title {
+        font-size: 1.8rem;
+    }
+
+    .letter-salutation {
+        font-size: 1.2rem;
+    }
+
+    .letter-body {
+        font-size: 0.8rem;
+        line-height: 1.6;
+    }
+
+    .global-nav-indicators {
+        bottom: 2rem;
+    }
+
+    .indicator-track {
+        gap: 0.8rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+@media (max-height: 600px) {
+    .viewport-wrapper {
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+    .glass-card {
+        padding: 1.5rem;
+        max-width: 480px;
+    }
+    .main-title {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+    .scene-subtext {
+        margin-bottom: 1rem;
+    }
+    .action-btn {
+        padding: 0.8rem 2rem;
+    }
+    .global-nav-indicators {
+        bottom: 1rem;
+    }
+}
