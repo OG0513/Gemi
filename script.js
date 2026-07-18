@@ -1,5 +1,5 @@
 /**
- * Dreamy Landscape - Version 3 Gallery Engine
+ * Dreamy Landscape - Version 4 Interactive Engine
  * Architectural elements structured modularly for performance and maintainability.
  */
 
@@ -435,12 +435,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (alreadyOpened) return;
       alreadyOpened = true;
 
+      // Close active speech cards before opening letter panel
+      dismissActiveMessage();
+
       const rect = envelopeWrapper.getBoundingClientRect();
       const originX = rect.left + rect.width / 2;
       const originY = rect.top + rect.height / 2;
 
       envelopeWrapper.classList.add('active-opening');
       createSparkles(originX, originY);
+
+      // Lock other interactions during unfold
+      const interactiveObjects = document.querySelectorAll('.interactive-object');
+      interactiveObjects.forEach(obj => obj.style.pointerEvents = 'none');
 
       setTimeout(() => {
         sceneDimmer.classList.add('dimmed');
@@ -478,7 +485,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Gallery Transition Trigger
     btnContinue.addEventListener('click', () => {
       letterOverlay.classList.remove('visible');
       letterOverlay.setAttribute('aria-hidden', 'true');
@@ -510,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.setProperty('--rotation-offset', `${rot}deg`);
     });
 
-    // Cascaded sequential fade-and-scale animations
     collageItems.forEach((item, index) => {
       setTimeout(() => {
         item.classList.add('revealed-node');
@@ -519,7 +524,205 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * 12. Parallax Camera Navigation System
+   * 12. V4 Interactive Objects Orchestrator
+   */
+  let currentActiveMessageTimeout = null;
+
+  function initInteractiveObjects() {
+    const objects = [
+      { id: 'obj-lantern', message: "Wishing you a year full of light and happiness." },
+      { id: 'obj-cat', message: "You deserve all the cozy comfort in the world today." },
+      { id: 'obj-teddy', message: "Sending you the warmest, coziest teddy bear hug!" },
+      { id: 'obj-gift', message: "A little surprise packed with love just for you!" },
+      { id: 'obj-flower', message: "Keep blooming beautifully, just as you are." },
+      { id: 'interactive-moon', message: "May your path always be guided by gentle, warm light." }
+    ];
+
+    objects.forEach(obj => {
+      const element = document.getElementById(obj.id);
+      if (!element) return;
+
+      element.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerObjectAnimation(obj.id, element);
+        revealSpeechBubble(element, obj.message);
+      });
+
+      element.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          triggerObjectAnimation(obj.id, element);
+          revealSpeechBubble(element, obj.message);
+        }
+      });
+    });
+
+    // Dismiss active speech cards when clicking ambient empty space
+    document.addEventListener('click', () => {
+      dismissActiveMessage();
+    });
+  }
+
+  /**
+   * Triggers visual feedback specific to each item
+   */
+  function triggerObjectAnimation(id, element) {
+    if (id === 'obj-gift') {
+      if (!element.classList.contains('gift-open')) {
+        element.classList.add('gift-open');
+        triggerConfettiBurst(element);
+        
+        // Reset box lid automatically
+        setTimeout(() => {
+          element.classList.remove('gift-open');
+        }, 3000);
+      }
+    } else if (id === 'obj-teddy') {
+      const paw = document.getElementById('teddy-paw-left');
+      if (paw && !paw.classList.contains('wave-anim')) {
+        paw.classList.add('wave-anim');
+        setTimeout(() => paw.classList.remove('wave-anim'), 2400);
+      }
+    } else if (id === 'interactive-moon') {
+      // Direct full screen moonlight ripple expansion
+      const wrapper = document.getElementById('interactive-anchor');
+      const ripple = document.createElement('div');
+      ripple.className = 'moon-ripple';
+      wrapper.appendChild(ripple);
+      
+      setTimeout(() => ripple.remove(), 2500);
+    } else if (id === 'obj-cat') {
+      // Interactive scale wobble stretch
+      element.style.transform = 'scale(1.15) translateY(-3px)';
+      setTimeout(() => element.style.transform = '', 600);
+    } else if (id === 'obj-flower') {
+      // Emit elegant golden petals when clicked
+      triggerPetalBurst(element);
+    }
+  }
+
+  /**
+   * Generates dynamic particle confetti popping out of Gift Box
+   */
+  function triggerConfettiBurst(element) {
+    const anchor = document.getElementById('interactive-anchor');
+    const rect = element.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top;
+
+    const colors = ['#f2d5dc', '#dfdaf1', '#d2e4f1', '#edd18a', '#b2c29c'];
+
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-particle';
+      p.style.left = `${startX}px`;
+      p.style.top = `${startY}px`;
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+      const angle = Math.random() * Math.PI - Math.PI / 1.1; // Shoot up in arc
+      const velocity = Math.random() * 110 + 60;
+      const destX = Math.cos(angle) * velocity;
+      const destY = Math.sin(angle) * velocity;
+      const rot = Math.random() * 360;
+
+      p.style.setProperty('--cx', `${destX}px`);
+      p.style.setProperty('--cy', `${destY}px`);
+      p.style.setProperty('--rot', `${rot}deg`);
+
+      p.style.animation = `confettiExplode 1.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`;
+      anchor.appendChild(p);
+
+      setTimeout(() => p.remove(), 1800);
+    }
+  }
+
+  /**
+   * Generates localized falling petals on Golden Bloom click
+   */
+  function triggerPetalBurst(element) {
+    const anchor = document.getElementById('interactive-anchor');
+    const rect = element.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top;
+
+    for (let i = 0; i < 6; i++) {
+      const p = document.createElement('div');
+      p.className = 'petal-element';
+      p.style.left = `${startX}px`;
+      p.style.top = `${startY}px`;
+      p.style.width = '8px';
+      p.style.height = '12px';
+
+      const angle = (Math.random() - 0.5) * 2;
+      const velocity = Math.random() * 50 + 20;
+      
+      let x = startX;
+      let y = startY;
+      let driftTime = 0;
+
+      function step() {
+        y += 1.5;
+        x += Math.sin(driftTime) * 1.5 + angle * 0.5;
+        driftTime += 0.05;
+
+        p.style.transform = `translate3d(${(x - startX).toFixed(1)}px, ${(y - startY).toFixed(1)}px, 0) rotate(${(driftTime * 40).toFixed(0)}deg)`;
+        
+        if (y > window.innerHeight) {
+          p.remove();
+        } else {
+          requestAnimationFrame(step);
+        }
+      }
+      
+      anchor.appendChild(p);
+      requestAnimationFrame(step);
+    }
+  }
+
+  /**
+   * Positions and displays speech cards relative to selected items
+   */
+  function revealSpeechBubble(element, message) {
+    dismissActiveMessage();
+
+    const card = document.getElementById('object-message-card');
+    const textSpan = document.getElementById('object-message-text');
+
+    textSpan.textContent = message;
+
+    // Calculate alignment coordinate metrics above target elements
+    const rect = element.getBoundingClientRect();
+    const cardWidth = 220; // Bound dimension matching CSS max-width
+
+    // Position card horizontally centered and slightly above the selected element
+    const x = rect.left + rect.width / 2 - cardWidth / 2;
+    const y = rect.top - 70; // Position directly above target item bounds
+
+    card.style.left = `${Math.max(10, Math.min(window.innerWidth - cardWidth - 10, x))}px`;
+    card.style.top = `${y}px`;
+
+    card.classList.add('visible');
+    card.setAttribute('aria-hidden', 'false');
+
+    // Automatically fade out card after an organic reading delay
+    currentActiveMessageTimeout = setTimeout(() => {
+      dismissActiveMessage();
+    }, 4500);
+  }
+
+  function dismissActiveMessage() {
+    if (currentActiveMessageTimeout) {
+      clearTimeout(currentActiveMessageTimeout);
+      currentActiveMessageTimeout = null;
+    }
+    const card = document.getElementById('object-message-card');
+    card.classList.remove('visible');
+    card.setAttribute('aria-hidden', 'true');
+  }
+
+  /**
+   * 13. Parallax Camera Navigation System
    */
   function initParallax() {
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -551,7 +754,6 @@ document.addEventListener('DOMContentLoaded', () => {
         layer.style.transform = `translate3d(${moveX.toFixed(2)}px, ${moveY.toFixed(2)}px, 0)`;
       });
 
-      // Subtle parallax shift applied to centered envelope to maintain three-dimensional space
       if (envelope && !envelope.classList.contains('active-opening')) {
         const moveX = currentMouseX * 0.05 * -35;
         const moveY = currentMouseY * 0.05 * -20;
@@ -578,6 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
     animatePetals();
     initParallax();
     initEnvelopeLetter();
+    initInteractiveObjects(); // Connect V4 interactive components
   }
 
   initScene();
