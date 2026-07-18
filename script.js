@@ -1,5 +1,5 @@
 /**
- * Dreamy Landscape - Version 2 Engine
+ * Dreamy Landscape - Version 3 Engine
  * Architectural elements structured modularly for performance and maintainability.
  */
 
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * 9. Sparkles Generator System (V2)
+   * 9. Sparkles Generator System
    */
   function createSparkles(startX, startY) {
     const container = document.getElementById('interactive-anchor');
@@ -436,14 +436,12 @@ document.addEventListener('DOMContentLoaded', () => {
       sparkle.style.setProperty('--dest-x', `${destX}px`);
       sparkle.style.setProperty('--dest-y', `${destY}px`);
 
-      // Vary timing attributes
       const duration = Math.random() * 0.6 + 0.8;
       const delay = Math.random() * 0.15;
       sparkle.style.animation = `sparkleOut ${duration}s cubic-bezier(0.25, 1, 0.5, 1) forwards ${delay}s`;
 
       container.appendChild(sparkle);
 
-      // DOM Cleanup
       setTimeout(() => {
         sparkle.remove();
       }, (duration + delay) * 1000);
@@ -451,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * 10. Interactive Envelope & Letter Orchestration (V2)
+   * 10. Interactive Envelope & Letter Orchestration (V2 & V3 Hooks)
    */
   function initEnvelopeLetter() {
     const envelopeWrapper = document.getElementById('envelope-wrapper');
@@ -466,23 +464,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (alreadyOpened) return;
       alreadyOpened = true;
 
-      // Capture envelope coordinates to anchor sparkles precisely
       const rect = envelopeWrapper.getBoundingClientRect();
       const originX = rect.left + rect.width / 2;
       const originY = rect.top + rect.height / 2;
 
-      // 1. Lift envelope & dispatch sparkles
       envelopeWrapper.classList.add('active-opening');
       createSparkles(originX, originY);
 
-      // 2. Dim background scene, slowly fade-in modal layout
       setTimeout(() => {
         sceneDimmer.classList.add('dimmed');
         letterOverlay.classList.add('visible');
         letterOverlay.setAttribute('aria-hidden', 'false');
       }, 1100);
 
-      // 3. Sequentially reveal writing paragraph by paragraph
       setTimeout(() => {
         revealParagraphs(0);
       }, 2300);
@@ -490,7 +484,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function revealParagraphs(index) {
       if (index >= letterParagraphs.length) {
-        // All writing is rendered; bring forward the continue button
         setTimeout(() => {
           btnContinue.classList.add('visible-btn');
           btnContinue.removeAttribute('disabled');
@@ -499,8 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       letterParagraphs[index].classList.add('reveal-p');
-
-      // Cascade intervals dynamically relative to visual length
       const delay = letterParagraphs[index].classList.contains('signature') ? 900 : 1800;
       
       setTimeout(() => {
@@ -508,20 +499,74 @@ document.addEventListener('DOMContentLoaded', () => {
       }, delay);
     }
 
-    // Capture standard Pointer interactions
     envelopeWrapper.addEventListener('click', handleOpenEnvelope);
-
-    // Keyboard navigation bindings
     envelopeWrapper.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         handleOpenEnvelope();
       }
     });
+
+    // V3 Hook: Transition smoothly to the Scrapbook Timeline
+    btnContinue.addEventListener('click', () => {
+      // 1. Fade out the letter modal
+      letterOverlay.classList.remove('visible');
+      letterOverlay.setAttribute('aria-hidden', 'true');
+      
+      // 2. Shift active meadow downwards slightly to highlight scrapbook focus
+      const meadowContainer = document.getElementById('meadow-container');
+      meadowContainer.style.transform = 'translateY(15vh)';
+
+      // 3. Update dimmer filters to optimize visual background legibility
+      sceneDimmer.classList.remove('dimmed');
+      sceneDimmer.classList.add('dimmed-timeline');
+
+      // 4. Smoothly display the scrapbook timeline
+      setTimeout(() => {
+        initMemoryTimeline();
+      }, 500);
+    });
   }
 
   /**
-   * 11. Parallax Camera Navigation System
+   * 11. V3 Memory Timeline Scroll Orchestrator
+   */
+  function initMemoryTimeline() {
+    const timelineContainer = document.getElementById('timeline-container');
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    
+    // Reveal main container
+    timelineContainer.classList.add('visible');
+    timelineContainer.setAttribute('aria-hidden', 'false');
+
+    // Establish rotation values based on designated markup data attributes
+    timelineItems.forEach(item => {
+      const rot = item.getAttribute('data-rotation') || '0';
+      item.style.setProperty('--rotation-offset', `${rot}deg`);
+    });
+
+    // Use IntersectionObserver to elegantly animate memory objects as the user scrolls
+    const observerOptions = {
+      root: timelineContainer,
+      threshold: 0.15,
+      rootMargin: '0px 0px -5% 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed-node');
+          // Unobserve to retain animation state on scroll-back
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    timelineItems.forEach(item => observer.observe(item));
+  }
+
+  /**
+   * 12. Parallax Camera Navigation System
    */
   function initParallax() {
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -570,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createFireflies();
     animatePetals();
     initParallax();
-    initEnvelopeLetter(); // Connect interactive sequences
+    initEnvelopeLetter();
   }
 
   initScene();
