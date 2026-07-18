@@ -1,5 +1,5 @@
 /**
- * Dreamy Landscape - Version 4 Interactive Engine
+ * Dreamy Landscape - Version 5 Final Engine
  * Architectural elements structured modularly for performance and maintainability.
  */
 
@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     cloudsCount: 4,
     firefliesCount: 18,
     flowersCount: 22,
-    grassDensity: 160
+    grassDensity: 160,
+    candlesCount: 3 // Dynamic candle count (Configurable)
   };
 
   // Cache major selectors
@@ -435,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (alreadyOpened) return;
       alreadyOpened = true;
 
-      // Close active speech cards before opening letter panel
       dismissActiveMessage();
 
       const rect = envelopeWrapper.getBoundingClientRect();
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
       envelopeWrapper.classList.add('active-opening');
       createSparkles(originX, originY);
 
-      // Lock other interactions during unfold
+      // Lock interactive entities
       const interactiveObjects = document.querySelectorAll('.interactive-object');
       interactiveObjects.forEach(obj => obj.style.pointerEvents = 'none');
 
@@ -507,6 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initMemoryGallery() {
     const galleryContainer = document.getElementById('gallery-container');
     const collageItems = document.querySelectorAll('.collage-item');
+    const btnToTree = document.getElementById('btn-to-tree');
     
     galleryContainer.classList.add('visible');
     galleryContainer.setAttribute('aria-hidden', 'false');
@@ -520,6 +521,26 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         item.classList.add('revealed-node');
       }, 250 * index);
+    });
+
+    // Fade-in tree transition control option once collage finishes
+    setTimeout(() => {
+      btnToTree.classList.add('visible-btn');
+    }, 250 * collageItems.length + 500);
+
+    // Bind transition logic leading into the V5 Wish Tree segment
+    btnToTree.addEventListener('click', () => {
+      galleryContainer.classList.remove('visible');
+      galleryContainer.setAttribute('aria-hidden', 'true');
+
+      // Shift dimmer overlay dynamically
+      const dimmer = document.getElementById('scene-dimmer');
+      dimmer.classList.remove('dimmed-gallery');
+      dimmer.classList.add('dimmed');
+
+      setTimeout(() => {
+        initWishTreeSequence();
+      }, 500);
     });
   }
 
@@ -558,22 +579,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Dismiss active speech cards when clicking ambient empty space
     document.addEventListener('click', () => {
       dismissActiveMessage();
     });
   }
 
-  /**
-   * Triggers visual feedback specific to each item
-   */
   function triggerObjectAnimation(id, element) {
     if (id === 'obj-gift') {
       if (!element.classList.contains('gift-open')) {
         element.classList.add('gift-open');
         triggerConfettiBurst(element);
         
-        // Reset box lid automatically
         setTimeout(() => {
           element.classList.remove('gift-open');
         }, 3000);
@@ -585,7 +601,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => paw.classList.remove('wave-anim'), 2400);
       }
     } else if (id === 'interactive-moon') {
-      // Direct full screen moonlight ripple expansion
       const wrapper = document.getElementById('interactive-anchor');
       const ripple = document.createElement('div');
       ripple.className = 'moon-ripple';
@@ -593,18 +608,13 @@ document.addEventListener('DOMContentLoaded', () => {
       
       setTimeout(() => ripple.remove(), 2500);
     } else if (id === 'obj-cat') {
-      // Interactive scale wobble stretch
       element.style.transform = 'scale(1.15) translateY(-3px)';
       setTimeout(() => element.style.transform = '', 600);
     } else if (id === 'obj-flower') {
-      // Emit elegant golden petals when clicked
       triggerPetalBurst(element);
     }
   }
 
-  /**
-   * Generates dynamic particle confetti popping out of Gift Box
-   */
   function triggerConfettiBurst(element) {
     const anchor = document.getElementById('interactive-anchor');
     const rect = element.getBoundingClientRect();
@@ -620,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
       p.style.top = `${startY}px`;
       p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
-      const angle = Math.random() * Math.PI - Math.PI / 1.1; // Shoot up in arc
+      const angle = Math.random() * Math.PI - Math.PI / 1.1;
       const velocity = Math.random() * 110 + 60;
       const destX = Math.cos(angle) * velocity;
       const destY = Math.sin(angle) * velocity;
@@ -637,9 +647,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /**
-   * Generates localized falling petals on Golden Bloom click
-   */
   function triggerPetalBurst(element) {
     const anchor = document.getElementById('interactive-anchor');
     const rect = element.getBoundingClientRect();
@@ -680,9 +687,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /**
-   * Positions and displays speech cards relative to selected items
-   */
   function revealSpeechBubble(element, message) {
     dismissActiveMessage();
 
@@ -691,13 +695,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     textSpan.textContent = message;
 
-    // Calculate alignment coordinate metrics above target elements
     const rect = element.getBoundingClientRect();
-    const cardWidth = 220; // Bound dimension matching CSS max-width
+    const cardWidth = 220;
 
-    // Position card horizontally centered and slightly above the selected element
     const x = rect.left + rect.width / 2 - cardWidth / 2;
-    const y = rect.top - 70; // Position directly above target item bounds
+    const y = rect.top - 70;
 
     card.style.left = `${Math.max(10, Math.min(window.innerWidth - cardWidth - 10, x))}px`;
     card.style.top = `${y}px`;
@@ -705,7 +707,6 @@ document.addEventListener('DOMContentLoaded', () => {
     card.classList.add('visible');
     card.setAttribute('aria-hidden', 'false');
 
-    // Automatically fade out card after an organic reading delay
     currentActiveMessageTimeout = setTimeout(() => {
       dismissActiveMessage();
     }, 4500);
@@ -722,7 +723,346 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * 13. Parallax Camera Navigation System
+   * 13. V5 Magical Wish Tree Segment
+   */
+  let treeStage = 0;
+
+  function initWishTreeSequence() {
+    const overlay = document.getElementById('wish-tree-overlay');
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    const tree = document.getElementById('wish-tree');
+    
+    // First stage seeding elements
+    growTreeLeavesAndLights(0);
+
+    tree.addEventListener('click', handleTreeGrowth);
+    tree.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleTreeGrowth();
+      }
+    });
+  }
+
+  function handleTreeGrowth() {
+    const tree = document.getElementById('wish-tree');
+    const text = document.getElementById('tree-progress-text');
+    
+    if (treeStage >= 3) {
+      // Tree reaches peak cosmic form; trigger sparks & transition to cake celebration
+      triggerFinalTreeCelebration(tree);
+      return;
+    }
+
+    treeStage++;
+    
+    // Clear and scale up leaf elements relative to stage counts
+    tree.className = `wish-tree stage-${treeStage}`;
+    growTreeLeavesAndLights(treeStage);
+
+    // Update text helper based on active stage bounds
+    if (treeStage === 1) {
+      text.textContent = "The wish sprouts! Tap again to nourish...";
+    } else if (treeStage === 2) {
+      text.textContent = "Branches are expanding! Keep going...";
+    } else if (treeStage === 3) {
+      text.textContent = "Almost fully grown! One final tap to harvest the magic...";
+      document.getElementById('tree-click-prompt').textContent = "Trigger Magic ✨";
+    }
+
+    // Spark feedback on grow clicks
+    const rect = tree.getBoundingClientRect();
+    createSparkles(rect.left + rect.width / 2, rect.top + rect.height / 3);
+  }
+
+  function growTreeLeavesAndLights(stage) {
+    const leavesContainer = document.getElementById('tree-leaves-container');
+    const lightsContainer = document.getElementById('tree-lights-container');
+    const butterflyContainer = document.getElementById('tree-butterflies-container');
+
+    // Pre-calculate leaf locations inside coordinate brackets
+    const leafSpreads = [
+      // Stage 0 sprout leaves
+      [{ top: '25%', left: '46%', size: 14 }, { top: '30%', left: '50%', size: 12 }],
+      // Stage 1 leaf branches
+      [{ top: '15%', left: '35%', size: 18 }, { top: '10%', left: '48%', size: 16 }, { top: '22%', left: '60%', size: 18 }, { top: '35%', left: '25%', size: 14 }],
+      // Stage 2 blooming pink leaves
+      [{ top: '5%', left: '40%', size: 22, color: 'glowing' }, { top: '12%', left: '22%', size: 20 }, { top: '18%', left: '68%', size: 22, color: 'glowing' }, { top: '28%', left: '72%', size: 16 }],
+      // Stage 3 cosmic leaves
+      [{ top: '0%', left: '44%', size: 24, color: 'glowing' }, { top: '8%', left: '62%', size: 24 }, { top: '22%', left: '15%', size: 20, color: 'glowing' }]
+    ];
+
+    // Build leaves sequentially matching active stage indices
+    leafSpreads[stage].forEach((leafData, idx) => {
+      const leaf = document.createElement('div');
+      leaf.className = 'tree-leaf';
+      if (leafData.color === 'glowing') leaf.classList.add('glowing-leaf');
+      
+      leaf.style.width = `${leafData.size}px`;
+      leaf.style.height = `${leafData.size * 1.5}px`;
+      leaf.style.top = leafData.top;
+      leaf.style.left = leafData.left;
+      
+      leavesContainer.appendChild(leaf);
+      
+      // Delay slightly for natural unfold
+      setTimeout(() => leaf.classList.add('active-leaf'), 50 * idx);
+    });
+
+    // Populate fairy lights
+    const lightCoords = [
+      [{ top: '35%', left: '40%' }],
+      [{ top: '25%', left: '28%' }, { top: '28%', left: '55%' }],
+      [{ top: '12%', left: '46%' }, { top: '18%', left: '64%' }],
+      [{ top: '4%', left: '38%' }, { top: '10%', left: '55%' }]
+    ];
+
+    lightCoords[stage].forEach((coord, idx) => {
+      const light = document.createElement('div');
+      light.className = 'tree-light-bulb';
+      light.style.top = coord.top;
+      light.style.left = coord.left;
+      
+      lightsContainer.appendChild(light);
+      setTimeout(() => light.classList.add('active-light'), 100 * idx);
+    });
+
+    // Add butterfly on stage 2
+    if (stage === 2) {
+      const bf = document.createElement('div');
+      bf.className = 'tree-butterfly';
+      bf.style.top = '20%';
+      bf.style.left = '30%';
+      
+      const wingL = document.createElement('div');
+      wingL.className = 'bf-wing left';
+      const wingR = document.createElement('div');
+      wingR.className = 'bf-wing right';
+      
+      bf.appendChild(wingL);
+      bf.appendChild(wingR);
+      butterflyContainer.appendChild(bf);
+      
+      setTimeout(() => bf.classList.add('active-butterfly'), 500);
+    }
+  }
+
+  function triggerFinalTreeCelebration(tree) {
+    const overlay = document.getElementById('wish-tree-overlay');
+    const text = document.getElementById('tree-progress-text');
+    
+    // Dazzle flash sparkles
+    const rect = tree.getBoundingClientRect();
+    const originX = rect.left + rect.width / 2;
+    const originY = rect.top + rect.height / 3;
+    
+    createSparkles(originX, originY);
+    setTimeout(() => createSparkles(originX - 40, originY + 40), 150);
+    setTimeout(() => createSparkles(originX + 40, originY + 40), 300);
+
+    text.textContent = "Your wish is sowed in the cosmos...";
+    document.getElementById('tree-click-prompt').style.opacity = '0';
+
+    // Begin Transition leading directly into V5 Cake Celebration
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'translate3d(0, -30px, 0)';
+      
+      // Dim stars/clouds slightly to highlight upcoming focus
+      document.getElementById('clouds-container').style.opacity = '0.3';
+      
+      // Brighten Moon intensely
+      const moon = document.getElementById('interactive-moon');
+      moon.style.transform = 'scale(1.15)';
+      
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        initCakeCelebration();
+      }, 1500);
+    }, 1800);
+  }
+
+  /**
+   * 14. V5 Birthday Cake Celebration View Layer Logic
+   */
+  let litCandlesCount = 0;
+  let allCandlesAreLit = false;
+
+  function initCakeCelebration() {
+    const overlay = document.getElementById('cake-celebration-overlay');
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    const candleRow = document.getElementById('cake-candles-row');
+    
+    // Dynamically generate Candle list relative to Config count bounds
+    for (let i = 0; i < config.candlesCount; i++) {
+      const candle = document.createElement('div');
+      candle.className = 'cake-candle-item';
+      candle.setAttribute('role', 'button');
+      candle.setAttribute('tabindex', '0');
+      candle.setAttribute('aria-label', `Candle ${i + 1}. Unlit.`);
+
+      const stick = document.createElement('div');
+      stick.className = 'candle-stick';
+      
+      const wick = document.createElement('div');
+      wick.className = 'candle-wick';
+      stick.appendChild(wick);
+      
+      const flame = document.createElement('div');
+      flame.className = 'candle-flame';
+      
+      candle.appendChild(stick);
+      candle.appendChild(flame);
+      candleRow.appendChild(candle);
+
+      // Tap event binds to spark and light candle sticks
+      const handleLight = (e) => {
+        e.stopPropagation();
+        if (candle.classList.contains('lit')) return;
+
+        candle.classList.add('lit');
+        candle.setAttribute('aria-label', `Candle ${i + 1}. Lit.`);
+        
+        // Spark effect centered directly at candle wick coordinate bounds
+        const rect = wick.getBoundingClientRect();
+        createSparkles(rect.left + rect.width / 2, rect.top);
+        
+        litCandlesCount++;
+        checkCelebrationLitState();
+      };
+
+      candle.addEventListener('click', handleLight);
+      candle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleLight(e);
+        }
+      });
+    }
+  }
+
+  function checkCelebrationLitState() {
+    if (litCandlesCount === config.candlesCount) {
+      allCandlesAreLit = true;
+      const headerText = document.getElementById('celebration-prompt-text');
+      headerText.textContent = "Make a wish ✨";
+      headerText.classList.add('make-wish-state');
+
+      // Unlocks global click anywhere to blow candles out
+      setTimeout(() => {
+        document.addEventListener('click', blowOutCandlesCelebration);
+      }, 500);
+    }
+  }
+
+  function blowOutCandlesCelebration(e) {
+    document.removeEventListener('click', blowOutCandlesCelebration);
+    
+    const headerText = document.getElementById('celebration-prompt-text');
+    headerText.textContent = "May all your wishes come true... ♥";
+    headerText.classList.remove('make-wish-state');
+
+    // Blow candle wicks out
+    const candles = document.querySelectorAll('.cake-candle-item');
+    candles.forEach(candle => {
+      candle.classList.remove('lit');
+      candle.style.pointerEvents = 'none';
+
+      // Emit smoke puffs
+      const wick = candle.querySelector('.candle-wick');
+      const rect = wick.getBoundingClientRect();
+      createSmokePuff(rect.left + rect.width / 2, rect.top);
+    });
+
+    // Fire fireworks cascades and celebration sparkles
+    setTimeout(() => {
+      triggerEndGameCelebration();
+    }, 400);
+  }
+
+  function createSmokePuff(x, y) {
+    const anchor = document.getElementById('interactive-anchor');
+    const p = document.createElement('div');
+    p.className = 'smoke-particle';
+    p.style.left = `${x}px`;
+    p.style.top = `${y}px`;
+
+    // Randomize initial puff scale
+    const size = Math.random() * 8 + 12;
+    p.style.width = `${size}px`;
+    p.style.height = `${size}px`;
+
+    anchor.appendChild(p);
+    setTimeout(() => p.remove(), 1200);
+  }
+
+  /**
+   * V5 Endgame Celebration Fireworks Engine
+   */
+  function triggerEndGameCelebration() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Launch multi-burst fires
+    launchFirework(width * 0.25, height * 0.35);
+    setTimeout(() => launchFirework(width * 0.75, height * 0.3), 300);
+    setTimeout(() => launchFirework(width * 0.5, height * 0.25), 600);
+    setTimeout(() => launchFirework(width * 0.35, height * 0.45), 1000);
+    setTimeout(() => launchFirework(width * 0.65, height * 0.4), 1300);
+
+    // Continuous soft confetti & petals shower loops
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        const giftEl = document.getElementById('obj-gift');
+        if (giftEl) triggerConfettiBurst(giftEl);
+      }, i * 1500);
+    }
+  }
+
+  function launchFirework(x, y) {
+    const container = document.getElementById('interactive-anchor');
+    
+    // Concentric expanding ring
+    const ring = document.createElement('div');
+    ring.className = 'firework-ring';
+    ring.style.left = `${x}px`;
+    ring.style.top = `${y}px`;
+    container.appendChild(ring);
+    setTimeout(() => ring.remove(), 1600);
+
+    // Dynamic projectile sparkle components
+    const sparkleCount = 14;
+    for (let i = 0; i < sparkleCount; i++) {
+      const spark = document.createElement('div');
+      spark.className = 'firework-sparkle';
+      spark.style.left = `${x}px`;
+      spark.style.top = `${y}px`;
+      
+      const size = Math.random() * 4 + 3;
+      spark.style.width = `${size}px`;
+      spark.style.height = `${size}px`;
+
+      const angle = (i / sparkleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+      const distance = Math.random() * 90 + 50;
+      const destX = Math.cos(angle) * distance;
+      const destY = Math.sin(angle) * distance;
+
+      spark.style.setProperty('--dest-x', `${destX}px`);
+      spark.style.setProperty('--dest-y', `${destY}px`);
+      
+      spark.style.animation = 'fireworkSparkleAnim 1.3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards';
+      container.appendChild(spark);
+      
+      setTimeout(() => spark.remove(), 1300);
+    }
+  }
+
+  /**
+   * 15. Parallax Camera Navigation System
    */
   function initParallax() {
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -780,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     animatePetals();
     initParallax();
     initEnvelopeLetter();
-    initInteractiveObjects(); // Connect V4 interactive components
+    initInteractiveObjects();
   }
 
   initScene();
