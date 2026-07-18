@@ -2,690 +2,489 @@
    1. VARIABLES & RESET
    ========================================================================== */
 :root {
-    --bg-base: #040209;
-    --primary-gold: #d4af37;
-    --gold-light: #f4e0c8;
-    --gold-dark: #aa7c11;
-    --text-white: #ffffff;
-    --text-muted: #b5afc4;
-    --glass-background: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-    --font-heading: 'Playfair Display', serif;
-    --font-ui: 'Montserrat', sans-serif;
-    --transition-premium: cubic-bezier(0.25, 1, 0.5, 1);
+  /* Color Palette - Luxury Deep Velvet Indigo, Soft Gold, White */
+  --bg-dark: #0a0813;
+  --bg-gradient-start: #0a0813;
+  --bg-gradient-end: #17122b;
+  
+  --gold-primary: #d4af37;
+  --gold-secondary: #aa7c11;
+  --gold-light: #f3e5ab;
+  
+  --text-primary: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-dim: rgba(255, 255, 255, 0.4);
+  
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(212, 175, 55, 0.3);
+  --glass-shadow: rgba(0, 0, 0, 0.4);
+  --gold-glow-shadow: rgba(212, 175, 55, 0.15);
+
+  /* Fonts */
+  --font-serif: 'Cinzel', Georgia, serif;
+  --font-sans: 'Montserrat', sans-serif;
+
+  /* Transitions */
+  --transition-slow: 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-medium: 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-fast: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-user-select: none;
-    user-select: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background-color: var(--bg-base);
-    font-family: var(--font-ui);
-    color: var(--text-white);
-    position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Strict "No Scroll" layout */
+  background-color: var(--bg-dark);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ==========================================================================
-   2. GLOBAL BACKDROP SYSTEM (GRADIENTS & ANMATED CLOUDS)
+   2. BACKGROUND SYSTEM (AMBIENT & LUXURY ELEMENTS)
    ========================================================================== */
-.global-background-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
-    overflow: hidden;
+.ambient-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, var(--bg-gradient-end), var(--bg-gradient-start));
 }
 
-.sky-gradient {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #050409 0%, #0d0c1b 50%, #1a102f 100%);
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 10% 20%, rgba(26, 20, 48, 0.8) 0%, rgba(10, 8, 19, 1) 90%);
+  pointer-events: none;
 }
 
-/* Luxury Ambient Glows */
-.ambient-glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.25;
-    pointer-events: none;
+/* Luxury Light Spheres */
+.glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.25;
+  pointer-events: none;
+  mix-blend-mode: screen;
 }
 
-.glow-gold {
-    width: 50vw;
-    height: 50vw;
-    top: -10vw;
-    right: -10vw;
-    background: radial-gradient(circle, var(--primary-gold) 0%, rgba(0,0,0,0) 70%);
-    animation: pulse-glow-one 12s ease-in-out infinite alternate;
+.glow-1 {
+  width: 45vw;
+  height: 45vw;
+  top: -10%;
+  right: 5%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: floatAmbient 25s ease-in-out infinite alternate;
 }
 
-.glow-indigo {
-    width: 60vw;
-    height: 60vw;
-    bottom: -15vw;
-    left: -15vw;
-    background: radial-gradient(circle, #4d31a5 0%, rgba(0,0,0,0) 70%);
-    animation: pulse-glow-two 15s ease-in-out infinite alternate-reverse;
+.glow-2 {
+  width: 55vw;
+  height: 55vw;
+  bottom: -15%;
+  left: -5%;
+  background: radial-gradient(circle, rgba(106, 13, 173, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: floatAmbient 35s ease-in-out infinite alternate-reverse;
 }
 
-/* Luxury Animated Cloud Layers */
-.cloud-layer {
-    position: absolute;
-    width: 300%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background-repeat: repeat-x;
-    background-position: bottom;
-    pointer-events: none;
-    will-change: transform;
+@keyframes floatAmbient {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, 5%) scale(1.08); }
+  100% { transform: translate(-2%, -3%) scale(0.95); }
 }
 
-.layer-back {
-    background-image: radial-gradient(circle at 50% 120%, rgba(212, 175, 55, 0.04) 0%, rgba(0,0,0,0) 60%);
-    animation: horizontal-drift 120s linear infinite;
-    z-index: 1;
+/* Animated Clouds */
+.cloud-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.15;
 }
 
-.layer-mid {
-    background-image: radial-gradient(circle at 30% 110%, rgba(13, 12, 27, 0.4) 0%, rgba(0,0,0,0) 70%);
-    opacity: 0.6;
-    animation: horizontal-drift 80s linear infinite reverse;
-    z-index: 3;
+.cloud {
+  position: absolute;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 40%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  filter: blur(40px);
 }
 
-.layer-front {
-    background-image: radial-gradient(circle at 80% 105%, rgba(212, 175, 55, 0.02) 0%, rgba(0,0,0,0) 50%);
-    opacity: 0.3;
-    animation: horizontal-drift 50s linear infinite;
-    z-index: 5;
+.cloud-1 {
+  width: 500px;
+  height: 250px;
+  top: 15%;
+  left: -20%;
+  animation: moveCloud 120s linear infinite;
+}
+
+.cloud-2 {
+  width: 700px;
+  height: 350px;
+  bottom: 20%;
+  right: -30%;
+  animation: moveCloudReverse 160s linear infinite;
+}
+
+.cloud-3 {
+  width: 400px;
+  height: 200px;
+  top: 50%;
+  left: -10%;
+  animation: moveCloud 90s linear infinite;
+  animation-delay: -30s;
+}
+
+@keyframes moveCloud {
+  0% { transform: translateX(-100vw); }
+  100% { transform: translateX(120vw); }
+}
+
+@keyframes moveCloudReverse {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-120vw); }
 }
 
 /* ==========================================================================
-   3. VIEWPORT WRAPPER & SCENE SYSTEM
+   3. SCENE CONTAINER & CORE TRANSITIONS
    ========================================================================== */
-.viewport-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    perspective: 1200px;
+#app-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.scene-section {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    max-width: 1440px;
-    max-height: 900px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    opacity: 0;
-    pointer-events: none;
-    transform: scale(0.96) translate3d(0, 10px, 0);
-    transition: opacity 1s var(--transition-premium), 
-                transform 1s var(--transition-premium);
-    z-index: 1;
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px) scale(0.98);
+  transition: opacity var(--transition-slow), transform var(--transition-slow), filter var(--transition-slow);
+  filter: blur(10px);
 }
 
-.scene-section.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: scale(1) translate3d(0, 0, 0);
-    z-index: 10;
+.scene.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
 }
 
-/* Fade out transition state */
-.scene-section.fade-out {
-    opacity: 0;
-    transform: scale(1.04) translate3d(0, -10px, 0);
-    pointer-events: none;
+.scene.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px) scale(0.98);
+  filter: blur(10px);
 }
 
 /* ==========================================================================
-   4. GLASSMORPHISM CARDS & REUSABLE UI
+   4. SCENE 1: LOADING SCREEN UI
+   ========================================================================== */
+.loader-wrapper {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+  width: 100%;
+}
+
+.loader-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.loader-logo::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-top-color: var(--gold-primary);
+  border-bottom-color: var(--gold-primary);
+  animation: logoRotate 3s linear infinite;
+}
+
+.logo-initial {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--gold-primary);
+  text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.loader-bar-container {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.loader-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-secondary), var(--gold-primary), var(--gold-light));
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--gold-primary);
+  transition: width 0.1s linear;
+}
+
+.loader-text {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.loader-percentage {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+@keyframes logoRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   5. PREMIUM GLASSMORPHIC CARD DESIGN
    ========================================================================== */
 .glass-card {
-    background: var(--glass-background);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 3.5rem;
-    width: 100%;
-    max-width: 580px;
-    box-shadow: var(--glass-shadow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 540px;
+  box-shadow: 0 25px 50px -12px var(--glass-shadow), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  transform: translateY(0);
+  transition: border-color var(--transition-medium), box-shadow var(--transition-medium);
 }
 
-.glass-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -50%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(
-        90deg, 
-        rgba(255, 255, 255, 0) 0%, 
-        rgba(255, 255, 255, 0.03) 50%, 
-        rgba(255, 255, 255, 0) 100%
-    );
-    transform: rotate(30deg);
-    pointer-events: none;
+.glass-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 30px 60px -10px var(--glass-shadow), 
+              0 0 40px var(--gold-glow-shadow),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Badges & Text Styling */
-.card-badge {
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--primary-gold);
-    margin-bottom: 1.5rem;
+.card-accent-line {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
 }
 
-.serif-font {
-    font-family: var(--font-heading);
-    font-weight: 400;
+.card-header {
+  text-align: center;
 }
 
-.sans-font {
-    font-family: var(--font-ui);
-    font-weight: 300;
+.subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  color: var(--gold-primary);
+  display: inline-block;
+  margin-bottom: 12px;
 }
 
 .main-title {
-    font-size: 2.8rem;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
-    color: var(--text-white);
-    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--text-primary);
+  letter-spacing: 1px;
 }
 
-.scene-heading {
-    font-size: 2rem;
-    line-height: 1.3;
-    margin-bottom: 1rem;
-    color: var(--text-white);
+.welcome-text {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+  text-align: center;
+  font-weight: 300;
 }
 
-.scene-subtext {
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: var(--text-muted);
-    margin-bottom: 2.5rem;
-    max-width: 440px;
-}
-
-/* Premium Buttons Styling */
-.action-btn {
-    position: relative;
-    background: linear-gradient(135deg, var(--gold-dark) 0%, var(--primary-gold) 100%);
-    border: none;
-    color: #000;
-    font-family: var(--font-ui);
-    font-weight: 600;
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 1.1rem 2.8rem;
-    border-radius: 30px;
-    cursor: pointer;
-    overflow: hidden;
-    transition: transform 0.4s var(--transition-premium), 
-                box-shadow 0.4s var(--transition-premium);
-    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.action-btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -50%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-20deg);
-    transition: transform 0.8s var(--transition-premium);
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
-}
-
-.action-btn:hover::after {
-    transform: skewX(-20deg) translateX(150%);
-}
-
-.action-btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
-}
-
-.action-btn.outline {
-    background: transparent;
-    border: 1px solid var(--glass-border);
-    color: var(--text-white);
-    box-shadow: none;
-}
-
-.action-btn.outline:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--primary-gold);
-    box-shadow: none;
-}
-
-.action-btn.compact {
-    padding: 0.8rem 2rem;
-    font-size: 0.75rem;
-}
-
-.btn-group {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.action-btn.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: scale(0.9);
+.card-footer {
+  display: flex;
+  justify-content: center;
 }
 
 /* ==========================================================================
-   5. COMPONENT-SPECIFIC STYLES
+   6. PREMIUM LUXURY CTA BUTTON
    ========================================================================== */
-
-/* Circular Preloader */
-.luxury-preloader {
-    position: relative;
-    width: 140px;
-    height: 140px;
-    margin-bottom: 2rem;
+.btn-premium {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--gold-primary);
+  padding: 16px 40px;
+  border-radius: 40px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
-.preloader-svg {
-    transform: rotate(-90deg);
-    width: 100%;
-    height: 100%;
+.btn-text {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--text-primary);
+  z-index: 2;
+  transition: color var(--transition-fast);
 }
 
-.track-circle {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.04);
-    stroke-width: 4;
+.btn-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--gold-primary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  filter: blur(15px);
+  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+  z-index: 1;
 }
 
-.progress-circle {
-    fill: none;
-    stroke: var(--primary-gold);
-    stroke-width: 4;
-    stroke-dasharray: 283;
-    stroke-dashoffset: 283;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.1s linear;
+/* Hover States for Button */
+.btn-premium:hover {
+  transform: scale(1.02);
+  border-color: var(--gold-light);
 }
 
-.preloader-counter {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.4rem;
-    font-weight: 300;
-    color: var(--gold-light);
-    letter-spacing: 0.05em;
+.btn-premium:hover .btn-text {
+  color: #000;
+  font-weight: 700;
 }
 
-/* Scene 3: The 3D Birthday Card System */
-.interactive-envelope-container {
-    perspective: 1200px;
-    width: 100%;
-    max-width: 500px;
-    height: 380px;
-    z-index: 10;
+.btn-premium:hover .btn-glow {
+  width: 250px;
+  height: 250px;
+  opacity: 1;
+  border-radius: 40px; /* Keep uniform visual coverage */
+  filter: blur(0);
 }
 
-.card-assembly {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
-    cursor: pointer;
-}
-
-.card-assembly.flipped {
-    transform: rotateY(180deg);
-}
-
-.card-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    border-radius: 16px;
-    padding: 3rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
-}
-
-.front-face {
-    background: linear-gradient(135deg, #151121 0%, #0c0814 100%);
-    border: 1px solid rgba(212, 175, 55, 0.15);
-}
-
-.back-face {
-    background: linear-gradient(135deg, #181426 0%, #110d1c 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transform: rotateY(180deg);
-}
-
-/* Intricate Card Texture Overlay */
-.card-texture-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 16px;
-    border: 1px solid rgba(212, 175, 55, 0.05);
-    background-image: 
-        radial-gradient(circle, rgba(212, 175, 55, 0.015) 1px, transparent 1px),
-        radial-gradient(circle, rgba(212, 175, 55, 0.015) 1px, transparent 1px);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
-    pointer-events: none;
-}
-
-.card-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 100%;
-}
-
-.stamp-badge {
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: var(--primary-gold);
-    text-transform: uppercase;
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    padding: 0.4rem 1.2rem;
-    border-radius: 20px;
-    margin-bottom: 2rem;
-}
-
-.monogram {
-    font-size: 2rem;
-    color: var(--primary-gold);
-    margin-bottom: 1.5rem;
-    opacity: 0.85;
-}
-
-.card-title {
-    font-size: 2.2rem;
-    line-height: 1.3;
-    color: var(--gold-light);
-    margin-bottom: 1.5rem;
-}
-
-.card-action-cue {
-    font-size: 0.8rem;
-    letter-spacing: 0.15em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    position: relative;
-    padding-bottom: 8px;
-}
-
-.card-action-cue::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 25%;
-    width: 50%;
-    height: 1px;
-    background: var(--primary-gold);
-    opacity: 0.5;
-}
-
-/* Inside message styling (Back Face) */
-.letter-salutation {
-    font-size: 1.4rem;
-    color: var(--gold-light);
-    margin-bottom: 1rem;
-    align-self: flex-start;
-}
-
-.letter-body {
-    font-size: 0.9rem;
-    line-height: 1.8;
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-    text-align: left;
-}
-
-.letter-signature {
-    font-size: 1rem;
-    font-style: italic;
-    color: var(--primary-gold);
-    margin-bottom: 2rem;
-    align-self: flex-start;
-}
-
-/* Modular Structural Placeholders (For upcoming scenes) */
-.modular-placeholder-box {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.015);
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 2.5rem;
-    margin-bottom: 2.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.placeholder-note {
-    font-size: 0.8rem;
-    color: var(--primary-gold);
-    opacity: 0.8;
-    letter-spacing: 0.05em;
-    line-height: 1.5;
+.btn-premium:active {
+  transform: scale(0.98);
 }
 
 /* ==========================================================================
-   6. NAVIGATION INDICATORS & GLOBAL OVERLAYS
-   ========================================================================== */
-.global-nav-indicators {
-    position: absolute;
-    bottom: 3.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    pointer-events: auto;
-}
-
-.indicator-track {
-    display: flex;
-    gap: 1.2rem;
-    padding: 0.6rem 1.2rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 30px;
-}
-
-.indicator-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    cursor: pointer;
-    transition: background-color 0.4s var(--transition-premium), 
-                transform 0.4s var(--transition-premium), 
-                box-shadow 0.4s var(--transition-premium);
-}
-
-.indicator-dot:hover {
-    background: rgba(255, 255, 255, 0.5);
-    transform: scale(1.2);
-}
-
-.indicator-dot.active {
-    background: var(--primary-gold);
-    transform: scale(1.4);
-    box-shadow: 0 0 10px var(--primary-gold);
-}
-
-/* ==========================================================================
-   7. KEYFRAME ANIMATIONS
-   ========================================================================== */
-@keyframes horizontal-drift {
-    0% {
-        transform: translate3d(0, 0, 0);
-    }
-    100% {
-        transform: translate3d(-66.666%, 0, 0);
-    }
-}
-
-@keyframes pulse-glow-one {
-    0% {
-        transform: translate3d(0, 0, 0) scale(1);
-        opacity: 0.2;
-    }
-    100% {
-        transform: translate3d(-5vw, 5vw, 0) scale(1.1);
-        opacity: 0.3;
-    }
-}
-
-@keyframes pulse-glow-two {
-    0% {
-        transform: translate3d(0, 0, 0) scale(1);
-        opacity: 0.15;
-    }
-    100% {
-        transform: translate3d(8vw, -8vw, 0) scale(1.15);
-        opacity: 0.25;
-    }
-}
-
-/* ==========================================================================
-   8. MEDIA QUERIES (RESPONSIVENESS WITH NO OVERFLOW OR CLIPPING)
+   7. RESPONSIVENESS AND CLIPPING MITIGATION
    ========================================================================== */
 @media (max-width: 768px) {
-    .glass-card {
-        padding: 2.2rem;
-        max-width: 90%;
-    }
+  /* Portrait phones layout control */
+  .glass-card {
+    padding: 32px 24px;
+    gap: 24px;
+    max-width: 90%;
+  }
 
-    .main-title {
-        font-size: 2rem;
-    }
+  .main-title {
+    font-size: 1.75rem;
+  }
 
-    .scene-heading {
-        font-size: 1.6rem;
-    }
+  .welcome-text {
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
 
-    .scene-subtext {
-        font-size: 0.85rem;
-        margin-bottom: 2rem;
-    }
+  .btn-premium {
+    padding: 14px 32px;
+    width: 100%;
+  }
 
-    .action-btn {
-        padding: 0.9rem 2.2rem;
-        font-size: 0.8rem;
-    }
+  .loader-logo {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 30px;
+  }
 
-    .interactive-envelope-container {
-        height: 340px;
-        max-width: 90vw;
-    }
-
-    .card-face {
-        padding: 1.8rem;
-    }
-
-    .card-title {
-        font-size: 1.8rem;
-    }
-
-    .letter-salutation {
-        font-size: 1.2rem;
-    }
-
-    .letter-body {
-        font-size: 0.8rem;
-        line-height: 1.6;
-    }
-
-    .global-nav-indicators {
-        bottom: 2rem;
-    }
-
-    .indicator-track {
-        gap: 0.8rem;
-        padding: 0.5rem 1rem;
-    }
+  .logo-initial {
+    font-size: 1.75rem;
+  }
 }
 
-@media (max-height: 600px) {
-    .viewport-wrapper {
-        align-items: flex-start;
-        padding-top: 20px;
-    }
-    .glass-card {
-        padding: 1.5rem;
-        max-width: 480px;
-    }
-    .main-title {
-        font-size: 1.8rem;
-        margin-bottom: 0.5rem;
-    }
-    .scene-subtext {
-        margin-bottom: 1rem;
-    }
-    .action-btn {
-        padding: 0.8rem 2rem;
-    }
-    .global-nav-indicators {
-        bottom: 1rem;
-    }
+@media (max-height: 568px) {
+  /* Prevent clipping on extremely small vertical height screens (e.g. older/smaller mobile layouts) */
+  .glass-card {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .main-title {
+    font-size: 1.5rem;
+  }
+  
+  .welcome-text {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
 }
