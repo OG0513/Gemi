@@ -1,5 +1,5 @@
 /**
- * Interactive Premium Birthday Experience - Version 4
+ * Interactive Premium Birthday Experience - Version 4 (Optimized)
  * Core Architecture & Living Environmental Engine
  */
 
@@ -13,21 +13,21 @@ const APP_CONFIG = {
 
 /**
  * High-Performance Environmental Rendering Engine (Canvas)
- * Creates real-time dynamic, ultra-calm, wind-swept individual grass blades, floating light particles,
- * and ultra-realistic scattered flowers at 60FPS.
+ * Draws 11 unique flower species scattered along the bottom edge, custom winds sways, 
+ * and floating particles with Day/Night rendering overrides at a stable 60FPS.
  */
 class EnvironmentalEngine {
   constructor() {
     this.canvas = document.getElementById('environmental-canvas');
     this.ctx = this.canvas.getContext('2d');
     
-    this.blades = [];
     this.particles = [];
     this.flowers = [];
     this.windTime = 0;
-    this.activeState = 'loading'; // Syncs with currently active scene ID
-    
+    this.isNight = false;
     this.isTicking = false;
+    this.activeState = 'loading';
+    
     this.init();
   }
 
@@ -35,8 +35,7 @@ class EnvironmentalEngine {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
 
-    this.generateParticles(25); // Baseline floating pollen count
-    this.generateGrass();
+    this.generateParticles(15); // Kept minimal to optimize rendering speed
     this.generateFlowers();
 
     this.start();
@@ -46,108 +45,75 @@ class EnvironmentalEngine {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     
-    // Regenerate layout structure safely to adapt to device orientation changes
-    this.generateGrass();
+    // Smoothly re-establish flower coordinates without computational layout spikes
     this.generateFlowers();
   }
 
   /**
-   * Procedurally generate tall, lush grass blades with varying heights, widths, and individual wind phases
+   * Set Night Mode flags inside rendering calculations
+   * @param {boolean} active 
    */
-  generateGrass() {
-    this.blades = [];
-    const width = this.canvas.width;
-    const height = this.canvas.height;
-    
-    // Calibrate blade count to screen width to maximize mobile performance
-    const bladeCount = Math.floor(width / (window.innerWidth < 768 ? 3 : 1.5)); 
-
-    for (let i = 0; i < bladeCount; i++) {
-      const x = Math.random() * width;
-      const y = height; 
-      
-      // Increased grass height parameters for lush visual density
-      const bladeHeight = clamp(110, Math.random() * 120 + 80, 240);
-      const bladeWidth = Math.random() * 4 + 2;
-      
-      // Depth layering colors (Warm spring greens & meadow gold highlights)
-      const colorDepth = Math.random();
-      const color = colorDepth > 0.65 
-        ? `rgba(164, 194, 142, ${0.7 + Math.random() * 0.25})`  // vibrant meadow green
-        : colorDepth > 0.3
-        ? `rgba(132, 166, 110, ${0.75 + Math.random() * 0.2})`   // deeper rich green
-        : `rgba(182, 206, 150, ${0.65 + Math.random() * 0.3})`;  // gold-green highlights
-
-      this.blades.push({
-        x: x,
-        y: y,
-        h: bladeHeight,
-        w: bladeWidth,
-        color: color,
-        angleOffset: Math.random() * Math.PI, // Random phase offsets
-        speed: 0.008 + Math.random() * 0.01,  // Slow wind sway
-        springiness: 4 + Math.random() * 4     // Lower spring multiplier for calm behavior
-      });
-    }
+  setNightMode(active) {
+    this.isNight = active;
   }
 
   /**
-   * Instantiate ultra-realistic flower systems resting directly along the bottom line
+   * Procedurally generates exactly 11 unique flower species with specific drawing profiles,
+   * heights, stem thicknesses, color spaces, and wind phase intervals.
    */
   generateFlowers() {
     this.flowers = [];
     const width = this.canvas.width;
     const height = this.canvas.height;
     
-    const flowerCount = window.innerWidth < 768 ? 6 : 12;
-    // Elegant light palette color profiles
-    const colors = [
-      { petal: '#f4dcd6', core: '#e5ad9b', glow: 'rgba(244, 220, 214, 0.4)' }, // Blush Pink
-      { petal: '#fcece7', core: '#d4af37', glow: 'rgba(252, 236, 231, 0.4)' }, // Soft Peach/Gold
-      { petal: '#f3effc', core: '#b39fdb', glow: 'rgba(243, 239, 252, 0.4)' }, // Lavender Whisper
-      { petal: '#e8f0fe', core: '#a0c3ff', glow: 'rgba(232, 240, 254, 0.4)' }, // Soft Sky Blue
+    // Defining 11 distinct flower species
+    const speciesDefinitions = [
+      { name: 'Rose', petalColor: '#F48FB1', nightColor: '#FF4081', stemThickness: 2.8, size: 10, offsetFactor: 0.1 },
+      { name: 'Tulip', petalColor: '#FFAB91', nightColor: '#FF6E40', stemThickness: 2.5, size: 9, offsetFactor: 0.2 },
+      { name: 'Lily', petalColor: '#FFF59D', nightColor: '#FFFF00', stemThickness: 2.2, size: 12, offsetFactor: 0.3 },
+      { name: 'Daisy', petalColor: '#FFFFFF', nightColor: '#E040FB', stemThickness: 1.8, size: 8, offsetFactor: 0.4 },
+      { name: 'Sunflower', petalColor: '#FFE082', nightColor: '#FFD700', stemThickness: 3.5, size: 14, offsetFactor: 0.5 },
+      { name: 'Lavender', petalColor: '#B39DDB', nightColor: '#7C4DFF', stemThickness: 1.5, size: 7, offsetFactor: 0.6 },
+      { name: 'Poppy', petalColor: '#EF9A9A', nightColor: '#FF1744', stemThickness: 2.0, size: 11, offsetFactor: 0.7 },
+      { name: 'Orchid', petalColor: '#F48FB1', nightColor: '#D500F9', stemThickness: 2.1, size: 10, offsetFactor: 0.8 },
+      { name: 'Cherry Blossom', petalColor: '#FFCDD2', nightColor: '#F50057', stemThickness: 1.9, size: 7, offsetFactor: 0.95 },
+      { name: 'Bluebell', petalColor: '#9FA8DA', nightColor: '#2979FF', stemThickness: 1.6, size: 8, offsetFactor: 0.85 },
+      { name: 'Wildflower', petalColor: '#80CBC4', nightColor: '#00E5FF', stemThickness: 1.4, size: 6, offsetFactor: 0.15 }
     ];
 
-    for (let i = 0; i < flowerCount; i++) {
-      // Scatter evenly with organic offsets along the baseline
-      const x = (width * 0.05) + (Math.random() * width * 0.9);
-      const stemHeight = Math.random() * 60 + 100; // Realistic height taller than average grass
-      const petalCount = Math.floor(Math.random() * 2) + 5; // 5 or 6 multi-petal structures
+    // Distribute species cleanly along bottom line
+    speciesDefinitions.forEach((spec, index) => {
+      // Calculate layout coordinates using distinct spacing offsets
+      const step = width / 12;
+      const x = step * (index + 1) + (Math.random() - 0.5) * (step * 0.4);
       
       this.flowers.push({
         x: x,
         y: height,
-        h: stemHeight,
-        colorProfile: colors[Math.floor(Math.random() * colors.length)],
-        petalCount: petalCount,
+        h: Math.random() * 50 + (window.innerHeight < 600 ? 70 : 120), // Taller on large displays
+        species: spec,
         angleOffset: Math.random() * Math.PI,
-        size: Math.random() * 4 + 8, // Leafy bud size
-        windPhase: Math.random() * Math.PI
+        windPhase: Math.random() * Math.PI,
+        swayRange: 0.03 + Math.random() * 0.03 // Gentle swaying values
       });
-    }
+    });
   }
 
-  /**
-   * Generate gentle floating ambient light particles
-   */
   generateParticles(count) {
     this.particles = [];
     for (let i = 0; i < count; i++) {
       this.particles.push({
         x: Math.random() * this.canvas.width,
         y: Math.random() * this.canvas.height,
-        r: Math.random() * 2.5 + 1.2,
-        alpha: Math.random() * 0.5 + 0.15,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: -Math.random() * 0.3 - 0.08,
+        r: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.4 + 0.1,
+        speedX: (Math.random() - 0.5) * 0.25,
+        speedY: -Math.random() * 0.2 - 0.05,
         phase: Math.random() * Math.PI
       });
     }
   }
 
-  /**
-   * High performance continuous paint loops using requestAnimationFrame
-   */
   start() {
     this.isTicking = true;
     const tick = () => {
@@ -164,16 +130,15 @@ class EnvironmentalEngine {
   }
 
   updatePhysics() {
-    // Highly calibrated ultra-calm cool breeze movement variables
+    // Highly optimized calm wind cycle
     this.windTime += 0.002; 
 
     // Update floating light particles
     this.particles.forEach(p => {
       p.y += p.speedY;
-      // Organic drifting sway pattern
-      p.x += p.speedX + Math.sin(this.windTime * 0.8 + p.phase) * 0.15; 
+      p.x += p.speedX + Math.sin(this.windTime * 0.5 + p.phase) * 0.12; 
       
-      // Recycle particles wrapping out of top bounds smoothly
+      // Wrap smoothly
       if (p.y < -10) {
         p.y = this.canvas.height + 10;
         p.x = Math.random() * this.canvas.width;
@@ -186,128 +151,254 @@ class EnvironmentalEngine {
     const width = this.canvas.width;
     const height = this.canvas.height;
 
-    // Clear frames cleanly
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Draw Ultra-Realistic Flowers (Scattered organically beneath grass layer)
+    // Render Flowers
     this.flowers.forEach(f => {
-      // Wind sway calculations: slow cool drift physics
-      const windAngle = Math.sin(this.windTime * 1.2 + f.angleOffset) * 0.08;
+      const windAngle = Math.sin(this.windTime * 1.0 + f.angleOffset) * f.swayRange;
       const topX = f.x + Math.sin(windAngle) * f.h;
       const topY = f.y - Math.cos(windAngle) * f.h;
 
-      // Draw elegant bending organic stem
+      // Stem Drawing
       ctx.beginPath();
       ctx.moveTo(f.x, f.y);
       ctx.quadraticCurveTo(f.x + (topX - f.x) * 0.3, f.y - f.h * 0.5, topX, topY);
-      ctx.strokeStyle = 'rgba(122, 153, 102, 0.55)';
-      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = this.isNight ? 'rgba(25, 45, 30, 0.65)' : 'rgba(120, 150, 100, 0.65)';
+      ctx.lineWidth = f.species.stemThickness;
       ctx.stroke();
 
-      // Draw natural alternating stem leaves
-      const leafCount = 2;
-      for (let j = 1; j <= leafCount; j++) {
-        const ratio = j / (leafCount + 1);
-        const leafY = f.y - f.h * ratio;
-        const leafX = f.x + (topX - f.x) * ratio;
-        const leafSide = j % 2 === 0 ? 1 : -1;
+      // Stem Leaves
+      ctx.beginPath();
+      ctx.ellipse(topX - 6, topY + 20, 6, 2, windAngle - 0.4, 0, Math.PI * 2);
+      ctx.ellipse(topX + 6, topY + 40, 5, 2.2, windAngle + 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = this.isNight ? 'rgba(30, 55, 35, 0.55)' : 'rgba(130, 160, 110, 0.55)';
+      ctx.fill();
 
-        ctx.beginPath();
-        ctx.ellipse(
-          leafX + leafSide * 6, 
-          leafY - 2, 
-          8, 
-          3, 
-          (leafSide * Math.PI / 6) + windAngle, 
-          0, 
-          Math.PI * 2
-        );
-        ctx.fillStyle = 'rgba(132, 166, 110, 0.65)';
-        ctx.fill();
+      // Bloom Color Setting
+      const color = this.isNight ? f.species.nightColor : f.species.petalColor;
+
+      // Shadow glow layer for neon mode
+      if (this.isNight) {
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = color;
       }
 
-      // Draw 3D realistic petals with beautiful translucent layering
       ctx.save();
       ctx.translate(topX, topY);
-      ctx.rotate(windAngle * 2);
+      ctx.rotate(windAngle);
 
-      // Back glow shadow
-      ctx.beginPath();
-      ctx.arc(0, 0, f.size * 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = f.colorProfile.glow;
-      ctx.filter = 'blur(4px)';
-      ctx.fill();
-      ctx.filter = 'none';
-
-      // Draw layered realistic petals
-      const petals = f.petalCount;
-      const angleStep = (Math.PI * 2) / petals;
-      
-      for (let k = 0; k < petals; k++) {
-        ctx.save();
-        ctx.rotate(k * angleStep + Math.sin(this.windTime + f.windPhase) * 0.05);
-
-        // Individual petal ellipse gradient shadow
-        ctx.beginPath();
-        ctx.ellipse(0, -f.size * 0.8, f.size * 0.5, f.size * 0.95, 0, 0, Math.PI * 2);
-        ctx.fillStyle = f.colorProfile.petal;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-        ctx.lineWidth = 0.5;
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.restore();
+      // Procedural Drawing Profiles for 11 Unique Species
+      switch(f.species.name) {
+        case 'Rose':
+          this.drawRose(ctx, f.size, color);
+          break;
+        case 'Tulip':
+          this.drawTulip(ctx, f.size, color);
+          break;
+        case 'Lily':
+          this.drawLily(ctx, f.size, color);
+          break;
+        case 'Daisy':
+          this.drawDaisy(ctx, f.size, color);
+          break;
+        case 'Sunflower':
+          this.drawSunflower(ctx, f.size, color);
+          break;
+        case 'Lavender':
+          this.drawLavender(ctx, f.size, color);
+          break;
+        case 'Poppy':
+          this.drawPoppy(ctx, f.size, color);
+          break;
+        case 'Orchid':
+          this.drawOrchid(ctx, f.size, color);
+          break;
+        case 'Cherry Blossom':
+          this.drawCherryBlossom(ctx, f.size, color);
+          break;
+        case 'Bluebell':
+          this.drawBluebell(ctx, f.size, color);
+          break;
+        case 'Wildflower':
+          this.drawWildflower(ctx, f.size, color);
+          break;
       }
 
-      // Draw textured center core disc
-      ctx.beginPath();
-      ctx.arc(0, 0, f.size * 0.45, 0, Math.PI * 2);
-      ctx.fillStyle = f.colorProfile.core;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.lineWidth = 1;
-      ctx.fill();
-      ctx.stroke();
-
-      // Core details (realistic pollen clusters)
-      ctx.beginPath();
-      ctx.arc(0, 0, f.size * 0.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#f9d976';
-      ctx.fill();
-
       ctx.restore();
+
+      if (this.isNight) {
+        ctx.restore(); // Restore shadows
+      }
     });
 
-    // 2. Draw Grass Blades (Midground layer - Tall and slow moving)
-    ctx.lineCap = 'round';
-    this.blades.forEach(b => {
-      // Adjusted wave formula representing calm, cool, realistic breeze sways
-      const wave = Math.sin(this.windTime * b.springiness * 0.45 + (b.x * 0.005) + b.angleOffset);
-      const angle = wave * 0.12; // Slow, natural angular limits
-
-      const tipX = b.x + Math.sin(angle) * b.h;
-      const tipY = b.y - Math.cos(angle) * b.h;
-
-      ctx.beginPath();
-      ctx.moveTo(b.x, b.y);
-      // Quadratic bezier curve structure yields a natural weighted taper
-      ctx.quadraticCurveTo(b.x, b.y - b.h * 0.5, tipX, tipY); 
-      
-      ctx.strokeStyle = b.color;
-      ctx.lineWidth = b.w;
-      ctx.stroke();
-    });
-
-    // 3. Draw Floating Particles (Foreground layer)
+    // Draw Particles
     this.particles.forEach(p => {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
-      ctx.shadowBlur = 4;
-      ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillStyle = this.isNight 
+        ? `rgba(180, 220, 255, ${p.alpha * 0.8})` 
+        : `rgba(255, 255, 255, ${p.alpha})`;
       ctx.fill();
-      // Reset shadows immediately to avoid heavy Canvas draw overheads
-      ctx.shadowBlur = 0; 
     });
+  }
+
+  /* SPECIES 1: Swirling compact layers */
+  drawRose(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(0, 0, size - (i * 2.5), 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = 1;
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+
+  /* SPECIES 2: Upward chalice design */
+  drawTulip(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.6, 0);
+    ctx.bezierCurveTo(-size * 0.8, -size * 1.2, 0, -size * 1.5, 0, -size * 0.3);
+    ctx.bezierCurveTo(0, -size * 1.5, size * 0.8, -size * 1.2, size * 0.6, 0);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Front overlapping petal
+    ctx.beginPath();
+    ctx.ellipse(0, -size * 0.4, size * 0.45, size * 0.7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  /* SPECIES 3: Outward curving elegant trumpet */
+  drawLily(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 3; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI) / 1.5);
+      ctx.beginPath();
+      ctx.ellipse(0, -size * 0.5, size * 0.4, size * 1.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    // Gold stamens
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(-1, -size * 0.2, 2, -size * 0.8);
+  }
+
+  /* SPECIES 4: Spoke-like radiating narrow petals */
+  drawDaisy(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 8; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI) / 4);
+      ctx.beginPath();
+      ctx.ellipse(0, -size, size * 0.22, size * 1.1, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.45, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFD700';
+    ctx.fill();
+  }
+
+  /* SPECIES 5: Large sunflower disc with pointed gold petals */
+  drawSunflower(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 12; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI) / 6);
+      ctx.beginPath();
+      ctx.ellipse(0, -size * 0.9, size * 0.25, size * 0.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = '#4E342E';
+    ctx.fill();
+  }
+
+  /* SPECIES 6: Vertical tiny stacked nodes */
+  drawLavender(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.ellipse(0, -i * 8, size * 0.65, size * 0.45, 0.4, 0, Math.PI * 2);
+      ctx.ellipse(0, -i * 8, size * 0.65, size * 0.45, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  /* SPECIES 7: Floppy paper-thin red petals */
+  drawPoppy(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(-size * 0.4, 0, size * 0.9, size * 0.7, 0, 0, Math.PI * 2);
+    ctx.ellipse(size * 0.4, 0, size * 0.9, size * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = '#1A1A1A';
+    ctx.fill();
+  }
+
+  /* SPECIES 8: Asymmetric landing lip orchid */
+  drawOrchid(ctx, size, color) {
+    ctx.fillStyle = color;
+    // Wing petals
+    ctx.beginPath();
+    ctx.ellipse(-size * 0.8, -size * 0.3, size * 0.7, size * 0.5, -0.4, 0, Math.PI * 2);
+    ctx.ellipse(size * 0.8, -size * 0.3, size * 0.7, size * 0.5, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    // Landing lip
+    ctx.beginPath();
+    ctx.arc(0, size * 0.4, size * 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = '#E040FB';
+    ctx.fill();
+  }
+
+  /* SPECIES 9: Five delicate notched petals */
+  drawCherryBlossom(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 5; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI * 2) / 5);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-size * 0.5, -size * 1.1);
+      ctx.lineTo(0, -size * 0.8); // Center notch
+      ctx.lineTo(size * 0.5, -size * 1.1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  /* SPECIES 10: Drooping bell shaped capsules */
+  drawBluebell(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(0, -size * 0.3, size * 0.65, Math.PI, 0, false);
+    ctx.lineTo(size * 0.4, size * 0.3);
+    ctx.lineTo(0, size * 0.05); // center bell ridge
+    ctx.lineTo(-size * 0.4, size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /* SPECIES 11: Multi-branching tiny stars */
+  drawWildflower(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc((i - 1.5) * 6, -i * 5, size * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 }
 
@@ -538,6 +629,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize primary Scene Architecture Manager
   const app = new SceneManager();
+
+  // Day/Night Interaction Bindings
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const isNight = document.body.classList.toggle('night-mode');
+      environment.setNightMode(isNight);
+    });
+  }
 
   // Instantiate localized view controllers
   const cardController = new InteractiveCardController(app);
