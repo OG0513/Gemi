@@ -1,38 +1,37 @@
 /* ==========================================================================
-   1. VARIABLES & RESET (REDESIGNED FOR V3 PREMIUM LIGHT THEME)
+   1. VARIABLES & RESET (UPGRADED FOR V4 LUXURY LIGHT CONCEPT)
    ========================================================================== */
 :root {
-  /* Premium Airy Light Palette Backgrounds */
+  /* Fluid Palette Backgrounds */
   --bg-primary-1: #FFFDF8;
   --bg-primary-2: #FFF8F2;
   --bg-primary-3: #FFF6FB;
   --bg-primary-4: #FDF9FF;
   
-  --sky-blue-light: #E8F1FC;
-  --horizon-cream: #FFF3E8;
+  --sky-blue-light: #EBF3FC;
+  --horizon-cream: #FFF5EC;
 
-  /* Luxury Champagne Gold Accents */
+  /* Luxury Gold Details */
   --gold-primary: #c5a059;
   --gold-secondary: #967438;
-  --gold-light: #f6ebd4;
+  --gold-light: #f7edd6;
   --gold-glow-shadow: rgba(197, 160, 89, 0.08);
 
-  /* Refined High-Contrast Typography */
+  /* Refined Typography Gray Tones */
   --text-primary: #2F2F35;
   --text-muted: #55545A;
   --text-dim: rgba(47, 47, 53, 0.4);
 
-  /* Enhanced Light Glassmorphism */
+  /* Apple-Quality Glassmorphism Accents */
   --glass-bg: rgba(255, 255, 255, 0.45);
   --glass-border: rgba(255, 255, 255, 0.65);
   --glass-border-hover: rgba(197, 160, 89, 0.4);
-  --glass-shadow: rgba(142, 134, 122, 0.08);
+  --glass-shadow: rgba(142, 134, 122, 0.06);
 
   /* Pastel Luxe Accents */
   --blush-pink: #f4dcd6;
   --soft-peach: #fcece7;
   --lavender-light: #f3effc;
-  --sage-green-light: #f0f4f1;
   --rose-gold: #e2b4bd;
 
   /* Fonts */
@@ -40,18 +39,18 @@
   --font-sans: 'Montserrat', sans-serif;
   --font-script: 'Playfair Display', Georgia, serif;
 
-  /* Transitions */
-  --transition-slow: 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-  --transition-medium: 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-  --transition-fast: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Cinematic Scene Transitions */
+  --transition-lens: 1.8s cubic-bezier(0.25, 1, 0.3, 1);
+  --transition-medium: 0.8s cubic-bezier(0.25, 1, 0.3, 1);
+  --transition-fast: 0.35s cubic-bezier(0.25, 1, 0.3, 1);
   
-  /* Envelope and Card Specific Palettes (Pastel Luxe) */
-  --envelope-outer: #f4e8e1;
-  --envelope-inner: #fdfaf7;
-  --envelope-pocket: #ecdcd2;
-  --envelope-shadow: rgba(165, 155, 145, 0.22);
-  --paper-cream: #fbf9f4;
-  --paper-border: #f0e6d6;
+  /* Envelope/Card Structural Styling */
+  --envelope-outer: #f3e6dd;
+  --envelope-inner: #fbf9f6;
+  --envelope-pocket: #ebdcd2;
+  --envelope-shadow: rgba(165, 155, 145, 0.16);
+  --paper-cream: #fdfcf9;
+  --paper-border: #f2ebd9;
 }
 
 * {
@@ -64,7 +63,7 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Strict "No Scroll" layout */
+  overflow: hidden; /* Prevent scrolling strictly */
   background-color: var(--bg-primary-1);
   font-family: var(--font-sans);
   color: var(--text-primary);
@@ -73,14 +72,14 @@ html, body {
 }
 
 /* ==========================================================================
-   2. BACKGROUND SYSTEM (REDESIGNED: LIGHT SUNNY SKY & FLUFFY CLOUDS)
+   2. PERSISTENT LIGHT ENVIRONMENTAL CANVAS LAYOUT
    ========================================================================== */
 .ambient-background {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: 1;
   overflow: hidden;
   background: linear-gradient(180deg, var(--sky-blue-light) 0%, var(--horizon-cream) 60%, var(--bg-primary-1) 100%);
@@ -92,63 +91,61 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 10% 20%, rgba(255, 253, 248, 0.6) 0%, rgba(255, 248, 242, 0.9) 90%);
+  background: radial-gradient(circle at 10% 20%, rgba(255, 253, 248, 0.5) 0%, rgba(255, 248, 242, 0.8) 90%);
   pointer-events: none;
 }
 
-/* Subtle sunlight flare effect */
+/* Sun Glow & Volumetric rays */
 .sun-glow {
   position: absolute;
   top: -10%;
-  left: 30%;
-  width: 60vw;
-  height: 60vw;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 251, 242, 0.4) 50%, rgba(255, 255, 255, 0) 70%);
+  left: 20%;
+  width: clamp(300px, 60vw, 900px);
+  height: clamp(300px, 60vw, 900px);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 251, 242, 0.35) 50%, rgba(255, 255, 255, 0) 70%);
   border-radius: 50%;
-  filter: blur(40px);
+  filter: blur(20px);
   pointer-events: none;
-  animation: gentleSolarPulse 10s ease-in-out infinite alternate;
 }
 
-@keyframes gentleSolarPulse {
-  0% { opacity: 0.7; transform: scale(0.98); }
-  100% { opacity: 0.9; transform: scale(1.03); }
+.sun-rays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(105deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 20px, transparent 20px, transparent 60px);
+  mask-image: radial-gradient(circle at 50% 0%, black, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at 50% 0%, black, transparent 80%);
+  pointer-events: none;
 }
 
-/* Luxury Light Spheres (Soft Pastel Gradients) */
+/* Atmospheric depth layers */
 .glow-sphere {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.45;
+  filter: blur(120px);
+  opacity: 0.35;
   pointer-events: none;
 }
 
 .glow-1 {
-  width: 40vw;
-  height: 40vw;
-  top: 10%;
+  width: 45vw;
+  height: 45vw;
+  top: 15%;
   right: -5%;
   background: radial-gradient(circle, var(--blush-pink) 0%, rgba(255,255,255,0) 70%);
-  animation: floatAmbient 22s ease-in-out infinite alternate;
 }
 
 .glow-2 {
   width: 50vw;
   height: 50vw;
-  bottom: -10%;
+  bottom: -15%;
   left: -5%;
   background: radial-gradient(circle, var(--lavender-light) 0%, rgba(255,255,255,0) 70%);
-  animation: floatAmbient 28s ease-in-out infinite alternate-reverse;
 }
 
-@keyframes floatAmbient {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(2%, 4%) scale(1.05); }
-  100% { transform: translate(-1%, -2%) scale(0.97); }
-}
-
-/* Animated Clouds (Ultra-soft airy clouds) */
+/* Soft overhead clouds */
 .cloud-container {
   position: absolute;
   top: 0;
@@ -156,40 +153,19 @@ html, body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.65;
+  opacity: 0.5;
 }
 
 .cloud {
   position: absolute;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 254, 252, 0.5) 45%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 254, 252, 0.45) 50%, rgba(255, 255, 255, 0) 70%);
   border-radius: 50%;
-  filter: blur(35px);
+  filter: blur(30px);
 }
 
-.cloud-1 {
-  width: 600px;
-  height: 300px;
-  top: 10%;
-  left: -20%;
-  animation: moveCloud 140s linear infinite;
-}
-
-.cloud-2 {
-  width: 800px;
-  height: 400px;
-  bottom: 25%;
-  right: -30%;
-  animation: moveCloudReverse 180s linear infinite;
-}
-
-.cloud-3 {
-  width: 450px;
-  height: 220px;
-  top: 45%;
-  left: -10%;
-  animation: moveCloud 100s linear infinite;
-  animation-delay: -35s;
-}
+.cloud-1 { width: 550px; height: 260px; top: 10%; left: -10%; animation: moveCloud 150s linear infinite; }
+.cloud-2 { width: 750px; height: 350px; bottom: 35%; right: -20%; animation: moveCloudReverse 190s linear infinite; }
+.cloud-3 { width: 400px; height: 200px; top: 35%; left: 15%; animation: moveCloud 110s linear infinite; animation-delay: -40s; }
 
 @keyframes moveCloud {
   0% { transform: translateX(-100vw); }
@@ -201,19 +177,32 @@ html, body {
   100% { transform: translateX(-120vw); }
 }
 
+/* Environmental canvas covering background layers */
+#environmental-canvas {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
 /* ==========================================================================
-   3. SCENE CONTAINER & CORE TRANSITIONS
+   3. CINEMATIC SCENE STAGE (TRANSITIONS & CAMERA LENS)
    ========================================================================== */
 #app-container {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
+  perspective: 1200px;
 }
 
+/* Cinematic scene state transition rules: Camera zoom + light bloom */
 .scene {
   position: absolute;
   top: 0;
@@ -227,160 +216,69 @@ html, body {
   padding: 24px;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(20px) scale(0.98);
-  transition: opacity var(--transition-slow), transform var(--transition-slow), filter var(--transition-slow);
-  filter: blur(10px);
+  transform: translate3d(0, 40px, -100px) scale(0.93);
+  filter: blur(25px) brightness(1.5); /* Bloom state */
+  transition: opacity var(--transition-lens), 
+              transform var(--transition-lens), 
+              filter var(--transition-lens);
 }
 
 .scene.active {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0) brightness(1); /* Settled state */
 }
 
 .scene.hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-20px) scale(0.98);
-  filter: blur(10px);
+  transform: translate3d(0, -40px, 100px) scale(1.07);
+  filter: blur(25px) brightness(1.5); /* Receding state */
 }
 
 /* ==========================================================================
-   4. SCENE 1: LOADING SCREEN UI (LIGHT THEME)
-   ========================================================================== */
-.loader-wrapper {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 320px;
-  width: 100%;
-}
-
-.loader-logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 40px;
-  position: relative;
-  box-shadow: 0 10px 30px var(--glass-shadow);
-}
-
-.loader-logo::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  border-top-color: var(--gold-primary);
-  border-bottom-color: var(--gold-primary);
-  animation: logoRotate 3s linear infinite;
-}
-
-.logo-initial {
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  color: var(--gold-primary);
-  text-shadow: 0 1px 4px rgba(197, 160, 89, 0.15);
-}
-
-.loader-bar-container {
-  width: 100%;
-  height: 2px;
-  background: rgba(47, 47, 53, 0.05);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.loader-bar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--rose-gold), var(--gold-primary), var(--gold-light));
-  border-radius: 2px;
-  box-shadow: 0 0 8px rgba(197, 160, 89, 0.4);
-  transition: width 0.1s linear;
-}
-
-.loader-text {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-
-.loader-percentage {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  color: var(--gold-secondary);
-  font-weight: 600;
-}
-
-@keyframes logoRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* ==========================================================================
-   5. PREMIUM LIGHT GLASSMORPHIC CARD DESIGN
+   4. APPLE-QUALITY GLASSMORPHIC CARDS
    ========================================================================== */
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.3) 100%);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.25) 100%);
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
-  padding: 56px 48px;
-  width: 100%;
+  padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
+  width: 90%;
   max-width: 560px;
-  box-shadow: 0 25px 60px -12px var(--glass-shadow), 
+  box-shadow: 0 30px 70px -15px var(--glass-shadow), 
               inset 0 1px 0 rgba(255, 255, 255, 0.9);
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 36px;
-  transform: translateY(0);
+  gap: clamp(24px, 3.5vw, 36px);
   transition: border-color var(--transition-medium), box-shadow var(--transition-medium);
 }
 
 .glass-card:hover {
   border-color: var(--glass-border-hover);
-  box-shadow: 0 30px 65px -10px rgba(165, 155, 145, 0.18), 
-              0 0 30px var(--gold-glow-shadow),
+  box-shadow: 0 40px 80px -10px rgba(165, 155, 145, 0.14), 
+              0 0 40px var(--gold-glow-shadow),
               inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .card-accent-line {
   position: absolute;
   top: 0;
-  left: 15%;
-  right: 15%;
+  left: 20%;
+  right: 20%;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
 }
 
-.card-header {
-  text-align: center;
-}
+.card-header { text-align: center; }
 
 .subtitle {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: clamp(0.65rem, 1.5vw, 0.75rem);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 5px;
@@ -391,34 +289,31 @@ html, body {
 
 .main-title {
   font-family: var(--font-serif);
-  font-size: 2.25rem;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
   font-weight: 400;
-  line-height: 1.3;
+  line-height: 1.35;
   color: var(--text-primary);
   letter-spacing: 1px;
 }
 
 .welcome-text {
   font-family: var(--font-sans);
-  font-size: 0.95rem;
-  line-height: 1.9;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  line-height: 1.85;
   color: var(--text-muted);
   text-align: center;
   font-weight: 400;
 }
 
-.card-footer {
-  display: flex;
-  justify-content: center;
-}
+.card-footer { display: flex; justify-content: center; }
 
 /* ==========================================================================
-   6. PREMIUM LUXURY CTA BUTTON (LIGHT SPEC)
+   5. LUXURY CTA BUTTONS WITH MAGNETIC HOVER & REFLECTIONS
    ========================================================================== */
 .btn-premium {
   position: relative;
-  background: linear-gradient(135deg, #FFF9F2, #FFF3E8);
-  border: 1px solid var(--gold-primary);
+  background: linear-gradient(135deg, #FFFAF4, #FFF0E2);
+  border: 1px solid rgba(197, 160, 89, 0.35);
   padding: 16px 44px;
   border-radius: 40px;
   cursor: pointer;
@@ -426,8 +321,10 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 8px 16px rgba(197, 160, 89, 0.12);
-  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 10px 25px rgba(197, 160, 89, 0.1);
+  transition: transform var(--transition-fast), 
+              border-color var(--transition-fast), 
+              box-shadow var(--transition-fast);
 }
 
 .btn-text {
@@ -447,20 +344,20 @@ html, body {
   left: 50%;
   width: 0;
   height: 0;
-  background: var(--gold-light);
+  background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(255,255,255,0.4));
   border-radius: 50%;
   transform: translate(-50%, -50%);
   opacity: 0;
-  filter: blur(15px);
-  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+  filter: blur(10px);
+  transition: width 0.7s ease, height 0.7s ease, opacity 0.7s ease;
   z-index: 1;
 }
 
-/* Hover States for Button */
+/* Hover States for premium buttons */
 .btn-premium:hover {
-  transform: scale(1.02);
-  border-color: var(--gold-secondary);
-  box-shadow: 0 12px 24px rgba(197, 160, 89, 0.18);
+  transform: scale(1.025) translateY(-2px);
+  border-color: var(--gold-primary);
+  box-shadow: 0 15px 30px rgba(197, 160, 89, 0.18);
 }
 
 .btn-premium:hover .btn-text {
@@ -468,19 +365,27 @@ html, body {
 }
 
 .btn-premium:hover .btn-glow {
-  width: 250px;
-  height: 250px;
-  opacity: 0.8;
+  width: 300px;
+  height: 300px;
+  opacity: 1;
   border-radius: 40px;
 }
 
 .btn-premium:active {
-  transform: scale(0.98);
+  transform: scale(0.975) translateY(0);
 }
 
 /* ==========================================================================
-   7. SCENE 3: INTERACTIVE BIRTHDAY CARD & ENVELOPE STYLING (VERSION 3)
+   6. REALISTIC PAPER TEXTURING & ENVELOPE DESIGN
    ========================================================================== */
+.paper-texture {
+  background-color: var(--paper-cream);
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.7) 0%, rgba(240, 230, 218, 0.1) 100%),
+    repeating-linear-gradient(45deg, rgba(0,0,0,0.003) 0px, rgba(0,0,0,0.003) 1px, transparent 1px, transparent 10px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,0.003) 0px, rgba(0,0,0,0.003) 1px, transparent 1px, transparent 10px);
+}
+
 .card-scene-container {
   display: flex;
   flex-direction: column;
@@ -491,25 +396,7 @@ html, body {
   position: relative;
 }
 
-/* Hint Text Banner */
-.interaction-hint {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-bottom: 24px;
-  opacity: 0.8;
-  animation: pulsingHint 2s infinite ease-in-out;
-  text-align: center;
-}
-
-@keyframes pulsingHint {
-  0%, 100% { opacity: 0.5; transform: scale(0.98); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-/* Responsive 3D Stage limiting dimensions to stay completely in viewport */
+/* Interactive envelope layout wrapper */
 .stage-3d {
   width: 100%;
   max-width: 480px;
@@ -517,39 +404,38 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1500px; /* Gives realistic 3D spatial separation */
+  perspective: 1500px;
 }
 
-/* Envelope Box Wrapping */
+/* Realistic weight envelope structure */
 .envelope-wrapper {
   position: relative;
-  width: 360px;
-  height: 240px;
+  width: min(360px, 85vw);
+  height: min(240px, 56.6vw);
   background-color: var(--envelope-inner);
-  border-radius: 6px;
-  box-shadow: 0 15px 45px var(--envelope-shadow);
+  border-radius: 8px;
+  box-shadow: 0 20px 50px var(--envelope-shadow);
   transform-style: preserve-3d;
   cursor: pointer;
-  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s;
+  transition: transform 1s cubic-bezier(0.2, 1, 0.2, 1), box-shadow 1s;
+}
+
+/* Fluid physical envelope float animation on idle */
+.envelope-wrapper.floating-envelope {
+  animation: floatEnvelope 6s ease-in-out infinite alternate;
+}
+
+@keyframes floatEnvelope {
+  0% { transform: translateY(0px) rotateX(1deg) rotateY(-1deg); }
+  50% { transform: translateY(-12px) rotateX(-2deg) rotateY(2deg); }
+  100% { transform: translateY(0px) rotateX(1deg) rotateY(-1deg); }
 }
 
 .envelope-wrapper:hover {
-  transform: translateY(-5px) rotateX(5deg);
-  box-shadow: 0 25px 55px rgba(165, 155, 145, 0.35);
+  box-shadow: 0 35px 70px rgba(165, 155, 145, 0.28);
 }
 
-.envelope-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--envelope-inner);
-  border-radius: 6px;
-  z-index: 1;
-}
-
-/* Front triangular pocket created using vector path overlays */
+/* Front triangular structural pocket layout */
 .envelope-front-pocket {
   position: absolute;
   bottom: 0;
@@ -557,12 +443,12 @@ html, body {
   width: 100%;
   height: 100%;
   background-color: var(--envelope-pocket);
-  clip-path: polygon(0 40%, 50% 70%, 100% 40%, 100% 100%, 0% 100%);
-  border-radius: 0 0 6px 6px;
+  clip-path: polygon(0 40%, 50% 68%, 100% 40%, 100% 100%, 0% 100%);
+  border-radius: 0 0 8px 8px;
   z-index: 3;
 }
 
-/* Rotating Envelope Opening Flap */
+/* Simulated natural weight paper opening flap */
 .envelope-flap {
   position: absolute;
   top: 0;
@@ -571,8 +457,8 @@ html, body {
   height: 60%;
   transform-origin: top center;
   transform: rotateX(0deg);
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.8s;
-  z-index: 4; /* Sits above front pocket initially */
+  transition: transform 0.9s cubic-bezier(0.3, 1, 0.3, 1), z-index 0.9s;
+  z-index: 4;
 }
 
 .envelope-flap-inner {
@@ -580,77 +466,91 @@ html, body {
   height: 100%;
   background-color: var(--envelope-outer);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px 8px 0 0;
 }
 
-/* Wax Seal Accent */
+/* Highly structured metallic gold seal */
 .wax-seal {
   position: absolute;
-  bottom: -20px;
+  bottom: -22px;
   left: 50%;
   transform: translateX(-50%);
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   background: radial-gradient(circle, var(--rose-gold) 0%, var(--gold-primary) 100%);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 10px rgba(165, 155, 145, 0.3);
+  box-shadow: 0 6px 15px rgba(165, 155, 145, 0.35);
   z-index: 5;
-  transition: opacity 0.4s ease, transform 0.4s;
+  transition: opacity 0.4s var(--transition-fast), transform 0.4s;
+}
+
+.wax-seal::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
 }
 
 .seal-logo {
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* ACTIVE ENVELOPE STATES */
+/* OPEN ACTIVE STATE TRIGGERS */
+.envelope-wrapper.open {
+  animation-play-state: paused; /* Freeze floating sequence while opening */
+}
+
 .envelope-wrapper.open .envelope-flap {
   transform: rotateX(180deg);
-  z-index: 2; /* Drops behind card path as it opens */
+  z-index: 2; /* Dropped cleanly underneath emergent card path */
 }
 
 .envelope-wrapper.open .wax-seal {
   opacity: 0;
-  transform: translateX(-50%) scale(0.6);
+  transform: translateX(-50%) scale(0.5);
 }
 
 /* ==========================================================================
-   8. BIRTHDAY GREETING BOOK CARD (3D FOLD)
+   7. THE BOOK FOLDING LUXURY GREETING CARD
    ========================================================================== */
-.card-3d-wrapper {
+.birthday-card-wrapper {
   position: absolute;
   top: 10px;
   left: 5%;
   width: 90%;
   height: 90%;
-  z-index: 2; /* Sits inside envelope initially */
-  transform: translateY(0) scale(0.96);
-  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), z-index 1.2s;
-  pointer-events: none; /* Block interactions until sliding finishes */
+  z-index: 2;
+  transform: translateY(0) scale(0.95);
+  transition: transform 1.4s cubic-bezier(0.25, 1, 0.25, 1), z-index 1.4s;
+  pointer-events: none;
 }
 
-/* Card emerges state (Triggered via JS) */
-.envelope-wrapper.card-emerged .card-3d-wrapper {
-  transform: translateY(-160px) scale(1.1);
-  z-index: 10; /* Raises above the envelope completely */
+/* Transition to emerge up out of envelope body */
+.envelope-wrapper.card-emerged .birthday-card-wrapper {
+  transform: translateY(-170px) scale(1.08) rotateX(4deg);
+  z-index: 10;
   pointer-events: auto;
 }
 
-/* Elegant Book Folding Layout container */
 .card-book {
-  width: 320px;
-  height: 240px;
+  width: min(320px, 75vw);
+  height: min(240px, 56.6vw);
   position: relative;
   margin: 0 auto;
   transform-style: preserve-3d;
-  transition: transform 1s ease-in-out;
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.25, 1);
 }
 
-/* Individual Book Pages */
 .card-page {
   position: absolute;
   top: 0;
@@ -658,13 +558,13 @@ html, body {
   width: 100%;
   height: 100%;
   border-radius: 10px;
-  background-color: var(--paper-cream);
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.03), 
-              0 6px 18px rgba(165, 155, 145, 0.15);
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.02), 
+              0 10px 25px rgba(165, 155, 145, 0.12);
   backface-visibility: hidden;
+  border: 1px solid var(--paper-border);
 }
 
-/* Swinging Card Cover Plate */
+/* Book fold cover container */
 .card-cover-container {
   position: absolute;
   width: 100%;
@@ -673,15 +573,12 @@ html, body {
   left: 0;
   transform-origin: left center;
   transform-style: preserve-3d;
-  transition: transform 1.6s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 1.8s cubic-bezier(0.25, 1, 0.2, 1);
   z-index: 5;
 }
 
-.card-cover-front {
-  z-index: 2;
-}
+.card-cover-front { z-index: 2; }
 
-/* Decorative Gold Cover Face */
 .card-cover-design {
   width: 100%;
   height: 100%;
@@ -689,7 +586,6 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid var(--paper-border);
   padding: 24px;
   border-radius: 10px;
   position: relative;
@@ -698,1000 +594,38 @@ html, body {
 
 .foil-border {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
   border: 1px solid var(--gold-primary);
-  opacity: 0.5;
-}
-
-.cover-accent {
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  letter-spacing: 4px;
-  color: var(--gold-secondary);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.gold-embellishment {
-  font-size: 1.5rem;
-  color: var(--gold-primary);
-  margin-bottom: 16px;
-}
-
-.cover-instruction {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  color: var(--text-primary);
-  letter-spacing: 1px;
-}
-
-/* Inner Left Page face design */
-.card-cover-back {
-  transform: rotateY(180deg); /* Reverses visibility in 3D projection */
-  z-index: 1;
-}
-
-.inside-left-design {
-  width: 100%;
-  height: 100%;
-  padding: 16px;
-  border-radius: 10px;
-  border: 1px solid var(--paper-border);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.decorative-pattern {
-  width: 90%;
-  height: 90%;
-  border: 1px dashed rgba(197, 160, 89, 0.2);
-  border-radius: 6px;
-  background: radial-gradient(circle, rgba(197,160,89,0.03) 0%, rgba(0,0,0,0) 80%);
-}
-
-/* Stationary Inside Right Page Face (Calligraphy Content) */
-.card-inside-right {
-  z-index: 0; /* Base page */
-  border-radius: 10px;
-  border-left: 2px solid rgba(0,0,0,0.02); /* Simulates binding crease shadow */
-}
-
-.inside-right-content {
-  width: 100%;
-  height: 100%;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  border: 1px solid var(--paper-border);
-  border-radius: 0 10px 10px 0;
-}
-
-.card-cursive-header {
-  font-family: var(--font-script);
-  font-size: 1.2rem;
-  font-style: italic;
-  color: var(--gold-secondary);
-  margin-bottom: 4px;
-}
-
-.recipient-name {
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  color: var(--text-primary);
-  font-weight: 600;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-}
-
-.message-divider {
-  font-size: 0.75rem;
-  color: var(--gold-primary);
-  margin-bottom: 12px;
-}
-
-.personal-message {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  line-height: 1.6;
-  color: var(--text-muted);
-  font-weight: 500;
-  max-width: 240px;
-  margin-bottom: 12px;
-}
-
-.signature {
-  font-family: var(--font-script);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* ACTIVE CARD TRANSITIONS */
-.card-book.opened .card-cover-container {
-  transform: rotateY(-140deg); /* Swings cover open elegant flat layout angle */
-}
-
-/* ==========================================================================
-   9. CIRCULAR NEXT SCENE NAVIGATION BUTTON
-   ========================================================================== */
-.btn-circular-next {
-  position: absolute;
-  bottom: 10%;
-  right: 15%;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--gold-primary);
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  outline: none;
-  z-index: 20;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.8);
-  box-shadow: 0 8px 20px rgba(165, 155, 145, 0.15);
-  transition: opacity var(--transition-slow), transform var(--transition-slow), border-color var(--transition-fast);
-}
-
-.btn-circular-next.visible {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
-}
-
-.arrow-icon {
-  color: var(--gold-secondary);
-  font-size: 1.5rem;
-  transition: transform var(--transition-fast);
-}
-
-.btn-circular-next:hover {
-  border-color: var(--gold-secondary);
-  background: rgba(197, 160, 89, 0.08);
-}
-
-.btn-circular-next:hover .arrow-icon {
-  transform: translateX(4px);
-}
-
-/* Infinite Ambient Ring Pulse for UX call-to-action */
-.btn-pulse {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 50%;
-  border: 1px solid var(--gold-primary);
-  opacity: 0;
-  animation: rippleGlow 2.5s infinite ease-out;
-  pointer-events: none;
-}
-
-@keyframes rippleGlow {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(1.3); opacity: 0; }
-}
-
-/* ==========================================================================
-   10. RESPONSIVENESS AND CLIPPING MITIGATION
-   ========================================================================== */
-@media (max-width: 768px) {
-  /* Portrait and landscape phones styling */
-  .glass-card {
-    padding: 40px 28px;
-    gap: 28px;
-    max-width: 90%;
-  }
-
-  .main-title {
-    font-size: 1.75rem;
-  }
-
-  .welcome-text {
-    font-size: 0.85rem;
-    line-height: 1.7;
-  }
-
-  .btn-premium {
-    padding: 14px 32px;
-    width: 100%;
-  }
-
-  .loader-logo {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 30px;
-  }
-
-  .logo-initial {
-    font-size: 1.75rem;
-  }
-
-  /* 3D Stage Scaling adjustments to eliminate mobile layout clipping completely */
-  .stage-3d {
-    transform: scale(0.85);
-  }
-
-  .btn-circular-next {
-    right: 10%;
-    bottom: 5%;
-  }
-}
-
-@media (max-width: 480px) {
-  .stage-3d {
-    transform: scale(0.72);
-  }
-}
-
-/* Landscape Phone Heights Specific layout adjustment */
-@media (max-height: 568px) {
-  .glass-card {
-    padding: 20px;
-    gap: 16px;
-  }
-  
-  .main-title {
-    font-size: 1.5rem;
-  }
-  
-  .welcome-text {
-    font-size: 0.8rem;
-    line-height: 1.4;
-  }
-
-  .stage-3d {
-    transform: scale(0.6);
-  }
-
-  .interaction-hint {
-    margin-bottom: 8px;
-  }
-   }/* ==========================================================================
-   1. VARIABLES & RESET (REDESIGNED FOR V3 PREMIUM LIGHT THEME)
-   ========================================================================== */
-:root {
-  /* Premium Airy Light Palette Backgrounds */
-  --bg-primary-1: #FFFDF8;
-  --bg-primary-2: #FFF8F2;
-  --bg-primary-3: #FFF6FB;
-  --bg-primary-4: #FDF9FF;
-  
-  --sky-blue-light: #E8F1FC;
-  --horizon-cream: #FFF3E8;
-
-  /* Luxury Champagne Gold Accents */
-  --gold-primary: #c5a059;
-  --gold-secondary: #967438;
-  --gold-light: #f6ebd4;
-  --gold-glow-shadow: rgba(197, 160, 89, 0.08);
-
-  /* Refined High-Contrast Typography */
-  --text-primary: #2F2F35;
-  --text-muted: #55545A;
-  --text-dim: rgba(47, 47, 53, 0.4);
-
-  /* Enhanced Light Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-border-hover: rgba(197, 160, 89, 0.4);
-  --glass-shadow: rgba(142, 134, 122, 0.08);
-
-  /* Pastel Luxe Accents */
-  --blush-pink: #f4dcd6;
-  --soft-peach: #fcece7;
-  --lavender-light: #f3effc;
-  --sage-green-light: #f0f4f1;
-  --rose-gold: #e2b4bd;
-
-  /* Fonts */
-  --font-serif: 'Cinzel', Georgia, serif;
-  --font-sans: 'Montserrat', sans-serif;
-  --font-script: 'Playfair Display', Georgia, serif;
-
-  /* Transitions */
-  --transition-slow: 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-  --transition-medium: 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-  --transition-fast: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  
-  /* Envelope and Card Specific Palettes (Pastel Luxe) */
-  --envelope-outer: #f4e8e1;
-  --envelope-inner: #fdfaf7;
-  --envelope-pocket: #ecdcd2;
-  --envelope-shadow: rgba(165, 155, 145, 0.22);
-  --paper-cream: #fbf9f4;
-  --paper-border: #f0e6d6;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* Strict "No Scroll" layout */
-  background-color: var(--bg-primary-1);
-  font-family: var(--font-sans);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ==========================================================================
-   2. BACKGROUND SYSTEM (REDESIGNED: LIGHT SUNNY SKY & FLUFFY CLOUDS)
-   ========================================================================== */
-.ambient-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  overflow: hidden;
-  background: linear-gradient(180deg, var(--sky-blue-light) 0%, var(--horizon-cream) 60%, var(--bg-primary-1) 100%);
-}
-
-.gradient-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 10% 20%, rgba(255, 253, 248, 0.6) 0%, rgba(255, 248, 242, 0.9) 90%);
-  pointer-events: none;
-}
-
-/* Subtle sunlight flare effect */
-.sun-glow {
-  position: absolute;
-  top: -10%;
-  left: 30%;
-  width: 60vw;
-  height: 60vw;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 251, 242, 0.4) 50%, rgba(255, 255, 255, 0) 70%);
-  border-radius: 50%;
-  filter: blur(40px);
-  pointer-events: none;
-  animation: gentleSolarPulse 10s ease-in-out infinite alternate;
-}
-
-@keyframes gentleSolarPulse {
-  0% { opacity: 0.7; transform: scale(0.98); }
-  100% { opacity: 0.9; transform: scale(1.03); }
-}
-
-/* Luxury Light Spheres (Soft Pastel Gradients) */
-.glow-sphere {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-.glow-1 {
-  width: 40vw;
-  height: 40vw;
-  top: 10%;
-  right: -5%;
-  background: radial-gradient(circle, var(--blush-pink) 0%, rgba(255,255,255,0) 70%);
-  animation: floatAmbient 22s ease-in-out infinite alternate;
-}
-
-.glow-2 {
-  width: 50vw;
-  height: 50vw;
-  bottom: -10%;
-  left: -5%;
-  background: radial-gradient(circle, var(--lavender-light) 0%, rgba(255,255,255,0) 70%);
-  animation: floatAmbient 28s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes floatAmbient {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(2%, 4%) scale(1.05); }
-  100% { transform: translate(-1%, -2%) scale(0.97); }
-}
-
-/* Animated Clouds (Ultra-soft airy clouds) */
-.cloud-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
   opacity: 0.65;
 }
 
-.cloud {
-  position: absolute;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 254, 252, 0.5) 45%, rgba(255, 255, 255, 0) 70%);
-  border-radius: 50%;
-  filter: blur(35px);
-}
-
-.cloud-1 {
-  width: 600px;
-  height: 300px;
-  top: 10%;
-  left: -20%;
-  animation: moveCloud 140s linear infinite;
-}
-
-.cloud-2 {
-  width: 800px;
-  height: 400px;
-  bottom: 25%;
-  right: -30%;
-  animation: moveCloudReverse 180s linear infinite;
-}
-
-.cloud-3 {
-  width: 450px;
-  height: 220px;
-  top: 45%;
-  left: -10%;
-  animation: moveCloud 100s linear infinite;
-  animation-delay: -35s;
-}
-
-@keyframes moveCloud {
-  0% { transform: translateX(-100vw); }
-  100% { transform: translateX(120vw); }
-}
-
-@keyframes moveCloudReverse {
-  0% { transform: translateX(100vw); }
-  100% { transform: translateX(-120vw); }
-}
-
-/* ==========================================================================
-   3. SCENE CONTAINER & CORE TRANSITIONS
-   ========================================================================== */
-#app-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.scene {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(20px) scale(0.98);
-  transition: opacity var(--transition-slow), transform var(--transition-slow), filter var(--transition-slow);
-  filter: blur(10px);
-}
-
-.scene.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-}
-
-.scene.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-20px) scale(0.98);
-  filter: blur(10px);
-}
-
-/* ==========================================================================
-   4. SCENE 1: LOADING SCREEN UI (LIGHT THEME)
-   ========================================================================== */
-.loader-wrapper {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 320px;
-  width: 100%;
-}
-
-.loader-logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 40px;
-  position: relative;
-  box-shadow: 0 10px 30px var(--glass-shadow);
-}
-
-.loader-logo::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  border-top-color: var(--gold-primary);
-  border-bottom-color: var(--gold-primary);
-  animation: logoRotate 3s linear infinite;
-}
-
-.logo-initial {
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  color: var(--gold-primary);
-  text-shadow: 0 1px 4px rgba(197, 160, 89, 0.15);
-}
-
-.loader-bar-container {
-  width: 100%;
-  height: 2px;
-  background: rgba(47, 47, 53, 0.05);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.loader-bar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--rose-gold), var(--gold-primary), var(--gold-light));
-  border-radius: 2px;
-  box-shadow: 0 0 8px rgba(197, 160, 89, 0.4);
-  transition: width 0.1s linear;
-}
-
-.loader-text {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-
-.loader-percentage {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  color: var(--gold-secondary);
-  font-weight: 600;
-}
-
-@keyframes logoRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* ==========================================================================
-   5. PREMIUM LIGHT GLASSMORPHIC CARD DESIGN
-   ========================================================================== */
-.glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.3) 100%);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  padding: 56px 48px;
-  width: 100%;
-  max-width: 560px;
-  box-shadow: 0 25px 60px -12px var(--glass-shadow), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
-  transform: translateY(0);
-  transition: border-color var(--transition-medium), box-shadow var(--transition-medium);
-}
-
-.glass-card:hover {
-  border-color: var(--glass-border-hover);
-  box-shadow: 0 30px 65px -10px rgba(165, 155, 145, 0.18), 
-              0 0 30px var(--gold-glow-shadow),
-              inset 0 1px 0 rgba(255, 255, 255, 1);
-}
-
-.card-accent-line {
-  position: absolute;
-  top: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
-}
-
-.card-header {
-  text-align: center;
-}
-
-.subtitle {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 5px;
-  color: var(--gold-secondary);
-  display: inline-block;
-  margin-bottom: 12px;
-}
-
-.main-title {
-  font-family: var(--font-serif);
-  font-size: 2.25rem;
-  font-weight: 400;
-  line-height: 1.3;
-  color: var(--text-primary);
-  letter-spacing: 1px;
-}
-
-.welcome-text {
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  line-height: 1.9;
-  color: var(--text-muted);
-  text-align: center;
-  font-weight: 400;
-}
-
-.card-footer {
-  display: flex;
-  justify-content: center;
-}
-
-/* ==========================================================================
-   6. PREMIUM LUXURY CTA BUTTON (LIGHT SPEC)
-   ========================================================================== */
-.btn-premium {
-  position: relative;
-  background: linear-gradient(135deg, #FFF9F2, #FFF3E8);
-  border: 1px solid var(--gold-primary);
-  padding: 16px 44px;
-  border-radius: 40px;
-  cursor: pointer;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 8px 16px rgba(197, 160, 89, 0.12);
-  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.btn-text {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-primary);
-  z-index: 2;
-  transition: color var(--transition-fast);
-}
-
-.btn-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: var(--gold-light);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  filter: blur(15px);
-  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
-  z-index: 1;
-}
-
-/* Hover States for Button */
-.btn-premium:hover {
-  transform: scale(1.02);
-  border-color: var(--gold-secondary);
-  box-shadow: 0 12px 24px rgba(197, 160, 89, 0.18);
-}
-
-.btn-premium:hover .btn-text {
-  color: var(--gold-secondary);
-}
-
-.btn-premium:hover .btn-glow {
-  width: 250px;
-  height: 250px;
-  opacity: 0.8;
-  border-radius: 40px;
-}
-
-.btn-premium:active {
-  transform: scale(0.98);
-}
-
-/* ==========================================================================
-   7. SCENE 3: INTERACTIVE BIRTHDAY CARD & ENVELOPE STYLING (VERSION 3)
-   ========================================================================== */
-.card-scene-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-/* Hint Text Banner */
-.interaction-hint {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-bottom: 24px;
-  opacity: 0.8;
-  animation: pulsingHint 2s infinite ease-in-out;
-  text-align: center;
-}
-
-@keyframes pulsingHint {
-  0%, 100% { opacity: 0.5; transform: scale(0.98); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-/* Responsive 3D Stage limiting dimensions to stay completely in viewport */
-.stage-3d {
-  width: 100%;
-  max-width: 480px;
-  height: 480px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1500px; /* Gives realistic 3D spatial separation */
-}
-
-/* Envelope Box Wrapping */
-.envelope-wrapper {
-  position: relative;
-  width: 360px;
-  height: 240px;
-  background-color: var(--envelope-inner);
-  border-radius: 6px;
-  box-shadow: 0 15px 45px var(--envelope-shadow);
-  transform-style: preserve-3d;
-  cursor: pointer;
-  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s;
-}
-
-.envelope-wrapper:hover {
-  transform: translateY(-5px) rotateX(5deg);
-  box-shadow: 0 25px 55px rgba(165, 155, 145, 0.35);
-}
-
-.envelope-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--envelope-inner);
-  border-radius: 6px;
-  z-index: 1;
-}
-
-/* Front triangular pocket created using vector path overlays */
-.envelope-front-pocket {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--envelope-pocket);
-  clip-path: polygon(0 40%, 50% 70%, 100% 40%, 100% 100%, 0% 100%);
-  border-radius: 0 0 6px 6px;
-  z-index: 3;
-}
-
-/* Rotating Envelope Opening Flap */
-.envelope-flap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60%;
-  transform-origin: top center;
-  transform: rotateX(0deg);
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.8s;
-  z-index: 4; /* Sits above front pocket initially */
-}
-
-.envelope-flap-inner {
-  width: 100%;
-  height: 100%;
-  background-color: var(--envelope-outer);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  border-radius: 6px 6px 0 0;
-}
-
-/* Wax Seal Accent */
-.wax-seal {
-  position: absolute;
-  bottom: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 44px;
-  height: 44px;
-  background: radial-gradient(circle, var(--rose-gold) 0%, var(--gold-primary) 100%);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(165, 155, 145, 0.3);
-  z-index: 5;
-  transition: opacity 0.4s ease, transform 0.4s;
-}
-
-.seal-logo {
-  color: #fff;
-  font-size: 1.2rem;
-  pointer-events: none;
-}
-
-/* ACTIVE ENVELOPE STATES */
-.envelope-wrapper.open .envelope-flap {
-  transform: rotateX(180deg);
-  z-index: 2; /* Drops behind card path as it opens */
-}
-
-.envelope-wrapper.open .wax-seal {
-  opacity: 0;
-  transform: translateX(-50%) scale(0.6);
-}
-
-/* ==========================================================================
-   8. BIRTHDAY GREETING BOOK CARD (3D FOLD)
-   ========================================================================== */
-.card-3d-wrapper {
-  position: absolute;
-  top: 10px;
-  left: 5%;
-  width: 90%;
-  height: 90%;
-  z-index: 2; /* Sits inside envelope initially */
-  transform: translateY(0) scale(0.96);
-  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), z-index 1.2s;
-  pointer-events: none; /* Block interactions until sliding finishes */
-}
-
-/* Card emerges state (Triggered via JS) */
-.envelope-wrapper.card-emerged .card-3d-wrapper {
-  transform: translateY(-160px) scale(1.1);
-  z-index: 10; /* Raises above the envelope completely */
-  pointer-events: auto;
-}
-
-/* Elegant Book Folding Layout container */
-.card-book {
-  width: 320px;
-  height: 240px;
-  position: relative;
-  margin: 0 auto;
-  transform-style: preserve-3d;
-  transition: transform 1s ease-in-out;
-}
-
-/* Individual Book Pages */
-.card-page {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  background-color: var(--paper-cream);
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.03), 
-              0 6px 18px rgba(165, 155, 145, 0.15);
-  backface-visibility: hidden;
-}
-
-/* Swinging Card Cover Plate */
-.card-cover-container {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  transform-origin: left center;
-  transform-style: preserve-3d;
-  transition: transform 1.6s cubic-bezier(0.25, 1, 0.5, 1);
-  z-index: 5;
-}
-
-.card-cover-front {
-  z-index: 2;
-}
-
-/* Decorative Gold Cover Face */
-.card-cover-design {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid var(--paper-border);
-  padding: 24px;
-  border-radius: 10px;
-  position: relative;
-  overflow: hidden;
-}
-
-.foil-border {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  border: 1px solid var(--gold-primary);
-  opacity: 0.5;
-}
-
 .cover-accent {
   font-family: var(--font-sans);
   font-size: 0.65rem;
-  letter-spacing: 4px;
+  letter-spacing: 5px;
   color: var(--gold-secondary);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
 
 .gold-embellishment {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: var(--gold-primary);
   margin-bottom: 16px;
 }
 
 .cover-instruction {
   font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-primary);
   letter-spacing: 1px;
 }
 
-/* Inner Left Page face design */
 .card-cover-back {
-  transform: rotateY(180deg); /* Reverses visibility in 3D projection */
+  transform: rotateY(180deg);
   z-index: 1;
 }
 
@@ -1700,7 +634,6 @@ html, body {
   height: 100%;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid var(--paper-border);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1709,34 +642,31 @@ html, body {
 .decorative-pattern {
   width: 90%;
   height: 90%;
-  border: 1px dashed rgba(197, 160, 89, 0.2);
+  border: 1px dashed rgba(197, 160, 89, 0.25);
   border-radius: 6px;
-  background: radial-gradient(circle, rgba(197,160,89,0.03) 0%, rgba(0,0,0,0) 80%);
+  background: radial-gradient(circle, rgba(197,160,89,0.02) 0%, rgba(0,0,0,0) 80%);
 }
 
-/* Stationary Inside Right Page Face (Calligraphy Content) */
+/* Static flat inside-right panel */
 .card-inside-right {
-  z-index: 0; /* Base page */
-  border-radius: 10px;
-  border-left: 2px solid rgba(0,0,0,0.02); /* Simulates binding crease shadow */
+  z-index: 0;
+  border-left: 2px solid rgba(0,0,0,0.03); /* crease depth line */
 }
 
 .inside-right-content {
   width: 100%;
   height: 100%;
-  padding: 24px;
+  padding: clamp(16px, 3vw, 24px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  border: 1px solid var(--paper-border);
-  border-radius: 0 10px 10px 0;
 }
 
 .card-cursive-header {
   font-family: var(--font-script);
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
   font-style: italic;
   color: var(--gold-secondary);
   margin-bottom: 4px;
@@ -1744,42 +674,42 @@ html, body {
 
 .recipient-name {
   font-family: var(--font-serif);
-  font-size: 1.6rem;
+  font-size: clamp(1.35rem, 3.5vw, 1.75rem);
   color: var(--text-primary);
   font-weight: 600;
   letter-spacing: 1px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .message-divider {
   font-size: 0.75rem;
   color: var(--gold-primary);
-  margin-bottom: 12px;
+  margin-bottom: clamp(6px, 2vw, 12px);
 }
 
 .personal-message {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
-  line-height: 1.6;
+  font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+  line-height: 1.65;
   color: var(--text-muted);
   font-weight: 500;
-  max-width: 240px;
-  margin-bottom: 12px;
+  max-width: 250px;
+  margin-bottom: clamp(6px, 2vw, 12px);
 }
 
 .signature {
   font-family: var(--font-script);
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
   color: var(--text-muted);
 }
 
-/* ACTIVE CARD TRANSITIONS */
+/* OPEN ACTIVE STATE TRIGGERS */
 .card-book.opened .card-cover-container {
-  transform: rotateY(-140deg); /* Swings cover open elegant flat layout angle */
+  transform: rotateY(-145deg); /* Opened book angle */
 }
 
 /* ==========================================================================
-   9. CIRCULAR NEXT SCENE NAVIGATION BUTTON
+   8. CIRCULAR NEXT NAVIGATION STYLING
    ========================================================================== */
 .btn-circular-next {
   position: absolute;
@@ -1789,8 +719,8 @@ html, body {
   height: 60px;
   border-radius: 50%;
   background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--gold-primary);
   cursor: pointer;
   display: flex;
@@ -1801,8 +731,10 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transform: scale(0.8);
-  box-shadow: 0 8px 20px rgba(165, 155, 145, 0.15);
-  transition: opacity var(--transition-slow), transform var(--transition-slow), border-color var(--transition-fast);
+  box-shadow: 0 10px 25px rgba(165, 155, 145, 0.16);
+  transition: opacity var(--transition-medium), 
+              transform var(--transition-medium), 
+              border-color var(--transition-fast);
 }
 
 .btn-circular-next.visible {
@@ -1813,7 +745,7 @@ html, body {
 
 .arrow-icon {
   color: var(--gold-secondary);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   transition: transform var(--transition-fast);
 }
 
@@ -1826,7 +758,6 @@ html, body {
   transform: translateX(4px);
 }
 
-/* Infinite Ambient Ring Pulse for UX call-to-action */
 .btn-pulse {
   position: absolute;
   top: -2px;
@@ -1846,48 +777,62 @@ html, body {
 }
 
 /* ==========================================================================
-   10. RESPONSIVENESS AND CLIPPING MITIGATION
+   9. SCENE 4: MINIMAL NARRATIVE PANEL (THE OUTDOOR GARDEN EXPANSION)
+   ========================================================================== */
+.glass-card-mini {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.35) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 20px 45px rgba(142, 134, 122, 0.06);
+  width: 90%;
+  max-width: 440px;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.garden-narrative-panel {
+  position: absolute;
+  bottom: 12vh; /* Sits elegantly above bottom grass layouts */
+  left: 5%;
+}
+
+.mini-title {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.mini-text {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   10. RESPONSIVE COMPATIBILITY MATRIX
    ========================================================================== */
 @media (max-width: 768px) {
-  /* Portrait and landscape phones styling */
-  .glass-card {
-    padding: 40px 28px;
-    gap: 28px;
-    max-width: 90%;
-  }
-
-  .main-title {
-    font-size: 1.75rem;
-  }
-
-  .welcome-text {
-    font-size: 0.85rem;
-    line-height: 1.7;
-  }
-
-  .btn-premium {
-    padding: 14px 32px;
-    width: 100%;
-  }
-
-  .loader-logo {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 30px;
-  }
-
-  .logo-initial {
-    font-size: 1.75rem;
-  }
-
-  /* 3D Stage Scaling adjustments to eliminate mobile layout clipping completely */
   .stage-3d {
     transform: scale(0.85);
   }
 
+  .garden-narrative-panel {
+    bottom: 15vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+  }
+
   .btn-circular-next {
-    right: 10%;
-    bottom: 5%;
+    right: 8%;
+    bottom: 6%;
   }
 }
 
@@ -1897,27 +842,18 @@ html, body {
   }
 }
 
-/* Landscape Phone Heights Specific layout adjustment */
-@media (max-height: 568px) {
+@media (max-height: 600px) {
   .glass-card {
-    padding: 20px;
+    padding: 24px;
     gap: 16px;
   }
   
-  .main-title {
-    font-size: 1.5rem;
-  }
-  
-  .welcome-text {
-    font-size: 0.8rem;
-    line-height: 1.4;
-  }
-
   .stage-3d {
-    transform: scale(0.6);
+    transform: scale(0.55);
   }
 
-  .interaction-hint {
-    margin-bottom: 8px;
+  .garden-narrative-panel {
+    padding: 20px;
+    bottom: 12vh;
   }
 }
