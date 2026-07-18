@@ -1,5 +1,5 @@
 /**
- * Interactive Premium Birthday Experience - Version 1
+ * Interactive Premium Birthday Experience - Version 2
  * Core Architecture & Scene Manager
  */
 
@@ -17,8 +17,8 @@ const APP_CONFIG = {
  */
 class SceneManager {
   constructor() {
+    this.scenes = ['scene-loading', 'scene-welcome', 'scene-card', 'scene-garden'];
     this.currentSceneId = 'scene-loading';
-    this.scenes = document.querySelectorAll('.scene');
     this.init();
   }
 
@@ -28,7 +28,7 @@ class SceneManager {
   }
 
   /**
-   * transitions smoothly from one screen to another
+   * Transitions smoothly from one screen to another
    * @param {string} targetSceneId ID string of target scene element
    */
   transitionTo(targetSceneId) {
@@ -54,8 +54,24 @@ class SceneManager {
         targetScene.classList.remove('hidden');
         targetScene.classList.add('active');
         this.currentSceneId = targetSceneId;
+        
+        // Dispatch localized hook for newly focused scenes
+        this.onSceneFocus(targetSceneId);
       }, 50); // Small margin to force browser layout recalculation
     }, APP_CONFIG.transitionDelay);
+  }
+
+  /**
+   * Evaluates logic processes tied to newly navigated boundaries
+   * @param {string} sceneId Targeted Scene Identifier
+   */
+  onSceneFocus(sceneId) {
+    if (sceneId === 'scene-card') {
+      // Re-trigger envelope controller instantiation to bind click handlers clean
+      if (window.birthdayCardController) {
+        window.birthdayCardController.reset();
+      }
+    }
   }
 
   /**
@@ -122,21 +138,116 @@ class Loader {
   }
 }
 
+/**
+ * Interactive Birthday Card Scene Controller
+ * Manages Envelope unfolding, sliding translation vector animations, and book folds
+ */
+class InteractiveCardController {
+  constructor(sceneManager) {
+    this.sceneManager = sceneManager;
+    
+    // Core Elements
+    this.envelope = document.getElementById('envelope-wrapper');
+    this.cardBook = document.getElementById('card-book');
+    this.cardCover = document.getElementById('card-cover-container');
+    this.hintText = document.getElementById('card-interaction-hint');
+    this.nextButton = document.getElementById('btn-next-scene');
+
+    // Progression State Flags
+    this.isEnvelopeOpen = false;
+    this.isCardEmerged = false;
+    this.isCardOpened = false;
+
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    // Stage 1: Interact envelope flap
+    this.envelope.addEventListener('click', (e) => {
+      // Direct envelope logic blocks from triggering once card is detached
+      if (!this.isEnvelopeOpen) {
+        this.openEnvelope();
+        e.stopPropagation();
+      }
+    });
+
+    // Stage 2: Click floating card body to book fold open/close
+    this.cardBook.addEventListener('click', (e) => {
+      if (this.isCardEmerged && !this.isCardOpened) {
+        this.openCard();
+        e.stopPropagation();
+      }
+    });
+  }
+
+  /**
+   * Step 1: Open envelope flap, then slide card upward in dynamic sequence
+   */
+  openEnvelope() {
+    this.isEnvelopeOpen = true;
+    this.envelope.classList.add('open');
+    this.hintText.textContent = 'Opening Envelope...';
+
+    // Slide up Card out of the envelope body after flap animation finishes rotation
+    setTimeout(() => {
+      this.isCardEmerged = true;
+      this.envelope.classList.add('card-emerged');
+      this.hintText.textContent = 'Click Card to Open';
+    }, 1000);
+  }
+
+  /**
+   * Step 2: Swing Cover page leftwards, expose personalized elements and reveal next button
+   */
+  openCard() {
+    this.isCardOpened = true;
+    this.cardBook.classList.add('opened');
+    this.hintText.textContent = ''; // Clear prompt as interaction completes
+
+    // Expose circular navigation path after cover fold rotation completes
+    setTimeout(() => {
+      this.nextButton.classList.add('visible');
+    }, 1200);
+  }
+
+  /**
+   * Restore initial defaults for full repeatable navigability
+   */
+  reset() {
+    this.isEnvelopeOpen = false;
+    this.isCardEmerged = false;
+    this.isCardOpened = false;
+
+    this.envelope.classList.remove('open', 'card-emerged');
+    this.cardBook.classList.remove('opened');
+    this.hintText.textContent = 'Click the Envelope to open';
+    this.nextButton.classList.remove('visible');
+  }
+}
+
 // Global App Initialization
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize primary Scene Architecture Manager
   const app = new SceneManager();
 
-  // Create isolated triggers for interactive controls
-  const handleStartExperience = () => {
-    // Modular navigation ready for future card transitions
-    console.log("Welcome complete. Ready for Version 2: Birthday Card Integration.");
-  };
+  // Instantiate localized view controllers
+  const cardController = new InteractiveCardController(app);
+  window.birthdayCardController = cardController; // Global expose for hook resets
 
-  // Wire CTA elements safely
+  // Wire Welcome CTA elements safely to navigate into Scene 2 (Greeting Card)
   const btnStart = document.getElementById('btn-start-celebration');
   if (btnStart) {
-    btnStart.addEventListener('click', handleStartExperience);
+    btnStart.addEventListener('click', () => {
+      app.transitionTo('scene-card');
+    });
+  }
+
+  // Wire Greeting Card Scene "Next" CTA to step forward into the placeholder Garden
+  const btnNextScene = document.getElementById('btn-next-scene');
+  if (btnNextScene) {
+    btnNextScene.addEventListener('click', () => {
+      app.transitionTo('scene-garden');
+    });
   }
 
   // Kickstart system simulation loading
