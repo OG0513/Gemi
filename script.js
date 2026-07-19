@@ -1,6 +1,8 @@
 /**
  * Interactive Magical Garden Environment
  * Version 6 (Surprise Gift & Grand Finale)
+ * 
+ * Safe-Initialization & Self-Healing Edition
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,58 +11,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let atmEngineInstance = null; 
 
+// Helper sandbox runner to prevent silent JS exceptions from freezing the loader
+function safeInit(moduleName, initFunc) {
+    try {
+        initFunc();
+    } catch (error) {
+        console.warn(`[Safe-Init] Warning in module "${moduleName}":`, error.message);
+    }
+}
+
 function initApp() {
-    const starsContainer = document.getElementById('stars-container');
-    const grassCanopy = document.getElementById('grass-canopy');
-    const atmosphereCanvas = document.getElementById('atmosphere-canvas');
     const scene = document.getElementById('scene');
     const loader = document.getElementById('loader');
 
-    // Configuration Settings
-    const CONFIG = {
-        starCount: 120,
-        grassDensity: calculateGrassDensity(),
-        flowerCount: calculateFlowerCount(),
-        loadingDuration: 3500
-    };
-
-    // Initialize Components
-    generateCelestialSky(starsContainer, CONFIG.starCount);
-    generateMeadow(grassCanopy, CONFIG.grassDensity, CONFIG.flowerCount);
-    
-    // Fireflies, Petals, Confetti, and Sparkles Canvas Engine
-    atmEngineInstance = new AtmosphereEngine(atmosphereCanvas);
-    atmEngineInstance.start();
-
-    // Set up Parallax (Only desktop / hover devices)
-    if (window.matchMedia('(hover: hover)').matches) {
-        setupParallax();
-    }
-
-    // Set up Envelope & Letter Mechanics
-    setupEnvelopeEngine();
-
-    // Set up Interactive Objects (Cat, Teddy, Lantern, etc.)
-    setupInteractiveObjects();
-
-    // Set up Scroll Observers for Timeline Scrapbook elements
-    setupTimelineScrollReveal();
-
-    // Set up V5 components
-    setupWishTreeEngine();
-    setupCakeCelebrationEngine();
-
-    // Set up V6 elements
-    setupSurpriseAndFinaleEngine();
-
-    // Handles Loading Completion Screen Transitions
+    // 1. Emergency Loader Bypass: Guarantees screen transition even if structural DOM queries fail
     setTimeout(() => {
-        loader.classList.add('fade-out');
-        scene.classList.remove('hidden-scene');
-    }, CONFIG.loadingDuration);
+        if (loader) loader.classList.add('fade-out');
+        if (scene) scene.classList.remove('hidden-scene');
+    }, 3500);
 
+    // 2. Stars & Meadow Generation
+    safeInit('Stars & Meadow Canopy', () => {
+        const starsContainer = document.getElementById('stars-container');
+        const grassCanopy = document.getElementById('grass-canopy');
+        
+        if (starsContainer) generateCelestialSky(starsContainer, 120);
+        if (grassCanopy) generateMeadow(grassCanopy, calculateGrassDensity(), calculateFlowerCount());
+    });
+    
+    // 3. Atmosphere Canvas Simulation Engine
+    safeInit('Atmosphere Canvas Engine', () => {
+        const atmosphereCanvas = document.getElementById('atmosphere-canvas');
+        if (atmosphereCanvas) {
+            atmEngineInstance = new AtmosphereEngine(atmosphereCanvas);
+            atmEngineInstance.start();
+        }
+    });
+
+    // 4. Parallax System
+    safeInit('Mouse Parallax', () => {
+        if (window.matchMedia('(hover: hover)').matches) {
+            setupParallax();
+        }
+    });
+
+    // 5. Envelope & Reading Modal Transitions
+    safeInit('Envelope Engine', setupEnvelopeEngine);
+
+    // 6. Interactive Objects Layer
+    safeInit('Interactive Objects Engine', setupInteractiveObjects);
+
+    // 7. Timeline Reveal Intersection Observers
+    safeInit('Timeline Scroll Observers', setupTimelineScrollReveal);
+
+    // 8. V5 Wish Tree Engine
+    safeInit('Wish Tree Engine', setupWishTreeEngine);
+
+    // 9. V5 Cake Celebration Engine
+    safeInit('Cake Celebration Engine', setupCakeCelebrationEngine);
+
+    // 10. V6 Surprise Gift & Grand Finale Engine
+    safeInit('Surprise & Grand Finale Engine', setupSurpriseAndFinaleEngine);
+
+    // Resize listener
     window.addEventListener('resize', () => {
-        atmEngineInstance.resize();
+        if (atmEngineInstance) {
+            atmEngineInstance.resize();
+        }
     });
 }
 
@@ -352,7 +369,6 @@ class AtmosphereEngine {
         }
     }
 
-    // V6 Addition: Smoothly increase active firefly counts for the Grand Finale
     boostAtmosphereForFinale() {
         const additionalSpawns = 25;
         for (let i = 0; i < additionalSpawns; i++) {
@@ -371,7 +387,6 @@ class AtmosphereEngine {
     }
 
     update() {
-        // Update Fireflies
         this.fireflies.forEach(f => {
             f.direction += f.turnSpeed;
             f.x += Math.cos(f.direction) * f.speed;
@@ -387,7 +402,6 @@ class AtmosphereEngine {
             if (f.y > this.height + 20) f.y = -20;
         });
 
-        // Update Petals
         this.petals.forEach(p => {
             p.y += p.speedY;
             p.x += p.speedX + Math.sin(p.phase) * 0.15;
@@ -400,7 +414,6 @@ class AtmosphereEngine {
             }
         });
 
-        // Update Sparkles
         for (let i = this.sparkles.length - 1; i >= 0; i--) {
             const s = this.sparkles[i];
             s.x += s.vx;
@@ -411,7 +424,6 @@ class AtmosphereEngine {
             if (s.alpha <= 0) this.sparkles.splice(i, 1);
         }
 
-        // Update Moonlight Ripples
         for (let i = this.ripples.length - 1; i >= 0; i--) {
             const r = this.ripples[i];
             r.radius += r.speed;
@@ -419,7 +431,6 @@ class AtmosphereEngine {
             if (r.radius >= r.maxRadius) this.ripples.splice(i, 1);
         }
 
-        // Update Confetti
         for (let i = this.confetti.length - 1; i >= 0; i--) {
             const c = this.confetti[i];
             c.y += c.speedY;
@@ -428,7 +439,6 @@ class AtmosphereEngine {
             if (c.y > this.height + 20) this.confetti.splice(i, 1);
         }
 
-        // Update Smoke
         for (let i = this.smoke.length - 1; i >= 0; i--) {
             const k = this.smoke[i];
             k.x += k.vx;
@@ -438,7 +448,6 @@ class AtmosphereEngine {
             if (k.alpha <= 0) this.smoke.splice(i, 1);
         }
 
-        // Update Fireworks
         for (let i = this.fireworks.length - 1; i >= 0; i--) {
             const w = this.fireworks[i];
             w.x += w.vx;
@@ -452,7 +461,6 @@ class AtmosphereEngine {
     render() {
         this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // 1. Moonlight Ripples
         this.ripples.forEach(r => {
             this.ctx.beginPath();
             this.ctx.strokeStyle = `rgba(253, 246, 226, ${r.alpha})`;
@@ -461,7 +469,6 @@ class AtmosphereEngine {
             this.ctx.stroke();
         });
 
-        // 2. Fireworks
         this.fireworks.forEach(w => {
             this.ctx.beginPath();
             this.ctx.fillStyle = w.color;
@@ -471,7 +478,6 @@ class AtmosphereEngine {
         });
         this.ctx.globalAlpha = 1.0;
 
-        // 3. Fireflies
         this.fireflies.forEach(f => {
             this.ctx.beginPath();
             const gradient = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius * 6);
@@ -483,7 +489,6 @@ class AtmosphereEngine {
             this.ctx.fill();
         });
 
-        // 4. Sparkles
         this.sparkles.forEach(s => {
             this.ctx.beginPath();
             this.ctx.fillStyle = s.color;
@@ -493,7 +498,6 @@ class AtmosphereEngine {
         });
         this.ctx.globalAlpha = 1.0; 
 
-        // 5. Confetti Papers
         this.confetti.forEach(c => {
             this.ctx.save();
             this.ctx.translate(c.x, c.y);
@@ -503,7 +507,6 @@ class AtmosphereEngine {
             this.ctx.restore();
         });
 
-        // 6. Smoke Puffs
         this.smoke.forEach(k => {
             this.ctx.beginPath();
             this.ctx.fillStyle = `rgba(189, 195, 199, ${k.alpha})`;
@@ -511,7 +514,6 @@ class AtmosphereEngine {
             this.ctx.fill();
         });
 
-        // 7. Petals
         this.petals.forEach(p => {
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
@@ -552,6 +554,8 @@ function setupEnvelopeEngine() {
     const objectsLayer = document.getElementById('interactive-objects-layer');
     const scene = document.getElementById('scene');
 
+    if (!envelope || !modal || !continueBtn) return;
+
     let letterOpened = false;
 
     const openAction = (e) => {
@@ -568,7 +572,7 @@ function setupEnvelopeEngine() {
             atmEngineInstance.triggerSparkleBlast(sparkleX, sparkleY);
         }
 
-        promptText.style.opacity = '0';
+        if (promptText) promptText.style.opacity = '0';
         envelope.classList.add('is-opening');
 
         setTimeout(() => {
@@ -576,8 +580,8 @@ function setupEnvelopeEngine() {
         }, 850);
 
         setTimeout(() => {
-            wrapper.classList.add('envelope-disappearing');
-            scene.classList.add('dimmed-atmosphere');
+            if (wrapper) wrapper.classList.add('envelope-disappearing');
+            if (scene) scene.classList.add('dimmed-atmosphere');
             modal.classList.add('is-active');
             
             revealLetterParagraphs(paragraphs, continueBtn);
@@ -602,9 +606,11 @@ function setupEnvelopeEngine() {
         }, 800);
 
         setTimeout(() => {
-            scene.classList.remove('dimmed-atmosphere');
-            scene.classList.add('dimmed-for-timeline');
-            timelineContainer.classList.add('is-active');
+            if (scene) {
+                scene.classList.remove('dimmed-atmosphere');
+                scene.classList.add('dimmed-for-timeline');
+            }
+            if (timelineContainer) timelineContainer.classList.add('is-active');
         }, 1000);
     });
 }
@@ -633,6 +639,8 @@ function setupInteractiveObjects() {
     const centralBubble = document.getElementById('central-bubble');
     const bubbleCloseBtn = document.getElementById('bubble-close');
 
+    if (!centralBubble || !bubbleCloseBtn) return;
+
     bubbleCloseBtn.addEventListener('click', closeSpeechBubble);
 
     const configs = [
@@ -642,7 +650,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerSparkleBlast(rect.left + 14, rect.top + 20, ['#f1c40f', '#f39c12', '#ffffff']);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 14, rect.top + 20, ['#f1c40f', '#f39c12', '#ffffff']);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 1000);
             }
         },
@@ -671,7 +681,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerSparkleBlast(rect.left + 16, rect.top + 16, ['#eb4d4b', '#f0932b', '#6ab04c', '#ffffff']);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 16, rect.top + 16, ['#eb4d4b', '#f0932b', '#6ab04c', '#ffffff']);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 1000);
             }
         },
@@ -689,7 +701,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerPetalCascade(rect.left + 9, rect.top + 10, 12);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerPetalCascade(rect.left + 9, rect.top + 10, 12);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 1000);
             }
         },
@@ -699,7 +713,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerMoonlightRipple(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerMoonlightRipple(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 600);
             }
         },
@@ -709,7 +725,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('pulse-active');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerSparkleBlast(rect.left + 8, rect.top + 8, ['#ffffff', '#eccc68', '#f1f2f6']);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 8, rect.top + 8, ['#ffffff', '#eccc68', '#f1f2f6']);
+                }
                 setTimeout(() => node.classList.remove('pulse-active'), 800);
             }
         }
@@ -735,7 +753,7 @@ function setupInteractiveObjects() {
 
     document.addEventListener('click', (e) => {
         const bubble = document.getElementById('central-bubble');
-        if (bubble.classList.contains('is-active') && !bubble.contains(e.target)) {
+        if (bubble && bubble.classList.contains('is-active') && !bubble.contains(e.target)) {
             closeSpeechBubble();
         }
     });
@@ -744,6 +762,7 @@ function setupInteractiveObjects() {
 function presentSpeechBubble(text) {
     const bubble = document.getElementById('central-bubble');
     const textEl = document.getElementById('bubble-text');
+    if (!bubble || !textEl) return;
     bubble.classList.remove('is-active');
     setTimeout(() => {
         textEl.textContent = text;
@@ -761,9 +780,11 @@ function closeSpeechBubble() {
    ========================================================================== */
 function setupTimelineScrollReveal() {
     const timelineItems = document.querySelectorAll('.reveal-on-scroll');
+    const container = document.getElementById('timeline-container');
+    if (!container) return;
     
     const observerOptions = {
-        root: document.getElementById('timeline-container'), 
+        root: container, 
         rootMargin: '0px 0px -10% 0px', 
         threshold: 0.15 
     };
@@ -797,16 +818,18 @@ function setupWishTreeEngine() {
     const prompt = document.getElementById('tree-prompt');
     const scene = document.getElementById('scene');
 
+    if (!wishTree || !nurtureBtn) return;
+
     let treeStage = 0;
     const maxStages = 4;
     let growthActive = false;
 
     nurtureBtn.addEventListener('click', () => {
-        timelineContainer.classList.remove('is-active');
+        if (timelineContainer) timelineContainer.classList.remove('is-active');
         
         setTimeout(() => {
-            scene.classList.remove('dimmed-for-timeline');
-            wishTreeContainer.classList.add('is-active');
+            if (scene) scene.classList.remove('dimmed-for-timeline');
+            if (wishTreeContainer) wishTreeContainer.classList.add('is-active');
         }, 1000);
     });
 
@@ -819,25 +842,29 @@ function setupWishTreeEngine() {
 
         wishTree.classList.add('active-bounce');
         const rect = wishTree.getBoundingClientRect();
-        atmEngineInstance.triggerSparkleBlast(rect.left + rect.width / 2, rect.top + 100, ['#ffd29d', '#ffffff', '#f4d1ae']);
+        if (atmEngineInstance) {
+            atmEngineInstance.triggerSparkleBlast(rect.left + rect.width / 2, rect.top + 100, ['#ffd29d', '#ffffff', '#f4d1ae']);
+        }
 
         setTimeout(() => {
             wishTree.classList.remove('active-bounce');
             growthActive = false;
         }, 800);
 
-        if (treeStage === 1) {
-            prompt.textContent = "It begins to adapt... click again.";
-        } else if (treeStage === 2) {
-            prompt.textContent = "Warm lights and life find their branches... nurture further.";
-        } else if (treeStage === 3) {
-            prompt.textContent = "The blossom unfolds... one final touch of magic!";
-        } else if (treeStage === 4) {
-            prompt.textContent = "The Wish Tree is in full bloom! ✨";
-            
-            setTimeout(() => {
-                transitionToCakeCelebration();
-            }, 1800);
+        if (prompt) {
+            if (treeStage === 1) {
+                prompt.textContent = "It begins to adapt... click again.";
+            } else if (treeStage === 2) {
+                prompt.textContent = "Warm lights and life find their branches... nurture further.";
+            } else if (treeStage === 3) {
+                prompt.textContent = "The blossom unfolds... one final touch of magic!";
+            } else if (treeStage === 4) {
+                prompt.textContent = "The Wish Tree is in full bloom! ✨";
+                
+                setTimeout(() => {
+                    transitionToCakeCelebration();
+                }, 1800);
+            }
         }
     };
 
@@ -851,6 +878,7 @@ function setupWishTreeEngine() {
 }
 
 function triggerTreeStageAssets(stage, foliage, lights) {
+    if (!foliage || !lights) return;
     if (stage === 1) {
         for (let i = 0; i < 22; i++) {
             const leaf = document.createElement('div');
@@ -893,10 +921,9 @@ function triggerTreeStageAssets(stage, foliage, lights) {
 /* ==========================================================================
    9. Birthday Cake Celebration Engine
    ========================================================================== */
-const CONFIG_CANDLES = 3; 
-
 function setupCakeCelebrationEngine() {
     const holder = document.getElementById('candle-holder');
+    if (!holder) return;
     
     for (let i = 0; i < CONFIG_CANDLES; i++) {
         const candle = document.createElement('div');
@@ -921,7 +948,9 @@ function setupCakeCelebrationEngine() {
                 candle.classList.add('is-lit');
                 
                 const rect = candle.getBoundingClientRect();
-                atmEngineInstance.triggerSparkleBlast(rect.left + 4, rect.top, ['#ffd29d', '#ffffff']);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 4, rect.top, ['#ffd29d', '#ffffff']);
+                }
                 
                 checkAllCandlesState();
             }
@@ -945,8 +974,8 @@ function checkAllCandlesState() {
     const allLit = Array.from(candles).every(c => c.classList.contains('is-lit'));
 
     if (allLit) {
-        instruction.textContent = "Close your eyes, clear your mind...";
-        wishBanner.classList.add('visible');
+        if (instruction) instruction.textContent = "Close your eyes, clear your mind...";
+        if (wishBanner) wishBanner.classList.add('visible');
         
         setTimeout(() => {
             document.addEventListener('click', blowOutCelebrationHandler, { once: true });
@@ -965,23 +994,28 @@ function blowOutCelebrationHandler(e) {
         if (candle.classList.contains('is-lit')) {
             candle.classList.remove('is-lit');
             const rect = candle.getBoundingClientRect();
-            atmEngineInstance.triggerSmokePuff(rect.left + 4, rect.top);
+            if (atmEngineInstance) {
+                atmEngineInstance.triggerSmokePuff(rect.left + 4, rect.top);
+            }
         }
     });
 
-    wishBanner.textContent = "Happy Birthday! 💖✨";
-    instruction.textContent = "May all your wishes and dreams come true.";
+    if (wishBanner) wishBanner.textContent = "Happy Birthday! 💖✨";
+    if (instruction) instruction.textContent = "May all your wishes and dreams come true.";
 
-    atmEngineInstance.triggerConfettiShower();
+    if (atmEngineInstance) {
+        atmEngineInstance.triggerConfettiShower();
+    }
     
     let shellCount = 0;
     const interval = setInterval(() => {
-        atmEngineInstance.triggerFireworksBurst();
+        if (atmEngineInstance) {
+            atmEngineInstance.triggerFireworksBurst();
+        }
         shellCount++;
         if (shellCount >= 6) clearInterval(interval);
     }, 650);
 
-    // V6 Core Trigger: Launch the Surprise Gift Sequence smoothly after celebrations settle
     setTimeout(() => {
         transitionFromCakeToSurpriseGift();
     }, 4500);
@@ -993,11 +1027,13 @@ function transitionToCakeCelebration() {
     const moonHalo = document.getElementById('moon-halo');
     const beam = document.getElementById('moonlight-beam');
 
-    treeContainer.style.opacity = '0';
-    treeContainer.style.transform = 'translate(-50%, -46%) scale(0.9)';
+    if (treeContainer) {
+        treeContainer.style.opacity = '0';
+        treeContainer.style.transform = 'translate(-50%, -46%) scale(0.9)';
+    }
     
     setTimeout(() => {
-        treeContainer.style.display = 'none';
+        if (treeContainer) treeContainer.style.display = 'none';
         
         if (moonHalo) {
             moonHalo.style.width = 'clamp(180px, 24vw, 240px)';
@@ -1008,7 +1044,7 @@ function transitionToCakeCelebration() {
             beam.style.opacity = '0.12';
         }
 
-        cakeContainer.classList.add('is-active');
+        if (cakeContainer) cakeContainer.classList.add('is-active');
     }, 1500);
 }
 
@@ -1021,9 +1057,10 @@ function setupSurpriseAndFinaleEngine() {
     const mediaModal = document.getElementById('surprise-media-modal');
     const finaleBtn = document.getElementById('finale-trigger-btn');
 
+    if (!giftWrapper || !giftContainer) return;
+
     let giftOpened = false;
 
-    // A. Open Surprise Gift box
     const openGiftAction = (e) => {
         if (giftOpened) return;
         giftOpened = true;
@@ -1031,14 +1068,14 @@ function setupSurpriseAndFinaleEngine() {
         giftWrapper.classList.add('is-opening');
         const rect = giftWrapper.getBoundingClientRect();
         
-        // Spawn rich golden sparkles on unwrap
-        atmEngineInstance.triggerSparkleBlast(rect.left + rect.width / 2, rect.top + rect.height / 2, ['#ffd29d', '#ff7675', '#ffffff']);
+        if (atmEngineInstance) {
+            atmEngineInstance.triggerSparkleBlast(rect.left + rect.width / 2, rect.top + rect.height / 2, ['#ffd29d', '#ff7675', '#ffffff']);
+        }
 
-        // Reveal the personalized Glassmorphism Media Showcase Modal
         setTimeout(() => {
             giftContainer.style.opacity = '0';
             giftContainer.style.transform = 'translate(-50%, -42%) scale(0.9)';
-            mediaModal.classList.add('is-active');
+            if (mediaModal) mediaModal.classList.add('is-active');
         }, 1100);
 
         setTimeout(() => {
@@ -1054,31 +1091,30 @@ function setupSurpriseAndFinaleEngine() {
         }
     });
 
-    // B. Trigger the Cinematic Grand Finale
-    finaleBtn.addEventListener('click', () => {
-        mediaModal.classList.add('fade-out');
-        
-        setTimeout(() => {
-            mediaModal.style.display = 'none';
-            triggerGrandFinaleSequence();
-        }, 1200);
-    });
+    if (finaleBtn) {
+        finaleBtn.addEventListener('click', () => {
+            if (mediaModal) mediaModal.classList.add('fade-out');
+            
+            setTimeout(() => {
+                if (mediaModal) mediaModal.style.display = 'none';
+                triggerGrandFinaleSequence();
+            }, 1200);
+        });
+    }
 }
 
-// Seamlessly transition out cake tier layers, rise central Surprise Box
 function transitionFromCakeToSurpriseGift() {
     const cakeContainer = document.getElementById('cake-celebration-container');
     const giftContainer = document.getElementById('surprise-gift-container');
 
-    cakeContainer.classList.add('fade-out');
+    if (cakeContainer) cakeContainer.classList.add('fade-out');
 
     setTimeout(() => {
-        cakeContainer.style.display = 'none';
-        giftContainer.classList.add('is-active');
+        if (cakeContainer) cakeContainer.style.display = 'none';
+        if (giftContainer) giftContainer.classList.add('is-active');
     }, 1200);
 }
 
-// Orchestrate the glorious final environmental transformations
 function triggerGrandFinaleSequence() {
     const wrapper = document.getElementById('landscape-wrapper');
     const warmOverlay = document.getElementById('sky-warm-overlay');
@@ -1088,64 +1124,33 @@ function triggerGrandFinaleSequence() {
     const moon = document.getElementById('interactive-moon');
     const moonHalo = document.getElementById('moon-halo');
 
-        // 1. Zoom out camera elegantly to expand skyline perspective
-    wrapper.classList.add('grand-camera-zoom-out');
+    if (wrapper) wrapper.classList.add('grand-camera-zoom-out');
+    if (warmOverlay) warmOverlay.classList.add('warm-active');
 
-    // 2. Warming twilight color gradients mapping
-    warmOverlay.classList.add('warm-active');
-
-    // 3. Flower super-bloom triggers
     flowers.forEach(f => f.classList.add('grand-finale-bloom'));
 
-    // 4. Glow target moon and boost surrounding fireflies
     if (moon) moon.style.transform = 'scale(1.1)';
     if (moonHalo) {
         moonHalo.style.width = 'clamp(200px, 28vw, 260px)';
         moonHalo.style.height = 'clamp(200px, 28vw, 260px)';
         moonHalo.style.background = 'radial-gradient(circle, rgba(253, 246, 226, 0.42) 0%, rgba(253, 246, 226, 0) 75%)';
     }
-    atmEngineInstance.boostAtmosphereForFinale();
+    
+    if (atmEngineInstance) {
+        atmEngineInstance.boostAtmosphereForFinale();
+    }
 
-    // 5. Constellation and Final Heartfelt card fade-in
     setTimeout(() => {
-        constellation.classList.add('constellation-active');
+        if (constellation) constellation.classList.add('constellation-active');
     }, 1500);
 
     setTimeout(() => {
-        finaleMessage.classList.add('finale-active');
+        if (finaleMessage) finaleMessage.classList.add('finale-active');
     }, 3800);
 }
 
 /* ==========================================================================
-   11. Scroll-Triggered Scrapbook Reveals
-   ========================================================================== */
-function setupTimelineScrollReveal() {
-    const timelineItems = document.querySelectorAll('.reveal-on-scroll');
-    
-    const observerOptions = {
-        root: document.getElementById('timeline-container'), 
-        rootMargin: '0px 0px -10% 0px', 
-        threshold: 0.15 
-    };
-
-    const revealCallback = (entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
-                observer.unobserve(entry.target);
-            }
-        });
-    };
-
-    const observer = new IntersectionObserver(revealCallback, observerOptions);
-
-    timelineItems.forEach(item => {
-        observer.observe(item);
-    });
-}
-
-/* ==========================================================================
-   12. Dynamic Parallax Layer Scrolling Effects
+   11. Dynamic Parallax Layer Scrolling Effects
    ========================================================================== */
 function setupParallax() {
     const moon = document.querySelector('.moon-layer');
