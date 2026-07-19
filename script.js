@@ -1,6 +1,6 @@
 /**
  * Interactive Magical Garden Environment
- * Version 3 (Scrapbook Memory Timeline)
+ * Version 4 (Interactive Garden Objects)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,6 +39,9 @@ function initApp() {
 
     // Set up Envelope & Letter Mechanics
     setupEnvelopeEngine();
+
+    // Set up Interactive Objects (Cat, Teddy, Lantern, etc.)
+    setupInteractiveObjects();
 
     // Set up Scroll Observers for Timeline Scrapbook elements
     setupTimelineScrollReveal();
@@ -176,7 +179,7 @@ function generateMeadow(container, grassDensity, flowerCount) {
 }
 
 /* ==========================================================================
-   4. Atmospheric Canvas Simulation (Fireflies, Petals, and Interactive Sparkles)
+   4. Atmospheric Canvas Simulation (Fireflies, Petals, Sparkles, and Ripples)
    ========================================================================== */
 class AtmosphereEngine {
     constructor(canvas) {
@@ -185,6 +188,7 @@ class AtmosphereEngine {
         this.fireflies = [];
         this.petals = [];
         this.sparkles = [];
+        this.ripples = [];
         this.active = true;
         this.resize();
         
@@ -203,6 +207,7 @@ class AtmosphereEngine {
         this.fireflies = [];
         this.petals = [];
         this.sparkles = [];
+        this.ripples = [];
 
         // Create Fireflies
         for (let i = 0; i < this.fireflyCount; i++) {
@@ -237,22 +242,54 @@ class AtmosphereEngine {
         }
     }
 
-    triggerSparkleBlast(x, y) {
-        const sparkleColors = ['#f4d1ae', '#ffd29d', '#ffffff', '#f3b0c3'];
-        for (let i = 0; i < 40; i++) {
+    // Interactive sparkle burst triggers
+    triggerSparkleBlast(x, y, customColors = null) {
+        const sparkleColors = customColors || ['#f4d1ae', '#ffd29d', '#ffffff', '#f3b0c3'];
+        for (let i = 0; i < 35; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 6 + 2;
+            const velocity = Math.random() * 5 + 1.5;
             this.sparkles.push({
                 x: x,
                 y: y,
                 vx: Math.cos(angle) * velocity,
-                vy: Math.sin(angle) * velocity - 1.5,
-                radius: Math.random() * 2.5 + 1,
+                vy: Math.sin(angle) * velocity - 1.0,
+                radius: Math.random() * 2.2 + 0.8,
                 alpha: 1,
-                decay: Math.random() * 0.02 + 0.01,
+                decay: Math.random() * 0.025 + 0.012,
                 color: sparkleColors[Math.floor(Math.random() * sparkleColors.length)]
             });
         }
+    }
+
+    // Floating petal cascades triggered when blooming flowers
+    triggerPetalCascade(x, y, count = 10) {
+        for (let i = 0; i < count; i++) {
+            this.petals.push({
+                x: x + (Math.random() * 30 - 15),
+                y: y + (Math.random() * -10),
+                size: Math.random() * 5 + 3,
+                speedY: Math.random() * 0.4 + 0.3,
+                speedX: Math.random() * 0.6 - 0.3,
+                oscillationSpeed: Math.random() * 0.03 + 0.01,
+                oscillationAmplitude: Math.random() * 15 + 5,
+                angle: Math.random() * 360,
+                rotationSpeed: Math.random() * 2 - 1,
+                phase: Math.random() * 10,
+                color: 'rgba(243, 176, 195, 0.55)'
+            });
+        }
+    }
+
+    // Full Screen Moonlight ripple trigger (Centered coordinates)
+    triggerMoonlightRipple(x, y) {
+        this.ripples.push({
+            x: x,
+            y: y,
+            radius: 10,
+            maxRadius: Math.max(this.width, this.height) * 1.2,
+            speed: 12,
+            alpha: 0.35
+        });
     }
 
     update() {
@@ -290,7 +327,7 @@ class AtmosphereEngine {
             const s = this.sparkles[i];
             s.x += s.vx;
             s.y += s.vy;
-            s.vy += 0.05; 
+            s.vy += 0.04; 
             s.vx *= 0.98; 
             s.alpha -= s.decay;
 
@@ -298,12 +335,32 @@ class AtmosphereEngine {
                 this.sparkles.splice(i, 1);
             }
         }
+
+        // Update Moonlight Ripples
+        for (let i = this.ripples.length - 1; i >= 0; i--) {
+            const r = this.ripples[i];
+            r.radius += r.speed;
+            r.alpha = 0.35 * (1 - r.radius / r.maxRadius);
+
+            if (r.radius >= r.maxRadius) {
+                this.ripples.splice(i, 1);
+            }
+        }
     }
 
     render() {
         this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // 1. Fireflies
+        // 1. Moonlight Ripples (Cool translucent silver ring)
+        this.ripples.forEach(r => {
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = `rgba(253, 246, 226, ${r.alpha})`;
+            this.ctx.lineWidth = 3;
+            this.ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+            this.ctx.stroke();
+        });
+
+        // 2. Fireflies
         this.fireflies.forEach(f => {
             this.ctx.beginPath();
             const gradient = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius * 6);
@@ -315,7 +372,7 @@ class AtmosphereEngine {
             this.ctx.fill();
         });
 
-        // 2. Sparkles
+        // 3. Sparkles
         this.sparkles.forEach(s => {
             this.ctx.beginPath();
             this.ctx.fillStyle = s.color;
@@ -325,7 +382,7 @@ class AtmosphereEngine {
         });
         this.ctx.globalAlpha = 1.0; 
 
-        // 3. Petals
+        // 4. Petals
         this.petals.forEach(p => {
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
@@ -363,6 +420,7 @@ function setupEnvelopeEngine() {
     const paragraphs = document.querySelectorAll('.letter-para');
     const continueBtn = document.getElementById('continue-btn');
     const timelineContainer = document.getElementById('timeline-container');
+    const objectsLayer = document.getElementById('interactive-objects-layer');
     const scene = document.getElementById('scene');
 
     let letterOpened = false;
@@ -370,6 +428,9 @@ function setupEnvelopeEngine() {
     const openAction = (e) => {
         if (letterOpened) return;
         letterOpened = true;
+
+        // Hide any active speech bubble card during envelope transitions
+        closeSpeechBubble();
 
         const rect = envelope.getBoundingClientRect();
         const sparkleX = rect.left + rect.width / 2;
@@ -404,19 +465,15 @@ function setupEnvelopeEngine() {
         }
     });
 
-    // Premium Transition from Letter Modal -> Memory Timeline
     continueBtn.addEventListener('click', () => {
-        // 1. Gently close the letter paper modal
         modal.classList.remove('is-active');
         
-        // 2. Clear envelope structure elements entirely
+        // Hide envelope elements and foreground interactive objects before presenting scrapbook
         setTimeout(() => {
-            if (envelopeLayer) {
-                envelopeLayer.style.display = 'none';
-            }
+            if (envelopeLayer) envelopeLayer.style.display = 'none';
+            if (objectsLayer) objectsLayer.style.opacity = '0';
         }, 800);
 
-        // 3. Unveil Memory Timeline & Dim Garden further
         setTimeout(() => {
             scene.classList.remove('dimmed-atmosphere');
             scene.classList.add('dimmed-for-timeline');
@@ -443,23 +500,164 @@ function revealLetterParagraphs(paragraphs, button) {
 }
 
 /* ==========================================================================
-   6. Scroll-Triggered Scrapbook Reveals (IntersectionObserver)
+   6. Interactive Objects Core Engine (V4 Addition)
+   ========================================================================== */
+const activeBubbleTimeout = null;
+
+function setupInteractiveObjects() {
+    const centralBubble = document.getElementById('central-bubble');
+    const bubbleCloseBtn = document.getElementById('bubble-close');
+
+    // Central close handler
+    bubbleCloseBtn.addEventListener('click', closeSpeechBubble);
+
+    // List of interactive element configs
+    const configs = [
+        {
+            id: 'obj-lantern',
+            msg: "Wishing you a year ahead filled with warm light, happiness, and clear paths.",
+            action: (node) => {
+                node.classList.add('active-bounce');
+                const rect = node.getBoundingClientRect();
+                atmEngineInstance.triggerSparkleBlast(rect.left + 14, rect.top + 20, ['#f1c40f', '#f39c12', '#ffffff']);
+                setTimeout(() => node.classList.remove('active-bounce'), 1000);
+            }
+        },
+        {
+            id: 'obj-cat',
+            msg: "You deserve all the sweetest, warmest comforts and cozy moments today.",
+            action: (node) => {
+                node.classList.add('active-bounce');
+                setTimeout(() => node.classList.remove('active-bounce'), 800);
+            }
+        },
+        {
+            id: 'obj-teddy',
+            msg: "Sending you the absolute warmest and coziest virtual hug on your special day.",
+            action: (node) => {
+                const arm = document.getElementById('teddy-arm-l');
+                if (arm) arm.classList.add('waving');
+                setTimeout(() => {
+                    if (arm) arm.classList.remove('waving');
+                }, 2400);
+            }
+        },
+        {
+            id: 'obj-gift',
+            msg: "May your upcoming days be wrapped in endless surprises, smiles, and laughter!",
+            action: (node) => {
+                node.classList.add('active-bounce');
+                const rect = node.getBoundingClientRect();
+                atmEngineInstance.triggerSparkleBlast(rect.left + 16, rect.top + 16, ['#eb4d4b', '#f0932b', '#6ab04c', '#ffffff']);
+                setTimeout(() => node.classList.remove('active-bounce'), 1000);
+            }
+        },
+        {
+            id: 'obj-butterfly',
+            msg: "You hold a unique magic that makes every single day a little bit brighter.",
+            action: (node) => {
+                node.classList.add('active-flight');
+                setTimeout(() => node.classList.remove('active-flight'), 1600);
+            }
+        },
+        {
+            id: 'obj-flower',
+            msg: "May your goals, dreams, and happiness bloom beautifully in every season.",
+            action: (node) => {
+                node.classList.add('active-bounce');
+                const rect = node.getBoundingClientRect();
+                atmEngineInstance.triggerPetalCascade(rect.left + 9, rect.top + 10, 12);
+                setTimeout(() => node.classList.remove('active-bounce'), 1000);
+            }
+        },
+        {
+            id: 'interactive-moon',
+            msg: "No matter how much distance separates us, we always share the same beautiful sky.",
+            action: (node) => {
+                node.classList.add('active-bounce');
+                const rect = node.getBoundingClientRect();
+                // Trigger soft silver expanding ripple from moon core
+                atmEngineInstance.triggerMoonlightRipple(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                setTimeout(() => node.classList.remove('active-bounce'), 600);
+            }
+        },
+        {
+            id: 'interactive-star',
+            msg: "Look up at the night sky and make a special wish on this beautiful night.",
+            action: (node) => {
+                node.classList.add('pulse-active');
+                const rect = node.getBoundingClientRect();
+                atmEngineInstance.triggerSparkleBlast(rect.left + 8, rect.top + 8, ['#ffffff', '#eccc68', '#f1f2f6']);
+                setTimeout(() => node.classList.remove('pulse-active'), 800);
+            }
+        }
+    ];
+
+    configs.forEach(cfg => {
+        const node = document.getElementById(cfg.id);
+        if (node) {
+            const interactHandler = (e) => {
+                e.stopPropagation();
+                // Trigger customized element physics action
+                cfg.action(node);
+                // Present central floating text bubble
+                presentSpeechBubble(cfg.msg);
+            };
+            node.addEventListener('click', interactHandler);
+            node.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    interactHandler(e);
+                }
+            });
+        }
+    });
+
+    // Close speech bubble on ambient landscape tap
+    document.addEventListener('click', (e) => {
+        const bubble = document.getElementById('central-bubble');
+        if (bubble.classList.contains('is-active') && !bubble.contains(e.target)) {
+            closeSpeechBubble();
+        }
+    });
+}
+
+function presentSpeechBubble(text) {
+    const bubble = document.getElementById('central-bubble');
+    const textEl = document.getElementById('bubble-text');
+    
+    // Smooth reset fade if already active
+    bubble.classList.remove('is-active');
+    
+    setTimeout(() => {
+        textEl.textContent = text;
+        bubble.classList.add('is-active');
+    }, 150);
+}
+
+function closeSpeechBubble() {
+    const bubble = document.getElementById('central-bubble');
+    if (bubble) {
+        bubble.classList.remove('is-active');
+    }
+}
+
+/* ==========================================================================
+   7. Scroll-Triggered Scrapbook Reveals
    ========================================================================== */
 function setupTimelineScrollReveal() {
     const timelineItems = document.querySelectorAll('.reveal-on-scroll');
     
-    // Configured observer targeting beautiful 60FPS natural entries
     const observerOptions = {
-        root: document.getElementById('timeline-container'), // Relative viewport
-        rootMargin: '0px 0px -10% 0px', // Trigger slightly before crossing threshold
-        threshold: 0.15 // 15% visibility minimum
+        root: document.getElementById('timeline-container'), 
+        rootMargin: '0px 0px -10% 0px', 
+        threshold: 0.15 
     };
 
     const revealCallback = (entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('revealed');
-                // Clean up tracking observer once successfully rendered
                 observer.unobserve(entry.target);
             }
         });
@@ -473,7 +671,7 @@ function setupTimelineScrollReveal() {
 }
 
 /* ==========================================================================
-   7. Dynamic Parallax Scrolling Effects
+   8. Dynamic Parallax Layer Scrolling Effects
    ========================================================================== */
 function setupParallax() {
     const moon = document.querySelector('.moon-layer');
@@ -506,4 +704,4 @@ function setupParallax() {
             envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(15vh + ${mouseY * 0.006}px))`;
         }
     });
-        }
+}
