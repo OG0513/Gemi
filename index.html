@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A calm, magical moonlit garden scene with interactive objects, a centered envelope, memory gallery, wish tree, and cake celebration.">
-  <title>A Quiet Evening | Version 5 (Celebration Edition)</title>
+  <meta name="description" content="A calm, magical moonlit garden scene with interactive objects, a centered envelope, memory gallery, wish tree, cake celebration, and star constellation finale.">
+  <title>A Quiet Evening | Version 6 (Final Polish & Grand Finale)</title>
   
   <!-- Typography Setup -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -273,7 +272,7 @@
         </div>
 
         <footer class="gallery-footer">
-          <!-- Continue button leads into V5 Wish Tree growth cycle -->
+          <!-- Button leads into V5 Wish Tree growth cycle -->
           <button id="btn-to-tree" class="btn-continue" aria-label="Go to the magical wish tree">
             <span>Sow a Wish</span>
             <span class="arrow">→</span>
@@ -290,7 +289,7 @@
           <p class="tree-subtitle" id="tree-progress-text">Click the dormant sprout to sow a wish...</p>
         </header>
 
-        <!-- Pure CSS Crafted Scalable Wish Tree -->
+        <!-- Pure CSS Crafted Wish Tree -->
         <div id="wish-tree" class="wish-tree stage-0" role="button" tabindex="0" aria-label="Growth Wish Tree">
           <div class="tree-trunk">
             <div class="tree-branch branch-left"></div>
@@ -313,10 +312,9 @@
           <h2 id="celebration-prompt-text" class="celebration-prompt-text">Tap each candle to light them...</h2>
         </header>
 
-        <!-- Handcrafted CSS Birthday Cake (No External Asset dependencies) -->
+        <!-- Handcrafted CSS Birthday Cake -->
         <div class="cake-display-rack" id="cake-rack">
           <div class="cake-wrapper">
-            <!-- Dynamically injected candle row holds interactive flickering candle elements -->
             <div class="cake-candles-row" id="cake-candles-row"></div>
             
             <div class="cake-top-frosting">
@@ -346,7 +344,18 @@
       </div>
     </div>
 
-    <!-- Global Sparkle and Confetti system overlay -->
+    <!-- V6 Grand Finale Interactive View Layer -->
+    <div id="finale-overlay" class="finale-overlay" aria-hidden="true">
+      <div class="finale-wrapper">
+        <div class="finale-card">
+          <h3 class="finale-message-title">Wishing You the Best...</h3>
+          <p class="finale-message-text">May your path ahead be lined with warm light, gentle laughter, and moments that make your heart soar. You deserve all the beauty this world has to offer.</p>
+          <div class="finale-heart-decor">❤️</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Sparkle, Confetti, and Fireworks system overlay -->
     <div id="interactive-anchor" class="interactive-overlay"></div>
 
     <!-- Glassmorphic Global Speech / Message Card -->
