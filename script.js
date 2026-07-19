@@ -1,1127 +1,947 @@
 /**
- * Dreamy Landscape - Version 5 Final Engine
- * Architectural elements structured modularly for performance and maintainability.
+ * Interactive Premium Birthday Experience - Version 6 (The Grand Finale)
+ * Core Architecture & Living Environmental Engine
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Global Wind Parameters
-  const windState = {
-    strength: 1.0,
-    speed: 1.0,
-    targetStrength: 1.0,
-    time: 0
-  };
+'use strict';
 
-  // Environment Configs
-  const config = {
-    starsCount: 90,
-    cloudsCount: 4,
-    firefliesCount: 18,
-    flowersCount: 22,
-    grassDensity: 160,
-    candlesCount: 3 // Dynamic candle count (Configurable)
-  };
+// Global App Configuration
+const APP_CONFIG = {
+  loadingSimulationTime: 2500, // Speed calibration of virtual asset initialization
+  transitionDelay: 1200,      // Sync matching style.css transition speed
+};
 
-  // Cache major selectors
-  const loader = document.getElementById('loader');
-  const mainScene = document.getElementById('main-scene');
+/**
+ * High-Performance Environmental Rendering Engine (Canvas)
+ * Draws 11 unique flower species scattered along the bottom edge, detailed branching leaf stems,
+ * and floating particles with Day/Night rendering overrides at a stable 60FPS.
+ * Incorporates a stunning Grand Finale Star spelling animation.
+ */
+class EnvironmentalEngine {
+  constructor() {
+    this.canvas = document.getElementById('environmental-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    
+    this.particles = [];
+    this.flowers = [];
+    this.stars = [];
+    this.confetti = [];
+    
+    this.windTime = 0;
+    this.isNight = false;
+    this.isTicking = false;
+    this.activeState = 'loading';
+    
+    // Grand Finale Galaxy Star Spelling Points
+    this.textTargetPoints = [];
+    this.isSpellingStars = false;
 
-  /**
-   * 1. Dynamic Loading Screen Setup
-   */
-  function initLoading() {
-    const container = document.getElementById('loader-particles');
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    for (let i = 0; i < 15; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'loader-particle';
-      
-      const size = Math.random() * 5 + 3;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      particle.style.left = `${Math.random() * width}px`;
-      particle.style.top = `${Math.random() * height}px`;
-      
-      const floatDuration = Math.random() * 10 + 10;
-      particle.style.transition = `transform ${floatDuration}s linear, opacity 2s ease`;
-      
-      container.appendChild(particle);
-
-      setTimeout(() => {
-        particle.style.transform = `translate(${Math.random() * 40 - 20}px, -${Math.random() * 200 + 50}px)`;
-        particle.style.opacity = '0';
-      }, 50);
-    }
-
-    setTimeout(() => {
-      loader.style.opacity = '0';
-      mainScene.setAttribute('aria-hidden', 'false');
-      mainScene.style.opacity = '1';
-      mainScene.style.pointerEvents = 'auto';
-
-      setTimeout(() => {
-        loader.style.display = 'none';
-      }, 1500);
-    }, 3800);
+    this.init();
   }
 
-  /**
-   * 2. Natural Wind Simulation Engine
-   */
-  function startWind() {
-    function updateWind() {
-      windState.time += 0.002;
-      const baseWave = Math.sin(windState.time * 2);
-      const spike = Math.sin(windState.time * 5.5) * 0.3;
-      
-      windState.targetStrength = Math.max(0.4, (baseWave + spike + 1.2));
-      windState.strength += (windState.targetStrength - windState.strength) * 0.01;
-      
-      document.documentElement.style.setProperty('--wind-strength-multiplier', windState.strength.toFixed(3));
-      
-      requestAnimationFrame(updateWind);
-    }
-    requestAnimationFrame(updateWind);
+  init() {
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
+
+    this.generateParticles(25); // Kept minimal to optimize rendering speed
+    this.generateFlowers();
+    this.generateBackgroundStars(100);
+
+    this.start();
   }
 
-  /**
-   * 3. Stars Field Construction
-   */
-  function createStars() {
-    const container = document.getElementById('stars-container');
-    const colors = ['#ffffff', '#fdfbf7', '#d2e4f1', '#dfdaf1'];
-
-    for (let i = 0; i < config.starsCount; i++) {
-      const star = document.createElement('div');
-      star.className = 'star';
-      
-      const size = Math.random() * 1.8 + 0.6;
-      const x = Math.random() * 100;
-      const y = Math.random() * 75;
-      const baseOpacity = Math.random() * 0.6 + 0.2;
-      
-      star.style.width = `${size}px`;
-      star.style.height = `${size}px`;
-      star.style.left = `${x}%`;
-      star.style.top = `${y}%`;
-      star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      star.style.setProperty('--star-base-opacity', baseOpacity);
-      
-      const duration = Math.random() * 4 + 3;
-      const delay = Math.random() * 5;
-      star.style.animation = `twinkle ${duration}s ease-in-out infinite ${delay}s`;
-
-      container.appendChild(star);
+  resizeCanvas() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    
+    // Smoothly re-establish coordinates without computational layout spikes
+    this.generateFlowers();
+    this.generateBackgroundStars(100);
+    if (this.isSpellingStars) {
+      this.rearrangeStarsToText();
     }
   }
 
+  setNightMode(active) {
+    this.isNight = active;
+  }
+
   /**
-   * 4. Slow Ambient Cloud Assembly
+   * Pre-calculates pixel point mapping of text "HAPPY BIRTHDAY ❤️" inside offscreen canvas
    */
-  function createClouds() {
-    const container = document.getElementById('clouds-container');
-
-    for (let i = 0; i < config.cloudsCount; i++) {
-      const cloud = document.createElement('div');
-      cloud.className = 'cloud';
-      
-      const width = Math.random() * 300 + 250;
-      const height = width * 0.4;
-      const x = Math.random() * 90;
-      const y = Math.random() * 40 + 10;
-      
-      cloud.style.width = `${width}px`;
-      cloud.style.height = `${height}px`;
-      cloud.style.left = `${x}%`;
-      cloud.style.top = `${y}%`;
-
-      let driftX = 0;
-      const speed = Math.random() * 0.015 + 0.005;
-
-      function stepDrift() {
-        driftX += speed;
-        if (driftX > window.innerWidth * 1.1) {
-          driftX = -width;
+  generateStarTextPoints() {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Target text dimensions
+    tempCanvas.width = 400;
+    tempCanvas.height = 100;
+    
+    tempCtx.fillStyle = '#ffffff';
+    tempCtx.font = 'bold 32px "Cinzel", Georgia, serif';
+    tempCtx.textAlign = 'center';
+    tempCtx.textBaseline = 'middle';
+    tempCtx.fillText('HAPPY BIRTHDAY ❤️', 200, 50);
+    
+    const imgData = tempCtx.getImageData(0, 0, 400, 100);
+    const points = [];
+    
+    // Sampling pixels with reasonable density
+    for (let y = 0; y < 100; y += 6) {
+      for (let x = 0; x < 400; x += 6) {
+        const idx = (y * 400 + x) * 4;
+        if (imgData.data[idx] > 128) {
+          points.push({ x: x - 200, y: y - 50 }); // Normalize around coordinates origin
         }
-        cloud.style.transform = `translateX(${driftX}px)`;
-        requestAnimationFrame(stepDrift);
       }
-      
-      container.appendChild(cloud);
-      requestAnimationFrame(stepDrift);
     }
+    return points;
   }
 
   /**
-   * 5. Procedural Grass Cultivation
+   * Triggers the Galaxy Star Spell sequence for the Grand Finale
    */
-  function createGrass() {
-    const field = document.getElementById('grass-field');
-    const colors = [
-      'var(--color-muted-green)',
-      '#566a42',
-      '#3f512f',
-      '#404d30',
-      '#4d5a37'
+  rearrangeStarsToText() {
+    this.isSpellingStars = true;
+    this.textTargetPoints = this.generateStarTextPoints();
+    
+    const screenCenterX = this.canvas.width / 2;
+    const screenCenterY = this.canvas.height * 0.3; // Spell in the clear upper sky
+    
+    // Map existing star coordinates smoothly to the text template points
+    this.stars.forEach((star, index) => {
+      if (index < this.textTargetPoints.length) {
+        const pt = this.textTargetPoints[index];
+        star.targetX = screenCenterX + pt.x * (window.innerWidth < 480 ? 0.75 : 1);
+        star.targetY = screenCenterY + pt.y * (window.innerWidth < 480 ? 0.75 : 1);
+        star.isSpelled = true;
+      } else {
+        // Unused extra stars drift gently outwards to form a beautiful celestial aura
+        star.isSpelled = false;
+        star.targetX = undefined;
+        star.targetY = undefined;
+      }
+    });
+  }
+
+  /**
+   * Procedurally generates exactly 11 unique flower species with specific drawing profiles.
+   * Calculated to scale fluidly with no vertical layout cropping.
+   */
+  generateFlowers() {
+    this.flowers = [];
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    
+    const speciesDefinitions = [
+      { name: 'Rose', petalColor: '#F48FB1', nightColor: '#FF4081', stemThickness: 2.8, size: 10 },
+      { name: 'Tulip', petalColor: '#FFAB91', nightColor: '#FF6E40', stemThickness: 2.5, size: 9 },
+      { name: 'Lily', petalColor: '#FFF59D', nightColor: '#FFFF00', stemThickness: 2.2, size: 12 },
+      { name: 'Daisy', petalColor: '#FFFFFF', nightColor: '#E040FB', stemThickness: 1.8, size: 8 },
+      { name: 'Sunflower', petalColor: '#FFE082', nightColor: '#FFD700', stemThickness: 3.5, size: 14 },
+      { name: 'Lavender', petalColor: '#B39DDB', nightColor: '#7C4DFF', stemThickness: 1.5, size: 7 },
+      { name: 'Poppy', petalColor: '#EF9A9A', nightColor: '#FF1744', stemThickness: 2.0, size: 11 },
+      { name: 'Orchid', petalColor: '#F48FB1', nightColor: '#D500F9', stemThickness: 2.1, size: 10 },
+      { name: 'Cherry Blossom', petalColor: '#FFCDD2', nightColor: '#F50057', stemThickness: 1.9, size: 7 },
+      { name: 'Bluebell', petalColor: '#9FA8DA', nightColor: '#2979FF', stemThickness: 1.6, size: 8 },
+      { name: 'Wildflower', petalColor: '#80CBC4', nightColor: '#00E5FF', stemThickness: 1.4, size: 6 }
     ];
 
-    for (let i = 0; i < config.grassDensity; i++) {
-      const blade = document.createElement('div');
-      blade.className = 'grass-blade';
-      
-      const width = Math.random() * 4 + 2;
-      const height = Math.random() * 85 + 40;
-      const posX = Math.random() * 100;
-      
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      const baseSwayAngle = Math.random() * 5 + 3; 
-      
-      blade.style.width = `${width}px`;
-      blade.style.height = `${height}px`;
-      blade.style.left = `${posX}%`;
-      blade.style.backgroundColor = color;
-      blade.style.zIndex = Math.floor(height);
-      
-      blade.style.setProperty('--sway-angle-base', baseSwayAngle);
-      const swayDuration = Math.random() * 1.5 + 2.5;
-      const swayDelay = Math.random() * -4;
-      blade.style.animation = `sway ${swayDuration}s ease-in-out infinite alternate ${swayDelay}s`;
+    // Align base anchors with safe padding offsets to bypass hardware notches / safari UI overlaps
+    const flowerBottomY = height - 12;
 
-      field.appendChild(blade);
+    speciesDefinitions.forEach((spec, index) => {
+      const step = width / 12;
+      const x = step * (index + 1) + (Math.random() - 0.5) * (step * 0.4);
+      
+      // Fluid scale stem height based on device sizes to ensure no clipping
+      const stemHeight = clamp(70, height * 0.18 + Math.random() * 30, 180);
+
+      this.flowers.push({
+        x: x,
+        y: flowerBottomY,
+        h: stemHeight,
+        species: spec,
+        angleOffset: Math.random() * Math.PI,
+        windPhase: Math.random() * Math.PI,
+        swayRange: 0.045 + Math.random() * 0.025
+      });
+    });
+  }
+
+  generateBackgroundStars(count) {
+    this.stars = [];
+    for (let i = 0; i < count; i++) {
+      this.stars.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height * 0.5, // Render stars upper sky exclusively
+        r: Math.random() * 1.5 + 0.8,
+        alpha: Math.random() * 0.5 + 0.3,
+        pulseSpeed: 0.02 + Math.random() * 0.03,
+        phase: Math.random() * Math.PI,
+        targetX: undefined,
+        targetY: undefined,
+        isSpelled: false
+      });
+    }
+  }
+
+  generateParticles(count) {
+    this.particles = [];
+    for (let i = 0; i < count; i++) {
+      this.particles.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        r: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.4 + 0.1,
+        speedX: (Math.random() - 0.5) * 0.25,
+        speedY: -Math.random() * 0.2 - 0.05,
+        phase: Math.random() * Math.PI
+      });
     }
   }
 
   /**
-   * 6. Procedural Flower Garden Setup
+   * Spawns physical colorful confetti upon candle blow sequence
    */
-  function createFlowers() {
-    const field = document.getElementById('flower-field');
-    const colorThemes = [
-      { petal: 'var(--color-blush-pink)', center: 'var(--color-soft-gold)' },
-      { petal: 'var(--color-cream)', center: 'var(--color-soft-gold)' },
-      { petal: 'var(--color-lavender)', center: 'var(--color-cream)' },
-      { petal: 'var(--color-baby-blue)', center: 'var(--color-soft-gold)' }
-    ];
+  spawnConfettiExplosion() {
+    this.confetti = [];
+    const colors = ['#f4dcd6', '#fcece7', '#f3effc', '#FFF9F2', '#c5a059', '#e2b4bd'];
+    for (let i = 0; i < 70; i++) {
+      this.confetti.push({
+        x: this.canvas.width / 2,
+        y: this.canvas.height * 0.65,
+        r: Math.random() * 4 + 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 12,
+        vy: -Math.random() * 12 - 4,
+        gravity: 0.25,
+        alpha: 1
+      });
+    }
+  }
 
-    for (let i = 0; i < config.flowersCount; i++) {
-      const flower = document.createElement('div');
-      flower.className = 'flower';
-      
-      const posX = Math.random() * 92 + 4;
-      const height = Math.random() * 50 + 35;
-      const zIndexIndex = Math.floor(height);
-      
-      flower.style.left = `${posX}%`;
-      flower.style.zIndex = zIndexIndex;
-      
-      const stem = document.createElement('div');
-      stem.className = 'flower-stem';
-      stem.style.height = `${height}px`;
-      
-      const head = document.createElement('div');
-      head.className = 'flower-head';
-      
-      const theme = colorThemes[Math.floor(Math.random() * colorThemes.length)];
-      
-      const center = document.createElement('div');
-      center.className = 'flower-center';
-      center.style.backgroundColor = theme.center;
-      head.appendChild(center);
+  start() {
+    this.isTicking = true;
+    const tick = () => {
+      if (!this.isTicking) return;
+      this.updatePhysics();
+      this.render();
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
 
-      const petalCount = Math.floor(Math.random() * 3) + 5;
-      const petalSize = Math.random() * 3 + 4;
+  stop() {
+    this.isTicking = false;
+  }
+
+  updatePhysics() {
+    this.windTime += 0.003; 
+
+    // Update floating light particles
+    this.particles.forEach(p => {
+      p.y += p.speedY;
+      p.x += p.speedX + Math.sin(this.windTime * 0.5 + p.phase) * 0.12; 
       
-      for (let p = 0; p < petalCount; p++) {
-        const petal = document.createElement('div');
-        petal.className = 'flower-petal';
-        petal.style.backgroundColor = theme.petal;
-        petal.style.width = `${petalSize}px`;
-        petal.style.height = `${petalSize * 1.8}px`;
-        
-        const rotation = (p * (360 / petalCount));
-        petal.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
-        head.appendChild(petal);
+      if (p.y < -10) {
+        p.y = this.canvas.height + 10;
+        p.x = Math.random() * this.canvas.width;
       }
+    });
 
-      flower.appendChild(stem);
-      flower.appendChild(head);
+    // Update galaxy stars smooth interpolation vector targets
+    this.stars.forEach(star => {
+      if (this.isSpellingStars && star.isSpelled) {
+        // Smooth easing vector interpolation
+        star.x += (star.targetX - star.x) * 0.05;
+        star.y += (star.targetY - star.y) * 0.05;
+      } else {
+        // Standard starry sky drift movement
+        star.x += Math.sin(this.windTime * 0.1 + star.phase) * 0.05;
+      }
+    });
+
+    // Confetti Physics simulation
+    this.confetti.forEach((c, idx) => {
+      c.vy += c.gravity;
+      c.x += c.vx;
+      c.y += c.vy;
+      c.alpha -= 0.012;
       
-      head.style.bottom = `${height}px`;
-
-      flower.style.setProperty('--sway-angle-base', (Math.random() * 4 + 2));
-      const swayDuration = Math.random() * 1.5 + 3.0;
-      const swayDelay = Math.random() * -5;
-      flower.style.animation = `sway ${swayDuration}s ease-in-out infinite alternate ${swayDelay}s`;
-
-      field.appendChild(flower);
-    }
+      if (c.alpha <= 0) {
+        this.confetti.splice(idx, 1);
+      }
+    });
   }
 
-  /**
-   * 7. Adaptive Fireflies Controller
-   */
-  function createFireflies() {
-    const container = document.getElementById('firefly-container');
-    const swarm = [];
+  render() {
+    const ctx = this.ctx;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
 
-    for (let i = 0; i < config.firefliesCount; i++) {
-      const f = document.createElement('div');
-      f.className = 'firefly';
-      
-      const glow = document.createElement('div');
-      glow.className = 'firefly-glow';
-      f.appendChild(glow);
-      
-      container.appendChild(f);
+    ctx.clearRect(0, 0, width, height);
 
-      swarm.push({
-        element: f,
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * (window.innerHeight * 0.7) + (window.innerHeight * 0.2),
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        angle: Math.random() * Math.PI * 2,
-        speed: Math.random() * 0.02 + 0.005,
-        brightness: Math.random(),
-        brightening: Math.random() > 0.5,
-        targetX: Math.random() * window.innerWidth,
-        targetY: Math.random() * window.innerHeight
+    // 1. Draw Stars (If Night mode is active or spelling sequence triggers)
+    if (this.isNight) {
+      this.stars.forEach(star => {
+        const pulseAlpha = star.isSpelled 
+          ? 1.0 
+          : star.alpha + Math.sin(this.windTime * star.pulseSpeed + star.phase) * 0.25;
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.isSpelled ? star.r * 1.3 : star.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${pulseAlpha})`;
+        
+        if (star.isSpelled) {
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = '#ffffff';
+        }
+        ctx.fill();
+        ctx.shadowBlur = 0;
       });
     }
 
-    function updateSwarm() {
-      swarm.forEach(fly => {
-        fly.angle += (Math.random() - 0.5) * 0.15;
-        
-        fly.vx += Math.cos(fly.angle) * fly.speed * 0.1;
-        fly.vy += Math.sin(fly.angle) * fly.speed * 0.1;
-        
-        fly.vx *= 0.98;
-        fly.vy *= 0.98;
-        
-        fly.x += fly.vx;
-        fly.y += fly.vy;
-        
-        const pad = 20;
-        if (fly.x < -pad) fly.x = window.innerWidth + pad;
-        if (fly.x > window.innerWidth + pad) fly.x = -pad;
-        if (fly.y < -pad) fly.y = window.innerHeight + pad;
-        if (fly.y > window.innerHeight + pad) fly.y = -pad;
+    // 2. Draw Flowers (Organic, non-row bottom scatters)
+    this.flowers.forEach(f => {
+      const windAngle = Math.sin(this.windTime * 1.0 + f.angleOffset) * f.swayRange;
+      const topX = f.x + Math.sin(windAngle) * f.h;
+      const topY = f.y - Math.cos(windAngle) * f.h;
 
-        if (fly.brightening) {
-          fly.brightness += 0.012;
-          if (fly.brightness >= 1.0) fly.brightening = false;
-        } else {
-          fly.brightness -= 0.012;
-          if (fly.brightness <= 0.15) fly.brightening = true;
-        }
+      // Draw Main Stem with realistic sway
+      ctx.beginPath();
+      ctx.moveTo(f.x, f.y);
+      ctx.quadraticCurveTo(f.x + (topX - f.x) * 0.35, f.y - f.h * 0.5, topX, topY);
+      ctx.strokeStyle = this.isNight ? 'rgba(25, 45, 30, 0.65)' : 'rgba(120, 150, 100, 0.65)';
+      ctx.lineWidth = f.species.stemThickness;
+      ctx.stroke();
 
-        fly.element.style.transform = `translate3d(${fly.x.toFixed(1)}px, ${fly.y.toFixed(1)}px, 0)`;
-        fly.element.style.opacity = fly.brightness.toFixed(2);
-      });
-      requestAnimationFrame(updateSwarm);
+      // Draw branching lateral stems for secondary miniature blossoms
+      const branchX = f.x + (topX - f.x) * 0.45;
+      const branchY = f.y - f.h * 0.45;
+      const branchAngle = windAngle + 0.35;
+      const branchLen = f.h * 0.28;
+      const branchTopX = branchX - Math.sin(branchAngle) * branchLen;
+      const branchTopY = branchY - Math.cos(branchAngle) * branchLen;
+
+      ctx.beginPath();
+      ctx.moveTo(branchX, branchY);
+      ctx.quadraticCurveTo(branchX - 10, branchY - branchLen * 0.5, branchTopX, branchTopY);
+      ctx.stroke();
+
+      // Stem Leaves
+      ctx.beginPath();
+      ctx.ellipse(topX - 6, topY + 20, 6, 2, windAngle - 0.4, 0, Math.PI * 2);
+      ctx.ellipse(topX + 6, topY + 40, 5, 2.2, windAngle + 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = this.isNight ? 'rgba(30, 55, 35, 0.55)' : 'rgba(130, 160, 110, 0.55)';
+      ctx.fill();
+
+      const color = this.isNight ? f.species.nightColor : f.species.petalColor;
+
+      // Primary Bloom Glow Layer
+      if (this.isNight) {
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = color;
+      }
+
+      // Draw Primary Bloom Node
+      ctx.save();
+      ctx.translate(topX, topY);
+      ctx.rotate(windAngle);
+      this.drawSpeciesBloom(ctx, f.species.name, f.species.size, color);
+      ctx.restore();
+
+      // Draw Secondary Miniature Bloom Node at Branch Tip
+      ctx.save();
+      ctx.translate(branchTopX, branchTopY);
+      ctx.rotate(branchAngle);
+      this.drawSpeciesBloom(ctx, f.species.name, f.species.size * 0.6, color);
+      ctx.restore();
+
+      if (this.isNight) {
+        ctx.restore(); 
+      }
+    });
+
+    // 3. Draw Confetti particles
+    this.confetti.forEach(c => {
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      ctx.fillStyle = c.color;
+      ctx.globalAlpha = c.alpha;
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1.0; // Reset canvas transparency global state
+
+    // 4. Draw Particles
+    this.particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.isNight 
+        ? `rgba(180, 220, 255, ${p.alpha * 0.8})` 
+        : `rgba(255, 255, 255, ${p.alpha})`;
+      ctx.fill();
+    });
+  }
+
+  drawSpeciesBloom(ctx, name, size, color) {
+    switch(name) {
+      case 'Rose': this.drawRose(ctx, size, color); break;
+      case 'Tulip': this.drawTulip(ctx, size, color); break;
+      case 'Lily': this.drawLily(ctx, size, color); break;
+      case 'Daisy': this.drawDaisy(ctx, size, color); break;
+      case 'Sunflower': this.drawSunflower(ctx, size, color); break;
+      case 'Lavender': this.drawLavender(ctx, size, color); break;
+      case 'Poppy': this.drawPoppy(ctx, size, color); break;
+      case 'Orchid': this.drawOrchid(ctx, size, color); break;
+      case 'Cherry Blossom': this.drawCherryBlossom(ctx, size, color); break;
+      case 'Bluebell': this.drawBluebell(ctx, size, color); break;
+      case 'Wildflower': this.drawWildflower(ctx, size, color); break;
     }
+  }
+
+  drawRose(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(0, 0, size - (i * 2.5), 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = 1;
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+
+  drawTulip(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.6, 0);
+    ctx.bezierCurveTo(-size * 0.8, -size * 1.2, 0, -size * 1.5, 0, -size * 0.3);
+    ctx.bezierCurveTo(0, -size * 1.5, size * 0.8, -size * 1.2, size * 0.6, 0);
+    ctx.closePath();
+    ctx.fill();
     
-    requestAnimationFrame(updateSwarm);
+    ctx.beginPath();
+    ctx.ellipse(0, -size * 0.4, size * 0.45, size * 0.7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  drawLily(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 3; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI) / 1.5);
+      ctx.beginPath();
+      ctx.ellipse(0, -size * 0.5, size * 0.4, size * 1.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(-1, -size * 0.2, 2, -size * 0.8);
+  }
+
+  drawDaisy(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 8; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI) / 4);
+      ctx.beginPath();
+      ctx.ellipse(0, -size, size * 0.22, size * 1.1, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.45, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFD700';
+    ctx.fill();
+  }
+
+  drawSunflower(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 12; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI) / 6);
+      ctx.beginPath();
+      ctx.ellipse(0, -size * 0.9, size * 0.25, size * 0.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = '#4E342E';
+    ctx.fill();
+  }
+
+  drawLavender(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.ellipse(0, -i * 8, size * 0.65, size * 0.45, 0.4, 0, Math.PI * 2);
+      ctx.ellipse(0, -i * 8, size * 0.65, size * 0.45, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  drawPoppy(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(-size * 0.4, 0, size * 0.9, size * 0.7, 0, 0, Math.PI * 2);
+    ctx.ellipse(size * 0.4, 0, size * 0.9, size * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = '#1A1A1A';
+    ctx.fill();
+  }
+
+  drawOrchid(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(-size * 0.8, -size * 0.3, size * 0.7, size * 0.5, -0.4, 0, Math.PI * 2);
+    ctx.ellipse(size * 0.8, -size * 0.3, size * 0.7, size * 0.5, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, size * 0.4, size * 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = '#E040FB';
+    ctx.fill();
+  }
+
+  drawCherryBlossom(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 5; i++) {
+      ctx.save();
+      ctx.rotate((i * Math.PI * 2) / 5);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-size * 0.5, -size * 1.1);
+      ctx.lineTo(0, -size * 0.8);
+      ctx.lineTo(size * 0.5, -size * 1.1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  drawBluebell(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(0, -size * 0.3, size * 0.65, Math.PI, 0, false);
+    ctx.lineTo(size * 0.4, size * 0.3);
+    ctx.lineTo(0, size * 0.05);
+    ctx.lineTo(-size * 0.4, size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  drawWildflower(ctx, size, color) {
+    ctx.fillStyle = color;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc((i - 1.5) * 6, -i * 5, size * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+/**
+ * Scene Manager Module
+ * Controls application flow, viewport sizing checks, and high-performance scene rendering
+ */
+class SceneManager {
+  constructor() {
+    this.scenes = ['scene-loading', 'scene-welcome', 'scene-card', 'scene-garden', 'scene-gift', 'scene-cake', 'scene-celebration'];
+    this.currentSceneId = 'scene-loading';
+    this.init();
+  }
+
+  init() {
+    this.validateViewports();
+    window.addEventListener('resize', () => this.validateViewports());
   }
 
   /**
-   * 8. Floating Petals Generator
+   * Transitions smoothly from one screen to another
+   * @param {string} targetSceneId ID string of target scene element
    */
-  function animatePetals() {
-    const container = document.getElementById('petals-container');
-    
-    function spawnPetal() {
-      if (container.childElementCount > 15) return;
-
-      const petal = document.createElement('div');
-      petal.className = 'petal-element';
-      
-      const size = Math.random() * 8 + 6;
-      petal.style.width = `${size}px`;
-      petal.style.height = `${size * 0.8}px`;
-      
-      const startX = Math.random() * window.innerWidth;
-      const startY = -20;
-      
-      petal.style.left = `${startX}px`;
-      petal.style.top = `${startY}px`;
-      
-      container.appendChild(petal);
-
-      let posX = startX;
-      let posY = startY;
-      let angle = Math.random() * 360;
-      let angleSpeed = (Math.random() - 0.5) * 1.5;
-      
-      const fallSpeed = Math.random() * 0.8 + 0.6;
-      const driftAmplitude = Math.random() * 1.5 + 0.5;
-      let driftTime = Math.random() * 100;
-
-      function driftStep() {
-        if (!petal.parentNode) return;
-
-        driftTime += 0.01;
-        posY += fallSpeed;
-        posX += (Math.sin(driftTime) * driftAmplitude) + (windState.strength * 0.5);
-        angle += angleSpeed;
-
-        petal.style.transform = `translate3d(${(posX - startX).toFixed(1)}px, ${(posY - startY).toFixed(1)}px, 0) rotate(${angle.toFixed(1)}deg)`;
-
-        if (posY > window.innerHeight + 20 || posX < -20 || posX > window.innerWidth + 20) {
-          petal.remove();
-        } else {
-          requestAnimationFrame(driftStep);
-        }
-      }
-
-      requestAnimationFrame(driftStep);
-    }
-
-    setInterval(spawnPetal, 1800);
-  }
-
-  /**
-   * 9. Sparkles Generator System
-   */
-  function createSparkles(startX, startY) {
-    const container = document.getElementById('interactive-anchor');
-    const sparkleCount = 18;
-
-    for (let i = 0; i < sparkleCount; i++) {
-      const sparkle = document.createElement('div');
-      sparkle.className = 'sparkle';
-      
-      const size = Math.random() * 5 + 3;
-      sparkle.style.width = `${size}px`;
-      sparkle.style.height = `${size}px`;
-      sparkle.style.left = `${startX}px`;
-      sparkle.style.top = `${startY}px`;
-
-      const angle = Math.random() * Math.PI * 2;
-      const distance = Math.random() * 90 + 30;
-      const destX = Math.cos(angle) * distance;
-      const destY = Math.sin(angle) * distance - 20;
-
-      sparkle.style.setProperty('--dest-x', `${destX}px`);
-      sparkle.style.setProperty('--dest-y', `${destY}px`);
-
-      const duration = Math.random() * 0.6 + 0.8;
-      const delay = Math.random() * 0.15;
-      sparkle.style.animation = `sparkleOut ${duration}s cubic-bezier(0.25, 1, 0.5, 1) forwards ${delay}s`;
-
-      container.appendChild(sparkle);
-
-      setTimeout(() => {
-        sparkle.remove();
-      }, (duration + delay) * 1000);
-    }
-  }
-
-  /**
-   * 10. Interactive Envelope & Letter Orchestration (V2 & V3 Hooks)
-   */
-  function initEnvelopeLetter() {
-    const envelopeWrapper = document.getElementById('envelope-wrapper');
-    const sceneDimmer = document.getElementById('scene-dimmer');
-    const letterOverlay = document.getElementById('letter-overlay');
-    const letterParagraphs = document.querySelectorAll('.letter-paragraph');
-    const btnContinue = document.getElementById('btn-continue');
-    
-    let alreadyOpened = false;
-
-    function handleOpenEnvelope() {
-      if (alreadyOpened) return;
-      alreadyOpened = true;
-
-      dismissActiveMessage();
-
-      const rect = envelopeWrapper.getBoundingClientRect();
-      const originX = rect.left + rect.width / 2;
-      const originY = rect.top + rect.height / 2;
-
-      envelopeWrapper.classList.add('active-opening');
-      createSparkles(originX, originY);
-
-      // Lock interactive entities
-      const interactiveObjects = document.querySelectorAll('.interactive-object');
-      interactiveObjects.forEach(obj => obj.style.pointerEvents = 'none');
-
-      setTimeout(() => {
-        sceneDimmer.classList.add('dimmed');
-        letterOverlay.classList.add('visible');
-        letterOverlay.setAttribute('aria-hidden', 'false');
-      }, 1100);
-
-      setTimeout(() => {
-        revealParagraphs(0);
-      }, 2300);
-    }
-
-    function revealParagraphs(index) {
-      if (index >= letterParagraphs.length) {
-        setTimeout(() => {
-          btnContinue.classList.add('visible-btn');
-          btnContinue.removeAttribute('disabled');
-        }, 800);
-        return;
-      }
-
-      letterParagraphs[index].classList.add('reveal-p');
-      const delay = letterParagraphs[index].classList.contains('signature') ? 900 : 1800;
-      
-      setTimeout(() => {
-        revealParagraphs(index + 1);
-      }, delay);
-    }
-
-    envelopeWrapper.addEventListener('click', handleOpenEnvelope);
-    envelopeWrapper.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleOpenEnvelope();
-      }
-    });
-
-    btnContinue.addEventListener('click', () => {
-      letterOverlay.classList.remove('visible');
-      letterOverlay.setAttribute('aria-hidden', 'true');
-      
-      const meadowContainer = document.getElementById('meadow-container');
-      meadowContainer.style.transform = 'translateY(15vh)';
-
-      sceneDimmer.classList.remove('dimmed');
-      sceneDimmer.classList.add('dimmed-gallery');
-
-      setTimeout(() => {
-        initMemoryGallery();
-      }, 500);
-    });
-  }
-
-  /**
-   * 11. V3 Single-Screen Memory Gallery Sequential Reveal Setup
-   */
-  function initMemoryGallery() {
-    const galleryContainer = document.getElementById('gallery-container');
-    const collageItems = document.querySelectorAll('.collage-item');
-    const btnToTree = document.getElementById('btn-to-tree');
-    
-    galleryContainer.classList.add('visible');
-    galleryContainer.setAttribute('aria-hidden', 'false');
-
-    collageItems.forEach(item => {
-      const rot = item.getAttribute('data-rotation') || '0';
-      item.style.setProperty('--rotation-offset', `${rot}deg`);
-    });
-
-    collageItems.forEach((item, index) => {
-      setTimeout(() => {
-        item.classList.add('revealed-node');
-      }, 250 * index);
-    });
-
-    // Fade-in tree transition control option once collage finishes
-    setTimeout(() => {
-      btnToTree.classList.add('visible-btn');
-    }, 250 * collageItems.length + 500);
-
-    // Bind transition logic leading into the V5 Wish Tree segment
-    btnToTree.addEventListener('click', () => {
-      galleryContainer.classList.remove('visible');
-      galleryContainer.setAttribute('aria-hidden', 'true');
-
-      // Shift dimmer overlay dynamically
-      const dimmer = document.getElementById('scene-dimmer');
-      dimmer.classList.remove('dimmed-gallery');
-      dimmer.classList.add('dimmed');
-
-      setTimeout(() => {
-        initWishTreeSequence();
-      }, 500);
-    });
-  }
-
-  /**
-   * 12. V4 Interactive Objects Orchestrator
-   */
-  let currentActiveMessageTimeout = null;
-
-  function initInteractiveObjects() {
-    const objects = [
-      { id: 'obj-lantern', message: "Wishing you a year full of light and happiness." },
-      { id: 'obj-cat', message: "You deserve all the cozy comfort in the world today." },
-      { id: 'obj-teddy', message: "Sending you the warmest, coziest teddy bear hug!" },
-      { id: 'obj-gift', message: "A little surprise packed with love just for you!" },
-      { id: 'obj-flower', message: "Keep blooming beautifully, just as you are." },
-      { id: 'interactive-moon', message: "May your path always be guided by gentle, warm light." }
-    ];
-
-    objects.forEach(obj => {
-      const element = document.getElementById(obj.id);
-      if (!element) return;
-
-      element.addEventListener('click', (e) => {
-        e.stopPropagation();
-        triggerObjectAnimation(obj.id, element);
-        revealSpeechBubble(element, obj.message);
-      });
-
-      element.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          e.stopPropagation();
-          triggerObjectAnimation(obj.id, element);
-          revealSpeechBubble(element, obj.message);
-        }
-      });
-    });
-
-    document.addEventListener('click', () => {
-      dismissActiveMessage();
-    });
-  }
-
-  function triggerObjectAnimation(id, element) {
-    if (id === 'obj-gift') {
-      if (!element.classList.contains('gift-open')) {
-        element.classList.add('gift-open');
-        triggerConfettiBurst(element);
-        
-        setTimeout(() => {
-          element.classList.remove('gift-open');
-        }, 3000);
-      }
-    } else if (id === 'obj-teddy') {
-      const paw = document.getElementById('teddy-paw-left');
-      if (paw && !paw.classList.contains('wave-anim')) {
-        paw.classList.add('wave-anim');
-        setTimeout(() => paw.classList.remove('wave-anim'), 2400);
-      }
-    } else if (id === 'interactive-moon') {
-      const wrapper = document.getElementById('interactive-anchor');
-      const ripple = document.createElement('div');
-      ripple.className = 'moon-ripple';
-      wrapper.appendChild(ripple);
-      
-      setTimeout(() => ripple.remove(), 2500);
-    } else if (id === 'obj-cat') {
-      element.style.transform = 'scale(1.15) translateY(-3px)';
-      setTimeout(() => element.style.transform = '', 600);
-    } else if (id === 'obj-flower') {
-      triggerPetalBurst(element);
-    }
-  }
-
-  function triggerConfettiBurst(element) {
-    const anchor = document.getElementById('interactive-anchor');
-    const rect = element.getBoundingClientRect();
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top;
-
-    const colors = ['#f2d5dc', '#dfdaf1', '#d2e4f1', '#edd18a', '#b2c29c'];
-
-    for (let i = 0; i < 22; i++) {
-      const p = document.createElement('div');
-      p.className = 'confetti-particle';
-      p.style.left = `${startX}px`;
-      p.style.top = `${startY}px`;
-      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-
-      const angle = Math.random() * Math.PI - Math.PI / 1.1;
-      const velocity = Math.random() * 110 + 60;
-      const destX = Math.cos(angle) * velocity;
-      const destY = Math.sin(angle) * velocity;
-      const rot = Math.random() * 360;
-
-      p.style.setProperty('--cx', `${destX}px`);
-      p.style.setProperty('--cy', `${destY}px`);
-      p.style.setProperty('--rot', `${rot}deg`);
-
-      p.style.animation = `confettiExplode 1.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`;
-      anchor.appendChild(p);
-
-      setTimeout(() => p.remove(), 1800);
-    }
-  }
-
-  function triggerPetalBurst(element) {
-    const anchor = document.getElementById('interactive-anchor');
-    const rect = element.getBoundingClientRect();
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top;
-
-    for (let i = 0; i < 6; i++) {
-      const p = document.createElement('div');
-      p.className = 'petal-element';
-      p.style.left = `${startX}px`;
-      p.style.top = `${startY}px`;
-      p.style.width = '8px';
-      p.style.height = '12px';
-
-      const angle = (Math.random() - 0.5) * 2;
-      const velocity = Math.random() * 50 + 20;
-      
-      let x = startX;
-      let y = startY;
-      let driftTime = 0;
-
-      function step() {
-        y += 1.5;
-        x += Math.sin(driftTime) * 1.5 + angle * 0.5;
-        driftTime += 0.05;
-
-        p.style.transform = `translate3d(${(x - startX).toFixed(1)}px, ${(y - startY).toFixed(1)}px, 0) rotate(${(driftTime * 40).toFixed(0)}deg)`;
-        
-        if (y > window.innerHeight) {
-          p.remove();
-        } else {
-          requestAnimationFrame(step);
-        }
-      }
-      
-      anchor.appendChild(p);
-      requestAnimationFrame(step);
-    }
-  }
-
-  function revealSpeechBubble(element, message) {
-    dismissActiveMessage();
-
-    const card = document.getElementById('object-message-card');
-    const textSpan = document.getElementById('object-message-text');
-
-    textSpan.textContent = message;
-
-    const rect = element.getBoundingClientRect();
-    const cardWidth = 220;
-
-    const x = rect.left + rect.width / 2 - cardWidth / 2;
-    const y = rect.top - 70;
-
-    card.style.left = `${Math.max(10, Math.min(window.innerWidth - cardWidth - 10, x))}px`;
-    card.style.top = `${y}px`;
-
-    card.classList.add('visible');
-    card.setAttribute('aria-hidden', 'false');
-
-    currentActiveMessageTimeout = setTimeout(() => {
-      dismissActiveMessage();
-    }, 4500);
-  }
-
-  function dismissActiveMessage() {
-    if (currentActiveMessageTimeout) {
-      clearTimeout(currentActiveMessageTimeout);
-      currentActiveMessageTimeout = null;
-    }
-    const card = document.getElementById('object-message-card');
-    card.classList.remove('visible');
-    card.setAttribute('aria-hidden', 'true');
-  }
-
-  /**
-   * 13. V5 Magical Wish Tree Segment
-   */
-  let treeStage = 0;
-
-  function initWishTreeSequence() {
-    const overlay = document.getElementById('wish-tree-overlay');
-    overlay.classList.add('visible');
-    overlay.setAttribute('aria-hidden', 'false');
-
-    const tree = document.getElementById('wish-tree');
-    
-    // First stage seeding elements
-    growTreeLeavesAndLights(0);
-
-    tree.addEventListener('click', handleTreeGrowth);
-    tree.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleTreeGrowth();
-      }
-    });
-  }
-
-  function handleTreeGrowth() {
-    const tree = document.getElementById('wish-tree');
-    const text = document.getElementById('tree-progress-text');
-    
-    if (treeStage >= 3) {
-      // Tree reaches peak cosmic form; trigger sparks & transition to cake celebration
-      triggerFinalTreeCelebration(tree);
+  transitionTo(targetSceneId) {
+    const activeScene = document.getElementById(this.currentSceneId);
+    const targetScene = document.getElementById(targetSceneId);
+
+    if (!targetScene) {
+      console.warn(`Target scene "${targetSceneId}" does not exist in the DOM.`);
       return;
     }
 
-    treeStage++;
-    
-    // Clear and scale up leaf elements relative to stage counts
-    tree.className = `wish-tree stage-${treeStage}`;
-    growTreeLeavesAndLights(treeStage);
+    activeScene.classList.add('hidden');
+    activeScene.classList.remove('active');
 
-    // Update text helper based on active stage bounds
-    if (treeStage === 1) {
-      text.textContent = "The wish sprouts! Tap again to nourish...";
-    } else if (treeStage === 2) {
-      text.textContent = "Branches are expanding! Keep going...";
-    } else if (treeStage === 3) {
-      text.textContent = "Almost fully grown! One final tap to harvest the magic...";
-      document.getElementById('tree-click-prompt').textContent = "Trigger Magic ✨";
-    }
-
-    // Spark feedback on grow clicks
-    const rect = tree.getBoundingClientRect();
-    createSparkles(rect.left + rect.width / 2, rect.top + rect.height / 3);
-  }
-
-  function growTreeLeavesAndLights(stage) {
-    const leavesContainer = document.getElementById('tree-leaves-container');
-    const lightsContainer = document.getElementById('tree-lights-container');
-    const butterflyContainer = document.getElementById('tree-butterflies-container');
-
-    // Pre-calculate leaf locations inside coordinate brackets
-    const leafSpreads = [
-      // Stage 0 sprout leaves
-      [{ top: '25%', left: '46%', size: 14 }, { top: '30%', left: '50%', size: 12 }],
-      // Stage 1 leaf branches
-      [{ top: '15%', left: '35%', size: 18 }, { top: '10%', left: '48%', size: 16 }, { top: '22%', left: '60%', size: 18 }, { top: '35%', left: '25%', size: 14 }],
-      // Stage 2 blooming pink leaves
-      [{ top: '5%', left: '40%', size: 22, color: 'glowing' }, { top: '12%', left: '22%', size: 20 }, { top: '18%', left: '68%', size: 22, color: 'glowing' }, { top: '28%', left: '72%', size: 16 }],
-      // Stage 3 cosmic leaves
-      [{ top: '0%', left: '44%', size: 24, color: 'glowing' }, { top: '8%', left: '62%', size: 24 }, { top: '22%', left: '15%', size: 20, color: 'glowing' }]
-    ];
-
-    // Build leaves sequentially matching active stage indices
-    leafSpreads[stage].forEach((leafData, idx) => {
-      const leaf = document.createElement('div');
-      leaf.className = 'tree-leaf';
-      if (leafData.color === 'glowing') leaf.classList.add('glowing-leaf');
-      
-      leaf.style.width = `${leafData.size}px`;
-      leaf.style.height = `${leafData.size * 1.5}px`;
-      leaf.style.top = leafData.top;
-      leaf.style.left = leafData.left;
-      
-      leavesContainer.appendChild(leaf);
-      
-      // Delay slightly for natural unfold
-      setTimeout(() => leaf.classList.add('active-leaf'), 50 * idx);
-    });
-
-    // Populate fairy lights
-    const lightCoords = [
-      [{ top: '35%', left: '40%' }],
-      [{ top: '25%', left: '28%' }, { top: '28%', left: '55%' }],
-      [{ top: '12%', left: '46%' }, { top: '18%', left: '64%' }],
-      [{ top: '4%', left: '38%' }, { top: '10%', left: '55%' }]
-    ];
-
-    lightCoords[stage].forEach((coord, idx) => {
-      const light = document.createElement('div');
-      light.className = 'tree-light-bulb';
-      light.style.top = coord.top;
-      light.style.left = coord.left;
-      
-      lightsContainer.appendChild(light);
-      setTimeout(() => light.classList.add('active-light'), 100 * idx);
-    });
-
-    // Add butterfly on stage 2
-    if (stage === 2) {
-      const bf = document.createElement('div');
-      bf.className = 'tree-butterfly';
-      bf.style.top = '20%';
-      bf.style.left = '30%';
-      
-      const wingL = document.createElement('div');
-      wingL.className = 'bf-wing left';
-      const wingR = document.createElement('div');
-      wingR.className = 'bf-wing right';
-      
-      bf.appendChild(wingL);
-      bf.appendChild(wingR);
-      butterflyContainer.appendChild(bf);
-      
-      setTimeout(() => bf.classList.add('active-butterfly'), 500);
-    }
-  }
-
-  function triggerFinalTreeCelebration(tree) {
-    const overlay = document.getElementById('wish-tree-overlay');
-    const text = document.getElementById('tree-progress-text');
-    
-    // Dazzle flash sparkles
-    const rect = tree.getBoundingClientRect();
-    const originX = rect.left + rect.width / 2;
-    const originY = rect.top + rect.height / 3;
-    
-    createSparkles(originX, originY);
-    setTimeout(() => createSparkles(originX - 40, originY + 40), 150);
-    setTimeout(() => createSparkles(originX + 40, originY + 40), 300);
-
-    text.textContent = "Your wish is sowed in the cosmos...";
-    document.getElementById('tree-click-prompt').style.opacity = '0';
-
-    // Begin Transition leading directly into V5 Cake Celebration
     setTimeout(() => {
-      overlay.style.opacity = '0';
-      overlay.style.transform = 'translate3d(0, -30px, 0)';
-      
-      // Dim stars/clouds slightly to highlight upcoming focus
-      document.getElementById('clouds-container').style.opacity = '0.3';
-      
-      // Brighten Moon intensely
-      const moon = document.getElementById('interactive-moon');
-      moon.style.transform = 'scale(1.15)';
+      activeScene.style.display = 'none';
+      targetScene.style.display = 'flex';
       
       setTimeout(() => {
-        overlay.style.display = 'none';
-        initCakeCelebration();
-      }, 1500);
-    }, 1800);
+        targetScene.classList.remove('hidden');
+        targetScene.classList.add('active');
+        this.currentSceneId = targetSceneId;
+        
+        // Dispatch localized hook for newly focused scenes
+        this.onSceneFocus(targetSceneId);
+      }, 50); 
+    }, APP_CONFIG.transitionDelay);
   }
 
   /**
-   * 14. V5 Birthday Cake Celebration View Layer Logic
+   * Evaluates logic processes tied to newly navigated boundaries
+   * @param {string} sceneId Targeted Scene Identifier
    */
-  let litCandlesCount = 0;
-  let allCandlesAreLit = false;
-
-  function initCakeCelebration() {
-    const overlay = document.getElementById('cake-celebration-overlay');
-    overlay.classList.add('visible');
-    overlay.setAttribute('aria-hidden', 'false');
-
-    const candleRow = document.getElementById('cake-candles-row');
-    
-    // Dynamically generate Candle list relative to Config count bounds
-    for (let i = 0; i < config.candlesCount; i++) {
-      const candle = document.createElement('div');
-      candle.className = 'cake-candle-item';
-      candle.setAttribute('role', 'button');
-      candle.setAttribute('tabindex', '0');
-      candle.setAttribute('aria-label', `Candle ${i + 1}. Unlit.`);
-
-      const stick = document.createElement('div');
-      stick.className = 'candle-stick';
-      
-      const wick = document.createElement('div');
-      wick.className = 'candle-wick';
-      stick.appendChild(wick);
-      
-      const flame = document.createElement('div');
-      flame.className = 'candle-flame';
-      
-      candle.appendChild(stick);
-      candle.appendChild(flame);
-      candleRow.appendChild(candle);
-
-      // Tap event binds to spark and light candle sticks
-      const handleLight = (e) => {
-        e.stopPropagation();
-        if (candle.classList.contains('lit')) return;
-
-        candle.classList.add('lit');
-        candle.setAttribute('aria-label', `Candle ${i + 1}. Lit.`);
-        
-        // Spark effect centered directly at candle wick coordinate bounds
-        const rect = wick.getBoundingClientRect();
-        createSparkles(rect.left + rect.width / 2, rect.top);
-        
-        litCandlesCount++;
-        checkCelebrationLitState();
-      };
-
-      candle.addEventListener('click', handleLight);
-      candle.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleLight(e);
-        }
-      });
-    }
-  }
-
-  function checkCelebrationLitState() {
-    if (litCandlesCount === config.candlesCount) {
-      allCandlesAreLit = true;
-      const headerText = document.getElementById('celebration-prompt-text');
-      headerText.textContent = "Make a wish ✨";
-      headerText.classList.add('make-wish-state');
-
-      // Unlocks global click anywhere to blow candles out
-      setTimeout(() => {
-        document.addEventListener('click', blowOutCandlesCelebration);
-      }, 500);
-    }
-  }
-
-  function blowOutCandlesCelebration(e) {
-    document.removeEventListener('click', blowOutCandlesCelebration);
-    
-    const headerText = document.getElementById('celebration-prompt-text');
-    headerText.textContent = "May all your wishes come true... ♥";
-    headerText.classList.remove('make-wish-state');
-
-    // Blow candle wicks out
-    const candles = document.querySelectorAll('.cake-candle-item');
-    candles.forEach(candle => {
-      candle.classList.remove('lit');
-      candle.style.pointerEvents = 'none';
-
-      // Emit smoke puffs
-      const wick = candle.querySelector('.candle-wick');
-      const rect = wick.getBoundingClientRect();
-      createSmokePuff(rect.left + rect.width / 2, rect.top);
-    });
-
-    // Fire fireworks cascades and celebration sparkles
-    setTimeout(() => {
-      triggerEndGameCelebration();
-    }, 400);
-  }
-
-  function createSmokePuff(x, y) {
-    const anchor = document.getElementById('interactive-anchor');
-    const p = document.createElement('div');
-    p.className = 'smoke-particle';
-    p.style.left = `${x}px`;
-    p.style.top = `${y}px`;
-
-    // Randomize initial puff scale
-    const size = Math.random() * 8 + 12;
-    p.style.width = `${size}px`;
-    p.style.height = `${size}px`;
-
-    anchor.appendChild(p);
-    setTimeout(() => p.remove(), 1200);
-  }
-
-  /**
-   * V5 Endgame Celebration Fireworks Engine
-   */
-  function triggerEndGameCelebration() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    // Launch multi-burst fires
-    launchFirework(width * 0.25, height * 0.35);
-    setTimeout(() => launchFirework(width * 0.75, height * 0.3), 300);
-    setTimeout(() => launchFirework(width * 0.5, height * 0.25), 600);
-    setTimeout(() => launchFirework(width * 0.35, height * 0.45), 1000);
-    setTimeout(() => launchFirework(width * 0.65, height * 0.4), 1300);
-
-    // Continuous soft confetti & petals shower loops
-    for (let i = 0; i < 5; i++) {
-      setTimeout(() => {
-        const giftEl = document.getElementById('obj-gift');
-        if (giftEl) triggerConfettiBurst(giftEl);
-      }, i * 1500);
-    }
-  }
-
-  function launchFirework(x, y) {
-    const container = document.getElementById('interactive-anchor');
-    
-    // Concentric expanding ring
-    const ring = document.createElement('div');
-    ring.className = 'firework-ring';
-    ring.style.left = `${x}px`;
-    ring.style.top = `${y}px`;
-    container.appendChild(ring);
-    setTimeout(() => ring.remove(), 1600);
-
-    // Dynamic projectile sparkle components
-    const sparkleCount = 14;
-    for (let i = 0; i < sparkleCount; i++) {
-      const spark = document.createElement('div');
-      spark.className = 'firework-sparkle';
-      spark.style.left = `${x}px`;
-      spark.style.top = `${y}px`;
-      
-      const size = Math.random() * 4 + 3;
-      spark.style.width = `${size}px`;
-      spark.style.height = `${size}px`;
-
-      const angle = (i / sparkleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
-      const distance = Math.random() * 90 + 50;
-      const destX = Math.cos(angle) * distance;
-      const destY = Math.sin(angle) * distance;
-
-      spark.style.setProperty('--dest-x', `${destX}px`);
-      spark.style.setProperty('--dest-y', `${destY}px`);
-      
-      spark.style.animation = 'fireworkSparkleAnim 1.3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards';
-      container.appendChild(spark);
-      
-      setTimeout(() => spark.remove(), 1300);
-    }
-  }
-
-  /**
-   * 15. Parallax Camera Navigation System
-   */
-  function initParallax() {
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    if (isTouch) return;
-
-    const layers = document.querySelectorAll('.parallax-layer');
-    const envelope = document.getElementById('envelope-wrapper');
-    
-    let targetMouseX = 0;
-    let targetMouseY = 0;
-    let currentMouseX = 0;
-    let currentMouseY = 0;
-
-    window.addEventListener('mousemove', (e) => {
-      targetMouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
-      targetMouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
-    });
-
-    function runLerpParallax() {
-      currentMouseX += (targetMouseX - currentMouseX) * 0.05;
-      currentMouseY += (targetMouseY - currentMouseY) * 0.05;
-
-      layers.forEach(layer => {
-        const depth = parseFloat(layer.getAttribute('data-depth')) || 0;
-        const moveX = currentMouseX * depth * -50;
-        const moveY = currentMouseY * depth * -30;
-        
-        layer.style.transform = `translate3d(${moveX.toFixed(2)}px, ${moveY.toFixed(2)}px, 0)`;
-      });
-
-      if (envelope && !envelope.classList.contains('active-opening')) {
-        const moveX = currentMouseX * 0.05 * -35;
-        const moveY = currentMouseY * 0.05 * -20;
-        envelope.style.transform = `translate3d(calc(-50% + ${moveX.toFixed(2)}px), calc(-50% + ${moveY.toFixed(2)}px), 0)`;
+  onSceneFocus(sceneId) {
+    if (sceneId === 'scene-card') {
+      if (window.birthdayCardController) {
+        window.birthdayCardController.reset();
       }
-
-      requestAnimationFrame(runLerpParallax);
     }
     
-    requestAnimationFrame(runLerpParallax);
+    // Activating Grand Finale Galaxy Spell
+    if (sceneId === 'scene-celebration') {
+      document.body.classList.add('night-mode');
+      if (window.environmentalEngine) {
+        window.environmentalEngine.setNightMode(true);
+        window.environmentalEngine.rearrangeStarsToText();
+      }
+      setTimeout(() => {
+        const board = document.getElementById('final-wish-card');
+        if (board) {
+          board.classList.remove('hidden');
+          board.style.opacity = 0;
+          board.style.transition = 'opacity 2s ease';
+          setTimeout(() => board.style.opacity = 1, 100);
+        }
+      }, 1500);
+    }
   }
 
   /**
-   * Complete Scene Orchestration Core
+   * Asserts window bounds structure to guarantee layout preservation and avoid vertical clipping overflow
    */
-  function initScene() {
-    initLoading();
-    startWind();
-    createStars();
-    createClouds();
-    createGrass();
-    createFlowers();
-    createFireflies();
-    animatePetals();
-    initParallax();
-    initEnvelopeLetter();
-    initInteractiveObjects();
+  validateViewports() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+}
+
+/**
+ * Asset Loading Simulation Module
+ */
+class Loader {
+  constructor(duration, onCompleteCallback) {
+    this.duration = duration;
+    this.onCompleteCallback = onCompleteCallback;
+    this.progressBar = document.getElementById('loader-progress');
+    this.percentageText = document.getElementById('loader-percentage');
+    this.statusText = document.getElementById('loader-status');
+    this.statuses = [
+      'Loading interface assets...',
+      'Optimizing atmospheric cloud rendering...',
+      'Generating ambient light profiles...',
+      'Structuring sensory flow paths...',
+      'Ready'
+    ];
+    this.start();
   }
 
-  initScene();
+  start() {
+    const startTime = performance.now();
+    
+    const updateLoader = (timestamp) => {
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / this.duration, 1);
+      const percentage = Math.floor(progress * 100);
+
+      this.progressBar.style.width = `${percentage}%`;
+      this.percentageText.textContent = `${percentage}%`;
+
+      const statusIdx = Math.min(
+        Math.floor(progress * this.statuses.length), 
+        this.statuses.length - 1
+      );
+      this.statusText.textContent = this.statuses[statusIdx];
+
+      if (progress < 1) {
+        requestAnimationFrame(updateLoader);
+      } else {
+        setTimeout(() => {
+          if (typeof this.onCompleteCallback === 'function') {
+            this.onCompleteCallback();
+          }
+        }, 400); 
+      }
+    };
+
+    requestAnimationFrame(updateLoader);
+  }
+}
+
+/**
+ * Interactive Birthday Card Scene Controller
+ * FAST AUTOMATED TIMELINE SEQUENCE
+ */
+class InteractiveCardController {
+  constructor(sceneManager) {
+    this.sceneManager = sceneManager;
+    
+    this.envelope = document.getElementById('envelope-wrapper');
+    this.cardBook = document.getElementById('card-book');
+    this.cardCover = document.getElementById('card-cover-container');
+    this.hintText = document.getElementById('card-interaction-hint');
+    this.nextButton = document.getElementById('btn-next-scene');
+    this.innerContent = document.querySelector('.inside-right-content');
+
+    this.isInteracting = false;
+    this.isEnvelopeOpen = false;
+    this.isCardEmerged = false;
+    this.isCardOpened = false;
+
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.envelope.addEventListener('click', (e) => {
+      if (!this.isInteracting) {
+        this.startCinematicSequence();
+        e.stopPropagation();
+      }
+    });
+  }
+
+  startCinematicSequence() {
+    this.isInteracting = true;
+    this.envelope.classList.remove('floating-envelope'); 
+    
+    this.envelope.classList.add('shake-react');
+    this.hintText.textContent = 'Opening...';
+
+    setTimeout(() => {
+      this.envelope.classList.remove('shake-react');
+      
+      this.isEnvelopeOpen = true;
+      this.envelope.classList.add('open');
+      
+      setTimeout(() => {
+        this.isCardEmerged = true;
+        this.envelope.classList.add('emerge-full');
+        this.envelope.classList.add('dimmed');
+        this.hintText.textContent = '';
+
+        setTimeout(() => {
+          this.isCardOpened = true;
+          this.cardBook.classList.add('opened');
+          
+          setTimeout(() => {
+            this.innerContent.classList.add('visible');
+
+            setTimeout(() => {
+              this.nextButton.classList.add('visible');
+              setTimeout(() => {
+                this.nextButton.classList.add('floating-btn');
+              }, 400);
+            }, 400);
+          }, 450);
+        }, 650);
+      }, 350);
+    }, 150);
+  }
+
+  reset() {
+    this.isInteracting = false;
+    this.isEnvelopeOpen = false;
+    this.isCardEmerged = false;
+    this.isCardOpened = false;
+
+    this.envelope.classList.remove('open', 'card-emerged', 'emerge-half', 'emerge-full', 'dimmed', 'shake-react');
+    this.envelope.classList.add('floating-envelope');
+    this.cardBook.classList.remove('opened');
+    this.innerContent.classList.remove('visible');
+    this.hintText.textContent = 'Click the Envelope to open';
+    this.nextButton.classList.remove('visible', 'floating-btn');
+  }
+}
+
+/**
+ * Controller for Scene 5 (The Floating Gift Box)
+ */
+class InteractiveGiftController {
+  constructor(sceneManager) {
+    this.sceneManager = sceneManager;
+    this.giftBox = document.getElementById('gift-box');
+    this.letterCard = document.getElementById('gift-letter');
+    this.hintText = document.getElementById('gift-interaction-hint');
+    this.btnNext = document.getElementById('btn-gift-next');
+    
+    this.isOpened = false;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.giftBox.addEventListener('click', (e) => {
+      if (!this.isOpened) {
+        this.openGift();
+        e.stopPropagation();
+      }
+    });
+  }
+
+  openGift() {
+    this.isOpened = true;
+    this.giftBox.classList.add('opened');
+    this.hintText.textContent = '';
+
+    setTimeout(() => {
+      this.letterCard.classList.remove('hidden');
+      setTimeout(() => {
+        this.letterCard.classList.add('visible');
+      }, 50);
+    }, 800);
+  }
+
+  reset() {
+    this.isOpened = false;
+    this.giftBox.classList.remove('opened');
+    this.letterCard.classList.add('hidden');
+    this.letterCard.classList.remove('visible');
+    this.hintText.textContent = 'Tap the floating box to reveal your gift';
+  }
+}
+
+/**
+ * Controller for Scene 6 (The Interactive Cake)
+ */
+class InteractiveCakeController {
+  constructor(sceneManager) {
+    this.sceneManager = sceneManager;
+    this.cake = document.getElementById('interactive-cake');
+    this.flame = document.getElementById('candle-flame');
+    this.hintText = document.getElementById('cake-interaction-hint');
+    this.btnNext = document.getElementById('btn-cake-next');
+    
+    this.isBlown = false;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.cake.addEventListener('click', (e) => {
+      if (!this.isBlown) {
+        this.blowCandle();
+        e.stopPropagation();
+      }
+    });
+  }
+
+  blowCandle() {
+    this.isBlown = true;
+    this.flame.style.opacity = 0;
+    this.flame.style.transform = 'translateX(-50%) scale(0)';
+    this.hintText.textContent = '';
+
+    // Confetti effect burst
+    if (window.environmentalEngine) {
+      window.environmentalEngine.spawnConfettiExplosion();
+    }
+
+    setTimeout(() => {
+      this.btnNext.classList.add('visible');
+      this.btnNext.classList.add('floating-btn');
+    }, 800);
+  }
+
+  reset() {
+    this.isBlown = false;
+    this.flame.style.opacity = 1;
+    this.flame.style.transform = 'translateX(-50%) scale(1)';
+    this.hintText.textContent = 'Click the glowing candle to blow it out';
+    this.btnNext.classList.remove('visible', 'floating-btn');
+  }
+}
+
+// Utility Clamp Helper Function
+function clamp(min, val, max) {
+  return Math.max(min, Math.min(val, max));
+}
+
+// Global App Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Canvas background physics
+  const environment = new EnvironmentalEngine();
+  window.environmentalEngine = environment;
+
+  // Initialize primary Scene Architecture Manager
+  const app = new SceneManager();
+
+  // Day/Night Interaction Bindings
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const isNight = document.body.classList.toggle('night-mode');
+      environment.setNightMode(isNight);
+    });
+  }
+
+  // Instantiate localized view controllers
+  const cardController = new InteractiveCardController(app);
+  window.birthdayCardController = cardController; 
+
+  const giftController = new InteractiveGiftController(app);
+  window.birthdayGiftController = giftController;
+
+  const cakeController = new InteractiveCakeController(app);
+  window.birthdayCakeController = cakeController;
+
+  // Setup Standard Navigation triggers
+  const btnStart = document.getElementById('btn-start-celebration');
+  if (btnStart) {
+    btnStart.addEventListener('click', () => {
+      app.transitionTo('scene-card');
+    });
+  }
+
+  const btnNextScene = document.getElementById('btn-next-scene');
+  if (btnNextScene) {
+    btnNextScene.addEventListener('click', () => {
+      app.transitionTo('scene-garden');
+      // Trigger auto-fade on garden next button
+      setTimeout(() => {
+        const gBtn = document.getElementById('btn-garden-next');
+        if (gBtn) gBtn.classList.add('visible');
+      }, 1500);
+    });
+  }
+
+  const btnGardenNext = document.getElementById('btn-garden-next');
+  if (btnGardenNext) {
+    btnGardenNext.addEventListener('click', () => {
+      app.transitionTo('scene-gift');
+      giftController.reset();
+    });
+  }
+
+  const btnGiftNext = document.getElementById('btn-gift-next');
+  if (btnGiftNext) {
+    btnGiftNext.addEventListener('click', () => {
+      app.transitionTo('scene-cake');
+      cakeController.reset();
+    });
+  }
+
+  const btnCakeNext = document.getElementById('btn-cake-next');
+  if (btnCakeNext) {
+    btnCakeNext.addEventListener('click', () => {
+      app.transitionTo('scene-celebration');
+    });
+  }
+
+  // Kickstart system simulation loading
+  new Loader(APP_CONFIG.loadingSimulationTime, () => {
+    app.transitionTo('scene-welcome');
+  });
 });
