@@ -2,208 +2,15 @@
  * Interactive Magical Garden Environment
  * Version 6 (Surprise Gift & Grand Finale)
  * 
- * Safe-Initialization & Self-Healing Edition
+ * Mobile-Proof & Safe-Evaluation Edition
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-});
-
+// Global variable for canvas controller
 let atmEngineInstance = null; 
-
-// Helper sandbox runner to prevent silent JS exceptions from freezing the loader
-function safeInit(moduleName, initFunc) {
-    try {
-        initFunc();
-    } catch (error) {
-        console.warn(`[Safe-Init] Warning in module "${moduleName}":`, error.message);
-    }
-}
-
-function initApp() {
-    const scene = document.getElementById('scene');
-    const loader = document.getElementById('loader');
-
-    // 1. Emergency Loader Bypass: Guarantees screen transition even if structural DOM queries fail
-    setTimeout(() => {
-        if (loader) loader.classList.add('fade-out');
-        if (scene) scene.classList.remove('hidden-scene');
-    }, 3500);
-
-    // 2. Stars & Meadow Generation
-    safeInit('Stars & Meadow Canopy', () => {
-        const starsContainer = document.getElementById('stars-container');
-        const grassCanopy = document.getElementById('grass-canopy');
-        
-        if (starsContainer) generateCelestialSky(starsContainer, 120);
-        if (grassCanopy) generateMeadow(grassCanopy, calculateGrassDensity(), calculateFlowerCount());
-    });
-    
-    // 3. Atmosphere Canvas Simulation Engine
-    safeInit('Atmosphere Canvas Engine', () => {
-        const atmosphereCanvas = document.getElementById('atmosphere-canvas');
-        if (atmosphereCanvas) {
-            atmEngineInstance = new AtmosphereEngine(atmosphereCanvas);
-            atmEngineInstance.start();
-        }
-    });
-
-    // 4. Parallax System
-    safeInit('Mouse Parallax', () => {
-        if (window.matchMedia('(hover: hover)').matches) {
-            setupParallax();
-        }
-    });
-
-    // 5. Envelope & Reading Modal Transitions
-    safeInit('Envelope Engine', setupEnvelopeEngine);
-
-    // 6. Interactive Objects Layer
-    safeInit('Interactive Objects Engine', setupInteractiveObjects);
-
-    // 7. Timeline Reveal Intersection Observers
-    safeInit('Timeline Scroll Observers', setupTimelineScrollReveal);
-
-    // 8. V5 Wish Tree Engine
-    safeInit('Wish Tree Engine', setupWishTreeEngine);
-
-    // 9. V5 Cake Celebration Engine
-    safeInit('Cake Celebration Engine', setupCakeCelebrationEngine);
-
-    // 10. V6 Surprise Gift & Grand Finale Engine
-    safeInit('Surprise & Grand Finale Engine', setupSurpriseAndFinaleEngine);
-
-    // Resize listener
-    window.addEventListener('resize', () => {
-        if (atmEngineInstance) {
-            atmEngineInstance.resize();
-        }
-    });
-}
+const CONFIG_CANDLES = 3; 
 
 /* ==========================================================================
-   1. Helper Layout Calculators
-   ========================================================================== */
-function calculateGrassDensity() {
-    const width = window.innerWidth;
-    if (width < 600) return 90;
-    if (width < 1200) return 160;
-    return 270;
-}
-
-function calculateFlowerCount() {
-    const width = window.innerWidth;
-    if (width < 600) return 12;
-    if (width < 1200) return 22;
-    return 34;
-}
-
-/* ==========================================================================
-   2. Celestial & Starfield Generator
-   ========================================================================== */
-function generateCelestialSky(container, count) {
-    if (!container) return;
-    const fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        
-        const x = Math.random() * 100;
-        const y = Math.random() * 65; 
-        const size = (Math.random() * 1.5 + 0.5).toFixed(1);
-        const duration = (Math.random() * 4 + 3).toFixed(1);
-        const delay = (Math.random() * 5).toFixed(1);
-        const maxOpacity = (Math.random() * 0.6 + 0.3).toFixed(2);
-
-        star.style.left = `${x}%`;
-        star.style.top = `${y}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.setProperty('--twinkle-duration', `${duration}s`);
-        star.style.setProperty('--twinkle-delay', `${delay}s`);
-        star.style.setProperty('--star-max-opacity', maxOpacity);
-
-        fragment.appendChild(star);
-    }
-    container.appendChild(fragment);
-}
-
-/* ==========================================================================
-   3. Procedural Meadow Engine
-   ========================================================================== */
-function generateMeadow(container, grassDensity, flowerCount) {
-    if (!container) return;
-    const fragment = document.createDocumentFragment();
-
-    const grassColors = ['#1e2f1f', '#2d4230', '#3b553f', '#445f48', '#324634'];
-    const flowerColors = ['#f3b0c3', '#d6cbd3', '#eae5d9', '#f4d1ae', '#b5c7d3'];
-    const flowerTypes = ['bell', 'star', 'bud'];
-
-    // 1. Generate Grass
-    for (let i = 0; i < grassDensity; i++) {
-        const blade = document.createElement('div');
-        blade.className = 'grass-blade';
-
-        const positionX = (i / grassDensity) * 100 + (Math.random() * 2 - 1);
-        const height = Math.floor(Math.random() * 70) + 60; 
-        const width = (Math.random() * 2.5 + 2).toFixed(1);
-        const swayDuration = (Math.random() * 3 + 3.5).toFixed(1);
-        const swayDelay = (Math.random() * -5).toFixed(1);
-        const swayAngle = (Math.random() * 4 + 3).toFixed(1);
-        const color = grassColors[Math.floor(Math.random() * grassColors.length)];
-
-        blade.style.left = `${positionX}%`;
-        blade.style.height = `${height}px`;
-        blade.style.width = `${width}px`;
-        blade.style.zIndex = Math.floor(height);
-        blade.style.setProperty('--blade-color', color);
-        blade.style.setProperty('--sway-duration', `${swayDuration}s`);
-        blade.style.setProperty('--sway-delay', `${swayDelay}s`);
-        blade.style.setProperty('--sway-angle', `${swayAngle}deg`);
-
-        fragment.appendChild(blade);
-    }
-
-    // 2. Generate Wildflowers
-    for (let i = 0; i < flowerCount; i++) {
-        const flower = document.createElement('div');
-        const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
-        flower.className = `flower flower-type-${type}`;
-
-        const positionX = (Math.random() * 96) + 2;
-        const stemHeight = Math.floor(Math.random() * 60) + 70; 
-        const swayDuration = (Math.random() * 2.5 + 4).toFixed(1);
-        const swayDelay = (Math.random() * -5).toFixed(1);
-        const swayAngle = (Math.random() * 3 + 2).toFixed(1);
-        const flowerScale = (Math.random() * 0.4 + 0.8).toFixed(2);
-        const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-
-        flower.style.left = `${positionX}%`;
-        flower.style.zIndex = Math.floor(stemHeight + 10);
-        flower.style.setProperty('--stem-height', `${stemHeight}px`);
-        flower.style.setProperty('--sway-duration', `${swayDuration}s`);
-        flower.style.setProperty('--sway-delay', `${swayDelay}s`);
-        flower.style.setProperty('--sway-angle', `${swayAngle}deg`);
-        flower.style.setProperty('--flower-color', color);
-        flower.style.setProperty('--flower-scale', flowerScale);
-
-        const stem = document.createElement('div');
-        stem.className = 'flower-stem';
-        
-        const head = document.createElement('div');
-        head.className = 'flower-head';
-
-        flower.appendChild(stem);
-        flower.appendChild(head);
-        fragment.appendChild(flower);
-    }
-
-    container.appendChild(fragment);
-}
-
-/* ==========================================================================
-   4. Atmospheric Canvas Simulation (Confetti, Smoke, & Fireworks)
+   1. Atmospheric Canvas Simulation Engine (Evaluated first to prevent TDZ)
    ========================================================================== */
 class AtmosphereEngine {
     constructor(canvas) {
@@ -540,7 +347,191 @@ class AtmosphereEngine {
 }
 
 /* ==========================================================================
-   5. Interactive Envelope & Folding Letter Mechanics
+   2. Main safe Sandboxed Initialization Loader Block
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+});
+
+// Guard helper to isolate errors to their own modular functions
+function safeInit(moduleName, initFunc) {
+    try {
+        initFunc();
+    } catch (error) {
+        console.warn(`[Evaluation Warning] Error inside "${moduleName}":`, error.message);
+    }
+}
+
+function initApp() {
+    const scene = document.getElementById('scene');
+    const loader = document.getElementById('loader');
+
+    // High Priority: Execute the screen fading transition FIRST to prevent freezes
+    setTimeout(() => {
+        if (loader) loader.classList.add('fade-out');
+        if (scene) scene.classList.remove('hidden-scene');
+    }, 3500);
+
+    // Render starry sky
+    safeInit('Starfield Layer', () => {
+        const starsContainer = document.getElementById('stars-container');
+        if (starsContainer) generateCelestialSky(starsContainer, 120);
+    });
+
+    // Render meadows
+    safeInit('Meadow Layer', () => {
+        const grassCanopy = document.getElementById('grass-canopy');
+        if (grassCanopy) generateMeadow(grassCanopy, calculateGrassDensity(), calculateFlowerCount());
+    });
+    
+    // Start canvas animations
+    safeInit('Canvas Engine', () => {
+        const atmosphereCanvas = document.getElementById('atmosphere-canvas');
+        if (atmosphereCanvas) {
+            atmEngineInstance = new AtmosphereEngine(atmosphereCanvas);
+            atmEngineInstance.start();
+        }
+    });
+
+    // Parallax
+    safeInit('Mouse Parallax', () => {
+        if (window.matchMedia('(hover: hover)').matches) {
+            setupParallax();
+        }
+    });
+
+    // Interaction setups
+    safeInit('Envelope Engine', setupEnvelopeEngine);
+    safeInit('Interactive Objects Engine', setupInteractiveObjects);
+    safeInit('Timeline Scroll Observers', setupTimelineScrollReveal);
+    safeInit('Wish Tree Engine', setupWishTreeEngine);
+    safeInit('Cake Celebration Engine', setupCakeCelebrationEngine);
+    safeInit('Surprise & Grand Finale Engine', setupSurpriseAndFinaleEngine);
+
+    window.addEventListener('resize', () => {
+        if (atmEngineInstance) {
+            atmEngineInstance.resize();
+        }
+    });
+}
+
+/* ==========================================================================
+   3. Procedural Meadow Engine Helper Calculators
+   ========================================================================== */
+function calculateGrassDensity() {
+    const width = window.innerWidth;
+    if (width < 600) return 90;
+    if (width < 1200) return 160;
+    return 270;
+}
+
+function calculateFlowerCount() {
+    const width = window.innerWidth;
+    if (width < 600) return 12;
+    if (width < 1200) return 22;
+    return 34;
+}
+
+function generateCelestialSky(container, count) {
+    if (!container) return;
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        
+        const x = Math.random() * 100;
+        const y = Math.random() * 65; 
+        const size = (Math.random() * 1.5 + 0.5).toFixed(1);
+        const duration = (Math.random() * 4 + 3).toFixed(1);
+        const delay = (Math.random() * 5).toFixed(1);
+        const maxOpacity = (Math.random() * 0.6 + 0.3).toFixed(2);
+
+        star.style.left = `${x}%`;
+        star.style.top = `${y}%`;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.setProperty('--twinkle-duration', `${duration}s`);
+        star.style.setProperty('--twinkle-delay', `${delay}s`);
+        star.style.setProperty('--star-max-opacity', maxOpacity);
+
+        fragment.appendChild(star);
+    }
+    container.appendChild(fragment);
+}
+
+function generateMeadow(container, grassDensity, flowerCount) {
+    if (!container) return;
+    const fragment = document.createDocumentFragment();
+
+    const grassColors = ['#1e2f1f', '#2d4230', '#3b553f', '#445f48', '#324634'];
+    const flowerColors = ['#f3b0c3', '#d6cbd3', '#eae5d9', '#f4d1ae', '#b5c7d3'];
+    const flowerTypes = ['bell', 'star', 'bud'];
+
+    // Grass
+    for (let i = 0; i < grassDensity; i++) {
+        const blade = document.createElement('div');
+        blade.className = 'grass-blade';
+
+        const positionX = (i / grassDensity) * 100 + (Math.random() * 2 - 1);
+        const height = Math.floor(Math.random() * 70) + 60; 
+        const width = (Math.random() * 2.5 + 2).toFixed(1);
+        const swayDuration = (Math.random() * 3 + 3.5).toFixed(1);
+        const swayDelay = (Math.random() * -5).toFixed(1);
+        const swayAngle = (Math.random() * 4 + 3).toFixed(1);
+        const color = grassColors[Math.floor(Math.random() * grassColors.length)];
+
+        blade.style.left = `${positionX}%`;
+        blade.style.height = `${height}px`;
+        blade.style.width = `${width}px`;
+        blade.style.zIndex = Math.floor(height);
+        blade.style.setProperty('--blade-color', color);
+        blade.style.setProperty('--sway-duration', `${swayDuration}s`);
+        blade.style.setProperty('--sway-delay', `${swayDelay}s`);
+        blade.style.setProperty('--sway-angle', `${swayAngle}deg`);
+
+        fragment.appendChild(blade);
+    }
+
+    // Flowers
+    for (let i = 0; i < flowerCount; i++) {
+        const flower = document.createElement('div');
+        const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+        flower.className = `flower flower-type-${type}`;
+
+        const positionX = (Math.random() * 96) + 2;
+        const stemHeight = Math.floor(Math.random() * 60) + 70; 
+        const swayDuration = (Math.random() * 2.5 + 4).toFixed(1);
+        const swayDelay = (Math.random() * -5).toFixed(1);
+        const swayAngle = (Math.random() * 3 + 2).toFixed(1);
+        const flowerScale = (Math.random() * 0.4 + 0.8).toFixed(2);
+        const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+
+        flower.style.left = `${positionX}%`;
+        flower.style.zIndex = Math.floor(stemHeight + 10);
+        flower.style.setProperty('--stem-height', `${stemHeight}px`);
+        flower.style.setProperty('--sway-duration', `${swayDuration}s`);
+        flower.style.setProperty('--sway-delay', `${swayDelay}s`);
+        flower.style.setProperty('--sway-angle', `${swayAngle}deg`);
+        flower.style.setProperty('--flower-color', color);
+        flower.style.setProperty('--flower-scale', flowerScale);
+
+        const stem = document.createElement('div');
+        stem.className = 'flower-stem';
+        
+        const head = document.createElement('div');
+        head.className = 'flower-head';
+
+        flower.appendChild(stem);
+        flower.appendChild(head);
+        fragment.appendChild(flower);
+    }
+
+    container.appendChild(fragment);
+}
+
+/* ==========================================================================
+   4. Interaction Handlers & Sandbox Guards
    ========================================================================== */
 function setupEnvelopeEngine() {
     const envelope = document.getElementById('interactive-envelope');
@@ -615,26 +606,6 @@ function setupEnvelopeEngine() {
     });
 }
 
-function revealLetterParagraphs(paragraphs, button) {
-    let index = 0;
-    
-    const showNext = () => {
-        if (index < paragraphs.length) {
-            paragraphs[index].classList.add('visible');
-            index++;
-            setTimeout(showNext, 1800);
-        } else {
-            button.removeAttribute('disabled');
-            button.classList.add('is-unlocked');
-        }
-    };
-
-    setTimeout(showNext, 1200);
-}
-
-/* ==========================================================================
-   6. Interactive Objects Engine
-   ========================================================================== */
 function setupInteractiveObjects() {
     const centralBubble = document.getElementById('central-bubble');
     const bubbleCloseBtn = document.getElementById('bubble-close');
@@ -759,30 +730,17 @@ function setupInteractiveObjects() {
     });
 }
 
-function presentSpeechBubble(text) {
-    const bubble = document.getElementById('central-bubble');
-    const textEl = document.getElementById('bubble-text');
-    if (!bubble || !textEl) return;
-    bubble.classList.remove('is-active');
-    setTimeout(() => {
-        textEl.textContent = text;
-        bubble.classList.add('is-active');
-    }, 150);
-}
-
-function closeSpeechBubble() {
-    const bubble = document.getElementById('central-bubble');
-    if (bubble) bubble.classList.remove('is-active');
-}
-
-/* ==========================================================================
-   7. Scroll-Triggered Scrapbook Reveals
-   ========================================================================== */
 function setupTimelineScrollReveal() {
     const timelineItems = document.querySelectorAll('.reveal-on-scroll');
     const container = document.getElementById('timeline-container');
     if (!container) return;
     
+    // Support non-observer fallback for older web engines
+    if (!window.IntersectionObserver) {
+        timelineItems.forEach(item => item.classList.add('revealed'));
+        return;
+    }
+
     const observerOptions = {
         root: container, 
         rootMargin: '0px 0px -10% 0px', 
@@ -805,9 +763,6 @@ function setupTimelineScrollReveal() {
     });
 }
 
-/* ==========================================================================
-   8. Magical Wish Tree Engine
-   ========================================================================== */
 function setupWishTreeEngine() {
     const timelineContainer = document.getElementById('timeline-container');
     const nurtureBtn = document.getElementById('nurture-tree-btn');
@@ -877,50 +832,6 @@ function setupWishTreeEngine() {
     });
 }
 
-function triggerTreeStageAssets(stage, foliage, lights) {
-    if (!foliage || !lights) return;
-    if (stage === 1) {
-        for (let i = 0; i < 22; i++) {
-            const leaf = document.createElement('div');
-            leaf.className = 'foliage-leaf';
-            leaf.style.width = `${Math.random() * 25 + 15}px`;
-            leaf.style.height = `${Math.random() * 25 + 15}px`;
-            leaf.style.top = `${Math.random() * 80 + 10}%`;
-            leaf.style.left = `${Math.random() * 80 + 10}%`;
-            foliage.appendChild(leaf);
-            setTimeout(() => leaf.classList.add('stage-visible'), i * 30);
-        }
-    } else if (stage === 2) {
-        for (let i = 0; i < 15; i++) {
-            const light = document.createElement('div');
-            light.className = 'tree-fairy-light';
-            light.style.top = `${Math.random() * 75 + 15}%`;
-            light.style.left = `${Math.random() * 75 + 15}%`;
-            light.style.animationDelay = `${Math.random() * 3}s`;
-            lights.appendChild(light);
-            setTimeout(() => light.classList.add('stage-visible'), i * 40);
-        }
-    } else if (stage === 3) {
-        for (let i = 0; i < 18; i++) {
-            const bloom = document.createElement('div');
-            bloom.className = 'tree-blossom';
-            bloom.style.top = `${Math.random() * 70 + 20}%`;
-            bloom.style.left = `${Math.random() * 70 + 20}%`;
-            foliage.appendChild(bloom);
-            setTimeout(() => bloom.classList.add('stage-visible'), i * 35);
-        }
-    } else if (stage === 4) {
-        const leaves = document.querySelectorAll('.foliage-leaf');
-        leaves.forEach(l => {
-            l.style.filter = 'brightness(1.15)';
-            l.style.boxShadow = '0 0 15px rgba(244, 209, 174, 0.25)';
-        });
-    }
-}
-
-/* ==========================================================================
-   9. Birthday Cake Celebration Engine
-   ========================================================================== */
 function setupCakeCelebrationEngine() {
     const holder = document.getElementById('candle-holder');
     if (!holder) return;
@@ -966,91 +877,6 @@ function setupCakeCelebrationEngine() {
     }
 }
 
-function checkAllCandlesState() {
-    const candles = document.querySelectorAll('.cake-candle');
-    const instruction = document.getElementById('cake-instruction');
-    const wishBanner = document.getElementById('cake-wish-banner');
-    
-    const allLit = Array.from(candles).every(c => c.classList.contains('is-lit'));
-
-    if (allLit) {
-        if (instruction) instruction.textContent = "Close your eyes, clear your mind...";
-        if (wishBanner) wishBanner.classList.add('visible');
-        
-        setTimeout(() => {
-            document.addEventListener('click', blowOutCelebrationHandler, { once: true });
-        }, 1000);
-    }
-}
-
-function blowOutCelebrationHandler(e) {
-    e.stopPropagation();
-
-    const candles = document.querySelectorAll('.cake-candle');
-    const instruction = document.getElementById('cake-instruction');
-    const wishBanner = document.getElementById('cake-wish-banner');
-
-    candles.forEach(candle => {
-        if (candle.classList.contains('is-lit')) {
-            candle.classList.remove('is-lit');
-            const rect = candle.getBoundingClientRect();
-            if (atmEngineInstance) {
-                atmEngineInstance.triggerSmokePuff(rect.left + 4, rect.top);
-            }
-        }
-    });
-
-    if (wishBanner) wishBanner.textContent = "Happy Birthday! 💖✨";
-    if (instruction) instruction.textContent = "May all your wishes and dreams come true.";
-
-    if (atmEngineInstance) {
-        atmEngineInstance.triggerConfettiShower();
-    }
-    
-    let shellCount = 0;
-    const interval = setInterval(() => {
-        if (atmEngineInstance) {
-            atmEngineInstance.triggerFireworksBurst();
-        }
-        shellCount++;
-        if (shellCount >= 6) clearInterval(interval);
-    }, 650);
-
-    setTimeout(() => {
-        transitionFromCakeToSurpriseGift();
-    }, 4500);
-}
-
-function transitionToCakeCelebration() {
-    const treeContainer = document.getElementById('wish-tree-container');
-    const cakeContainer = document.getElementById('cake-celebration-container');
-    const moonHalo = document.getElementById('moon-halo');
-    const beam = document.getElementById('moonlight-beam');
-
-    if (treeContainer) {
-        treeContainer.style.opacity = '0';
-        treeContainer.style.transform = 'translate(-50%, -46%) scale(0.9)';
-    }
-    
-    setTimeout(() => {
-        if (treeContainer) treeContainer.style.display = 'none';
-        
-        if (moonHalo) {
-            moonHalo.style.width = 'clamp(180px, 24vw, 240px)';
-            moonHalo.style.height = 'clamp(180px, 24vw, 240px)';
-            moonHalo.style.background = 'radial-gradient(circle, rgba(253, 246, 226, 0.35) 0%, rgba(253, 246, 226, 0) 70%)';
-        }
-        if (beam) {
-            beam.style.opacity = '0.12';
-        }
-
-        if (cakeContainer) cakeContainer.classList.add('is-active');
-    }, 1500);
-}
-
-/* ==========================================================================
-   10. Surprise Gift Box & Grand Finale Engines (V6 Addition)
-   ========================================================================== */
 function setupSurpriseAndFinaleEngine() {
     const giftWrapper = document.getElementById('surprise-gift-wrapper');
     const giftContainer = document.getElementById('surprise-gift-container');
@@ -1103,6 +929,9 @@ function setupSurpriseAndFinaleEngine() {
     }
 }
 
+/* ==========================================================================
+   5. Scenic Transition Flow Controllers
+   ========================================================================== */
 function transitionFromCakeToSurpriseGift() {
     const cakeContainer = document.getElementById('cake-celebration-container');
     const giftContainer = document.getElementById('surprise-gift-container');
@@ -1149,9 +978,6 @@ function triggerGrandFinaleSequence() {
     }, 3800);
 }
 
-/* ==========================================================================
-   11. Dynamic Parallax Layer Scrolling Effects
-   ========================================================================== */
 function setupParallax() {
     const moon = document.querySelector('.moon-layer');
     const stars = document.querySelector('.stars-layer');
@@ -1183,4 +1009,4 @@ function setupParallax() {
             envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(15vh + ${mouseY * 0.006}px))`;
         }
     });
-}
+                              }
