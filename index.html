@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Magical Evening</title>
-    <!-- Google Fonts: Elegant Serif, Modern Sans, and Premium Script -->
+    <!-- Google Fonts: Elegant Serif, Modern Sans, Premium Script, and highly readable cursive for letter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -34,13 +34,14 @@
             <div id="stars-container"></div>
         </div>
 
-        <!-- Parallax Layer: Moon -->
-        <div class="moon-layer" data-speed="0.03">
+        <!-- Parallax Layer: Moon (Adjusted smaller and distant) -->
+        <div class="moon-layer" data-speed="0.02">
             <div class="moon">
                 <div class="moon-crater crater-1"></div>
                 <div class="moon-crater crater-2"></div>
                 <div class="moon-crater crater-3"></div>
             </div>
+            <div class="moon-halo"></div>
         </div>
 
         <!-- Parallax Layer: Clouds -->
@@ -50,13 +51,75 @@
             <div class="cloud cloud-3"></div>
         </div>
 
-        <!-- Canvas for Dynamic Fireflies and Floating Petals -->
+        <!-- Canvas for Dynamic Fireflies, Petals, and Sparkle Blasts -->
         <canvas id="atmosphere-canvas"></canvas>
 
-        <!-- Foregrounds: Lush Meadow (Dynamic Grass & Flowers generated via JS) -->
+        <!-- Foregrounds: Lush Meadow -->
         <div class="meadow-container" data-speed="0.01">
             <div class="meadow-floor"></div>
             <div id="grass-canopy" class="grass-canopy"></div>
+        </div>
+
+        <!-- Interactive Envelope Layer -->
+        <div class="interactive-overlay-container">
+            <div class="envelope-wrapper" id="envelope-wrapper">
+                <div class="envelope" id="interactive-envelope" role="button" tabindex="0" aria-label="Open the magical letter">
+                    <!-- Flap Cover Back (base inside) -->
+                    <div class="envelope-inside"></div>
+                    <!-- Slid-in Letter Preview -->
+                    <div class="envelope-letter-preview" id="letter-preview"></div>
+                    <!-- Flap front folds -->
+                    <div class="envelope-flap left-flap"></div>
+                    <!-- Right Flap -->
+                    <div class="envelope-flap right-flap"></div>
+                    <!-- Bottom Flap -->
+                    <div class="envelope-flap bottom-flap"></div>
+                    <!-- Top Flap (Animating 3D Fold) -->
+                    <div class="envelope-flap top-flap"></div>
+                    <!-- Subtle seal -->
+                    <div class="envelope-seal"></div>
+                </div>
+                <div class="envelope-prompt" id="envelope-prompt">Tap to open</div>
+            </div>
+        </div>
+
+        <!-- Decorative Modal Overlay (Displays Letter) -->
+        <div class="letter-modal-overlay" id="letter-modal">
+            <div class="letter-paper">
+                <div class="letter-decorative-border"></div>
+                
+                <!-- Tiny Decorative Hearts / Floral Ornaments (Pure CSS) -->
+                <div class="letter-header-ornament">
+                    <span class="ornament-leaf"></span>
+                    <span class="ornament-heart">♥</span>
+                    <span class="ornament-leaf reverse"></span>
+                </div>
+
+                <div class="letter-scroll-content">
+                    <h1 class="letter-title">To a truly wonderful soul,</h1>
+                    
+                    <div class="letter-body">
+                        <p class="letter-para">Underneath this quiet, starlit canopy, the world slows down to celebrate you. Some moments are crafted by destiny, and this space was created simply to echo the beauty you bring into the lives of those around you.</p>
+                        
+                        <p class="letter-para">Just as the wild meadow flowers bend naturally to the breeze and the fireflies light up the dark, your <span class="glow-word">warmth</span> and gentle spirit illuminate every room you walk into.</p>
+                        
+                        <p class="letter-para">This night, and this garden, are simple reflections of the <span class="glow-word">magic</span> you carry within yourself daily. May this coming year bring as much joy, growth, and wonder as you freely give to others.</p>
+                        
+                        <p class="letter-para">Our journey together through this magical space has only just begun. When you are ready to venture further into the garden...</p>
+                    </div>
+                </div>
+
+                <!-- Footer "Continue" Button -->
+                <div class="letter-footer">
+                    <button class="continue-btn" id="continue-btn" disabled aria-label="Continue journey">
+                        <span>Continue</span>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Atmospheric Ambient Overlay -->
