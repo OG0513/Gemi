@@ -1088,4 +1088,94 @@ function triggerGrandFinaleSequence() {
     const moon = document.getElementById('interactive-moon');
     const moonHalo = document.getElementById('moon-halo');
 
-    // 1. Zoom ou
+        // 1. Zoom out camera elegantly to expand skyline perspective
+    wrapper.classList.add('grand-camera-zoom-out');
+
+    // 2. Warming twilight color gradients mapping
+    warmOverlay.classList.add('warm-active');
+
+    // 3. Flower super-bloom triggers
+    flowers.forEach(f => f.classList.add('grand-finale-bloom'));
+
+    // 4. Glow target moon and boost surrounding fireflies
+    if (moon) moon.style.transform = 'scale(1.1)';
+    if (moonHalo) {
+        moonHalo.style.width = 'clamp(200px, 28vw, 260px)';
+        moonHalo.style.height = 'clamp(200px, 28vw, 260px)';
+        moonHalo.style.background = 'radial-gradient(circle, rgba(253, 246, 226, 0.42) 0%, rgba(253, 246, 226, 0) 75%)';
+    }
+    atmEngineInstance.boostAtmosphereForFinale();
+
+    // 5. Constellation and Final Heartfelt card fade-in
+    setTimeout(() => {
+        constellation.classList.add('constellation-active');
+    }, 1500);
+
+    setTimeout(() => {
+        finaleMessage.classList.add('finale-active');
+    }, 3800);
+}
+
+/* ==========================================================================
+   11. Scroll-Triggered Scrapbook Reveals
+   ========================================================================== */
+function setupTimelineScrollReveal() {
+    const timelineItems = document.querySelectorAll('.reveal-on-scroll');
+    
+    const observerOptions = {
+        root: document.getElementById('timeline-container'), 
+        rootMargin: '0px 0px -10% 0px', 
+        threshold: 0.15 
+    };
+
+    const revealCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    };
+
+    const observer = new IntersectionObserver(revealCallback, observerOptions);
+
+    timelineItems.forEach(item => {
+        observer.observe(item);
+    });
+}
+
+/* ==========================================================================
+   12. Dynamic Parallax Layer Scrolling Effects
+   ========================================================================== */
+function setupParallax() {
+    const moon = document.querySelector('.moon-layer');
+    const stars = document.querySelector('.stars-layer');
+    const clouds = document.querySelector('.clouds-layer');
+    const meadow = document.getElementById('meadow-container');
+    const envelopeWrapper = document.getElementById('envelope-wrapper');
+
+    window.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX - window.innerWidth / 2;
+        const mouseY = e.clientY - window.innerHeight / 2;
+
+        if (stars) {
+            const speed = stars.getAttribute('data-speed');
+            stars.style.transform = `translate(${mouseX * speed}px, ${mouseY * speed}px)`;
+        }
+        if (moon) {
+            const speed = moon.getAttribute('data-speed');
+            moon.style.transform = `translate(${mouseX * speed}px, ${mouseY * speed}px)`;
+        }
+        if (clouds) {
+            const speed = clouds.getAttribute('data-speed');
+            clouds.style.transform = `translate(${mouseX * speed}px, ${mouseY * speed}px)`;
+        }
+        if (meadow) {
+            const speed = meadow.getAttribute('data-speed');
+            meadow.style.transform = `translate(${mouseX * speed}px, 0)`; 
+        }
+        if (envelopeWrapper && !envelopeWrapper.classList.contains('envelope-disappearing')) {
+            envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(15vh + ${mouseY * 0.006}px))`;
+        }
+    });
+}
