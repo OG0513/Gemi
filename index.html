@@ -2,371 +2,540 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A calm, magical moonlit garden scene with interactive objects, a centered envelope, memory gallery, wish tree, cake celebration, and star constellation finale.">
-  <title>A Quiet Evening | Version 6 (Final Polish & Grand Finale)</title>
-  
-  <!-- Typography Setup -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>A Premium Celebration</title>
+  <!-- Google Fonts for Elegant Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
-  
-  <!-- Main Stylesheet -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Loading Screen Sequence -->
-  <div id="loader" class="loading-screen" aria-hidden="false">
-    <div class="loader-bg-particles" id="loader-particles"></div>
-    <div class="loader-content">
-      <h1 class="loader-text">Someone made something special for you...</h1>
-      <div class="loader-indicator" aria-label="Loading scene">
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-      </div>
+  <!-- Ambient Living Background System -->
+  <div class="ambient-background" id="ambient-bg">
+    <div class="gradient-overlay"></div>
+    <div class="sun-glow"></div>
+    <div class="sun-rays"></div>
+    <div class="glow-sphere glow-1"></div>
+    <div class="glow-sphere glow-2"></div>
+    
+    <!-- Multi-Layer Moving Clouds -->
+    <div class="cloud-container" id="cloud-container">
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
     </div>
+
+    <!-- Interactive Environmental Canvas (60FPS Flowers, Particles & Galaxy Stars) -->
+    <canvas id="environmental-canvas"></canvas>
   </div>
 
-  <!-- Ambient Scene Dimmer -->
-  <div id="scene-dimmer" class="scene-dimmer"></div>
+  <!-- Persistent Day/Night Toggle Switch -->
+  <div class="theme-toggle-container" id="theme-toggle">
+    <button class="theme-toggle-btn" aria-label="Toggle Day and Night Mode">
+      <div class="toggle-icon-wrapper">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </div>
+    </button>
+  </div>
 
-  <!-- Immersive Main Scene -->
-  <main id="main-scene" class="scene-wrapper" aria-hidden="true" style="opacity: 0; pointer-events: none;">
-    
-    <!-- Parallax-controlled Sky Environment -->
-    <div class="sky-background"></div>
-    
-    <div class="parallax-layer stars-layer" data-depth="0.05" id="stars-container"></div>
-    
-    <div class="parallax-layer clouds-layer" data-depth="0.08" id="clouds-container"></div>
-    
-    <div class="parallax-layer moon-layer" data-depth="0.12">
-      <div class="moon-container">
-        <!-- High-Fidelity Interactive Moon -->
-        <div class="moon interactive-moon" id="interactive-moon" role="button" tabindex="0" aria-label="Detailed realistic glowing moon. Click for moonlight ripple.">
-          <div class="moon-texture"></div>
-          <div class="moon-crater crater-large" style="top: 25%; left: 22%; width: 22%; height: 22%;"></div>
-          <div class="moon-crater crater-medium" style="top: 58%; left: 58%; width: 15%; height: 15%;"></div>
-          <div class="moon-crater crater-small" style="top: 48%; left: 16%; width: 11%; height: 11%;"></div>
-          <div class="moon-crater crater-medium" style="top: 68%; left: 32%; width: 13%; height: 13%;"></div>
-          <div class="moon-crater crater-small" style="top: 14%; left: 48%; width: 9%; height: 9%;"></div>
-          <div class="moon-glow-ring"></div>
+  <!-- Main Viewport Container (Cinematic Lens/Perspective stage) -->
+  <main id="app-container">
+
+    <!-- SCENE 1: PREMIUM LOADING SCREEN -->
+    <section id="scene-loading" class="scene active">
+      <div class="loader-bg-ambient"></div>
+      <div class="loader-wrapper">
+        <div class="loader-logo-container">
+          <div class="loader-logo">
+            <span class="logo-initial">M</span>
+          </div>
+          <div class="logo-glow-ring"></div>
+        </div>
+        <div class="loader-typography">
+          <h2 class="loader-brand">MUSEUM OF CELEBRATION</h2>
+          <p class="loader-sub">Curating your interactive sensory experience</p>
+        </div>
+        <div class="loader-bar-container">
+          <div class="loader-bar" id="loader-progress"></div>
+        </div>
+        <div class="loader-status-wrapper">
+          <span class="loader-text" id="loader-status">Initializing Environment...</span>
+          <span class="loader-percentage" id="loader-percentage">0%</span>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Active Firefly Ecosystem -->
-    <div class="firefly-container" id="firefly-container"></div>
+    <!-- SCENE 2: WELCOME SCREEN -->
+    <section id="scene-welcome" class="scene hidden">
+      <div class="glass-card welcome-card">
+        <div class="card-accent-line"></div>
+        <div class="card-header">
+          <span class="subtitle">An Invitation</span>
+          <h1 class="main-title">A Journey of Celebration</h1>
+        </div>
+        <div class="card-body">
+          <p class="welcome-text">
+            Step into an interactive, curated experience crafted exclusively to celebrate your special day. A series of moments, memories, and wonders await your discovery.
+          </p>
+        </div>
+        <div class="card-footer">
+          <button id="btn-start-celebration" class="btn-premium">
+            <span class="btn-text">Begin the Celebration</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
+      </div>
+    </section>
 
-    <!-- Floating Petals Layer -->
-    <div class="petals-container" id="petals-container"></div>
+    <!-- SCENE 3: INTERACTIVE BIRTHDAY CARD SCREEN -->
+    <section id="scene-card" class="scene hidden">
+      <div class="card-scene-container">
+        <!-- Interactive Helper Instruction Hint -->
+        <div class="interaction-hint" id="card-interaction-hint">Click the Envelope to open</div>
 
-    <!-- Magical Meadow / Garden Layer -->
-    <div class="parallax-layer meadow-layer" data-depth="0.03" id="meadow-container">
-      <div class="meadow-ground"></div>
-      <div class="grass-field" id="grass-field"></div>
-      <div class="flower-field" id="flower-field"></div>
+        <!-- 3D Card and Envelope Stage -->
+        <div class="stage-3d">
+          
+          <!-- Envelope Container with Float/Bounce Physics -->
+          <div class="envelope-wrapper floating-envelope" id="envelope-wrapper">
+            <div class="envelope-back paper-texture"></div>
+            
+            <!-- Hidden sliding Birthday Card (emerges inside the envelope) -->
+            <div class="card-3d-wrapper" id="birthday-card-wrapper">
+              <div class="card-book" id="card-book">
+                <!-- Cover Face of Greeting Card -->
+                <div class="card-cover-container" id="card-cover-container">
+                  <div class="card-page card-cover-front">
+                    <!-- Premium Gloss Reflection Highlight -->
+                    <div class="gloss-overlay"></div>
+                    <div class="card-cover-design">
+                      <div class="foil-border"></div>
+                      <span class="cover-accent">For You</span>
+                      <div class="gold-embellishment">✿</div>
+                      <span class="cover-instruction">Opening...</span>
+                    </div>
+                  </div>
+                  <div class="card-page card-cover-back">
+                    <div class="gloss-overlay"></div>
+                    <div class="inside-left-design">
+                      <div class="decorative-pattern"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Stationary Inside Right Page -->
+                <div class="card-page card-inside-right">
+                  <div class="gloss-overlay"></div>
+                  <div class="inside-right-content">
+                    <span class="card-cursive-header">Happy Birthday</span>
+                    <h2 class="recipient-name">Dearest Sarah</h2>
+                    <div class="message-divider">✦</div>
+                    <p class="personal-message">
+                      May your year be filled with beautiful moments, silent peace, and dynamic joy. Today is a celebration of the incredible light you bring into this world.
+                    </p>
+                    <span class="signature">With love & admiration</span>
 
-      <!-- V4 Interactive Objects Integrated Into Garden Scene -->
-      <div class="interactive-objects-layer" id="interactive-objects-layer">
+                    <!-- Proceed button integrated elegantly within the Card Layout -->
+                    <button id="btn-next-scene" class="btn-circular-next hidden" aria-label="Continue Celebration">
+                      <span class="arrow-icon">→</span>
+                      <span class="btn-pulse"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Front Envelope Overlays -->
+            <div class="envelope-front-pocket paper-texture"></div>
+            <div class="envelope-flap" id="envelope-flap">
+              <div class="envelope-flap-inner paper-texture"></div>
+              <div class="wax-seal" id="wax-seal">
+                <span class="seal-logo">✦</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 4: GARDEN (V6 Unobstructed Immersive Environment Scene) -->
+    <section id="scene-garden" class="scene hidden">
+      <!-- Unobstructed viewing of the blooming species and sway branches -->
+      <button id="btn-garden-next" class="btn-circular-next floating-btn" aria-label="Continue to Gift">
+        <span class="arrow-icon">→</span>
+        <span class="btn-pulse"></span>
+      </button>
+    </section>
+
+    <!-- SCENE 5: INTERACTIVE GIFT SCREEN -->
+    <section id="scene-gift" class="scene hidden">
+      <div class="gift-scene-container">
+        <div class="interaction-hint" id="gift-interaction-hint">Tap the floating box to reveal your gift</div>
         
-        <!-- 1. Standing Glowing Lantern -->
-        <div id="obj-lantern" class="interactive-object obj-lantern" role="button" tabindex="0" aria-label="Warm Glowing Lantern">
-          <div class="lantern-hook"></div>
-          <div class="lantern-body">
-            <div class="lantern-cap"></div>
-            <div class="lantern-glass">
-              <div class="lantern-glow-core"></div>
-            </div>
-            <div class="lantern-base"></div>
-          </div>
-        </div>
-
-        <!-- 2. Cozy Sleeping Cat -->
-        <div id="obj-cat" class="interactive-object obj-cat" role="button" tabindex="0" aria-label="Sleeping Cozy Cat">
-          <div class="cat-body">
-            <div class="cat-head">
-              <div class="cat-ear left"></div>
-              <div class="cat-ear right"></div>
-              <div class="cat-eye left"></div>
-              <div class="cat-eye right"></div>
-              <div class="cat-nose"></div>
-            </div>
-            <div class="cat-tail"></div>
-          </div>
-        </div>
-
-        <!-- 3. Teddy Bear sitting in the meadow -->
-        <div id="obj-teddy" class="interactive-object obj-teddy" role="button" tabindex="0" aria-label="Cozy Teddy Bear">
-          <div class="teddy-ears">
-            <div class="teddy-ear left"></div>
-            <div class="teddy-ear right"></div>
-          </div>
-          <div class="teddy-head">
-            <div class="teddy-eye left"></div>
-            <div class="teddy-eye right"></div>
-            <div class="teddy-snout">
-              <div class="teddy-nose"></div>
-            </div>
-          </div>
-          <div class="teddy-body">
-            <div class="teddy-paws">
-              <div class="teddy-paw left" id="teddy-paw-left"></div>
-              <div class="teddy-paw right"></div>
-            </div>
-            <div class="teddy-legs">
-              <div class="teddy-foot left"></div>
-              <div class="teddy-foot right"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Surprise Gift Box hidden in meadow -->
-        <div id="obj-gift" class="interactive-object obj-gift" role="button" tabindex="0" aria-label="Surprise Gift Box">
-          <div class="gift-box-wrapper">
+        <div class="gift-stage">
+          <!-- Floating interactive luxury gift box -->
+          <div class="gift-box" id="gift-box">
             <div class="gift-lid"></div>
-            <div class="gift-box-body">
-              <div class="gift-ribbon-vertical"></div>
-              <div class="gift-ribbon-horizontal"></div>
+            <div class="gift-ribbon-v"></div>
+            <div class="gift-ribbon-h"></div>
+            <div class="gift-body"></div>
+          </div>
+
+          <!-- Glossy floating mini letter revealed after box lid splits open -->
+          <div class="glass-card gift-letter hidden" id="gift-letter">
+            <div class="card-accent-line"></div>
+            <div class="card-header">
+              <span class="subtitle">A Small Token</span>
+              <h2 class="mini-title">For Your Beautiful Mind</h2>
             </div>
-            <div class="gift-bow">
-              <div class="bow-loop left"></div>
-              <div class="bow-loop right"></div>
+            <p class="welcome-text">
+              "Deep inside every memory is a spark of appreciation. This day is a gift to everyone who knows you. May all your dreams find beautiful wings today."
+            </p>
+            <div class="card-footer">
+              <button id="btn-gift-next" class="btn-circular-next floating-btn" aria-label="Continue to Cake">
+                <span class="arrow-icon">→</span>
+                <span class="btn-pulse"></span>
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- 5. Interactive Golden Bloom Flower -->
-        <div id="obj-flower" class="interactive-object obj-flower" role="button" tabindex="0" aria-label="Interactive Golden Bloom">
-          <div class="interactive-flower-stem"></div>
-          <div class="interactive-flower-head">
-            <div class="interactive-flower-center"></div>
-            <div class="interactive-flower-petals">
-              <span class="int-petal"></span>
-              <span class="int-petal"></span>
-              <span class="int-petal"></span>
-              <span class="int-petal"></span>
-              <span class="int-petal"></span>
-              <span class="int-petal"></span>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
+    </section>
 
-    <!-- Centered Envelope Layer -->
-    <div id="envelope-wrapper" class="envelope-container" role="button" tabindex="0" aria-label="Open the handcrafted envelope">
-      <div class="envelope">
-        <div class="envelope-back"></div>
-        <div class="paper-preview">
-          <span class="preview-heart">♥</span>
-        </div>
-        <div class="envelope-left-flap"></div>
-        <div class="envelope-right-flap"></div>
-        <div class="envelope-bottom-flap"></div>
-        <div class="envelope-top-flap"></div>
-      </div>
-      <div class="envelope-shadow"></div>
-    </div>
-
-    <!-- Interactive Letter Paper Overlay -->
-    <div id="letter-overlay" class="letter-overlay" aria-modal="true" role="dialog" aria-hidden="true">
-      <div class="letter-paper">
-        <div class="letter-doodle letter-doodle-top">❦</div>
+    <!-- SCENE 6: INTERACTIVE CAKE SCREEN -->
+    <section id="scene-cake" class="scene hidden">
+      <div class="cake-scene-container">
+        <div class="interaction-hint" id="cake-interaction-hint">Click the glowing candle to blow it out</div>
         
-        <div class="letter-scroll-content">
-          <div class="letter-text-body">
-            <p class="letter-paragraph">Dear One,</p>
-            <p class="letter-paragraph">Amidst the quiet of this beautiful moonlit evening, I wanted to craft a safe space just for you. A sanctuary of <span class="glow-word">calm</span> and soft light, away from the rush of the world.</p>
-            <p class="letter-paragraph">You bring a unique and gentle <span class="glow-word">brilliance</span> into the lives of everyone around you, much like the steady glow of these fireflies dancing in the night.</p>
-            <p class="letter-paragraph">May this coming year bring you peaceful moments, deep warmth, and the quiet joy of dreams unfolding at their own gentle pace.</p>
-            <p class="letter-paragraph signature">With love,</p>
-            <p class="letter-paragraph signature-name">Your Someone Special <span class="letter-heart">♥</span></p>
+        <!-- Interactive French Pastry Cake Stage -->
+        <div class="cake-stage">
+          <div class="cake-pedestal"></div>
+          <div class="cake" id="interactive-cake">
+            <div class="cake-base"></div>
+            <div class="cake-frosting"></div>
+            <div class="candle">
+              <div class="candle-wick"></div>
+              <div class="candle-flame" id="candle-flame"></div>
+            </div>
           </div>
         </div>
 
-        <div class="letter-doodle letter-doodle-bottom">❦</div>
-
-        <!-- Continue Button -->
-        <button id="btn-continue" class="btn-continue" disabled aria-label="Continue to your memories">
-          <span>Continue</span>
-          <span class="arrow">→</span>
+        <button id="btn-cake-next" class="btn-circular-next hidden" aria-label="Begin Grand Finale">
+          <span class="arrow-icon">→</span>
+          <span class="btn-pulse"></span>
         </button>
       </div>
-    </div>
+    </section>
 
-    <!-- Single-Screen Memory Gallery Overlay -->
-    <div id="gallery-container" class="gallery-container" aria-hidden="true">
-      <div class="gallery-wrapper">
-        <header class="gallery-header">
-          <h2 class="gallery-title">A Few Favorite Moments...</h2>
-          <p class="gallery-subtitle">A collection of shared memories</p>
-        </header>
-
-        <!-- Scrapbook collage space -->
-        <div class="gallery-collage">
-          
-          <!-- Polaroid Photo 1 -->
-          <div class="collage-item memory-polaroid p-1" data-rotation="-4">
-            <div class="polaroid-wrapper">
-              <div class="polaroid-frame">
-                <div class="polaroid-image img-grad-1">
-                  <span class="polaroid-decor">✨</span>
-                </div>
-                <p class="polaroid-caption">Where it began</p>
-              </div>
-            </div>
+    <!-- SCENE 7: GALAXY GRAND FINALE (THE CLIMAX CINEMATIC WISH) -->
+    <section id="scene-celebration" class="scene hidden">
+      <div class="finale-scene-container">
+        <!-- Floating Glossy Wish Board -->
+        <div class="glass-card final-wish-card hidden" id="final-wish-card">
+          <div class="card-accent-line"></div>
+          <div class="card-header">
+            <span class="subtitle">Our Deepest Wish</span>
+            <h1 class="main-title">To New Beginnings</h1>
           </div>
-
-          <!-- Polaroid Photo 2 -->
-          <div class="collage-item memory-polaroid p-2" data-rotation="3">
-            <div class="polaroid-wrapper">
-              <div class="polaroid-frame">
-                <div class="polaroid-image img-grad-2">
-                  <span class="polaroid-decor">🍃</span>
-                </div>
-                <p class="polaroid-caption">Quiet coffee dates</p>
-              </div>
-            </div>
+          <div class="card-body">
+            <p class="welcome-text">
+              May this day be the starting point of your most peaceful, prosperous, and joyous year yet. Keep shining, keep smiling, and always believe in your incredible light.
+            </p>
           </div>
-
-          <!-- Polaroid Photo 3 -->
-          <div class="collage-item memory-polaroid p-3" data-rotation="-2">
-            <div class="polaroid-wrapper">
-              <div class="polaroid-frame">
-                <div class="polaroid-image img-grad-3">
-                  <span class="polaroid-decor">🌙</span>
-                </div>
-                <p class="polaroid-caption">Under the stars</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Decorative Sticky Note -->
-          <div class="collage-item memory-sticky p-4" data-rotation="6">
-            <div class="sticky-wrapper">
-              <div class="sticky-pin">📌</div>
-              <div class="sticky-note-paper">
-                <p class="sticky-text">"Thank you for always understanding my quietest jokes."</p>
-                <span class="sticky-footer">♥ Always</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Decorative Ticket Stub -->
-          <div class="collage-item memory-ticket p-5" data-rotation="-5">
-            <div class="ticket-wrapper">
-              <div class="ticket-notch left"></div>
-              <div class="ticket-notch right"></div>
-              <div class="ticket-inner">
-                <span class="ticket-heading">ADMIT ONE</span>
-                <p class="ticket-title">Perfect Day Walk</p>
-                <p class="ticket-meta">DATE: FOREVER</p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <footer class="gallery-footer">
-          <!-- Button leads into V5 Wish Tree growth cycle -->
-          <button id="btn-to-tree" class="btn-continue" aria-label="Go to the magical wish tree">
-            <span>Sow a Wish</span>
-            <span class="arrow">→</span>
-          </button>
-        </footer>
-      </div>
-    </div>
-
-    <!-- V5 Magical Wish Tree Interface Layer -->
-    <div id="wish-tree-overlay" class="wish-tree-overlay" aria-hidden="true">
-      <div class="tree-stage-wrapper">
-        <header class="tree-header">
-          <h2 class="tree-title">The Wish Tree</h2>
-          <p class="tree-subtitle" id="tree-progress-text">Click the dormant sprout to sow a wish...</p>
-        </header>
-
-        <!-- Pure CSS Crafted Wish Tree -->
-        <div id="wish-tree" class="wish-tree stage-0" role="button" tabindex="0" aria-label="Growth Wish Tree">
-          <div class="tree-trunk">
-            <div class="tree-branch branch-left"></div>
-            <div class="tree-branch branch-right"></div>
-            <div class="tree-branch branch-top"></div>
-          </div>
-          <div class="tree-leaf-cluster-group" id="tree-leaves-container"></div>
-          <div class="tree-fairy-lights" id="tree-lights-container"></div>
-          <div class="tree-butterflies" id="tree-butterflies-container"></div>
-        </div>
-
-        <div class="tree-click-prompt" id="tree-click-prompt">Click to nurture the tree ✨</div>
-      </div>
-    </div>
-
-    <!-- V5 Birthday Cake Celebration View Layer -->
-    <div id="cake-celebration-overlay" class="cake-celebration-overlay" aria-hidden="true">
-      <div class="cake-stage-wrapper">
-        <header class="celebration-header">
-          <h2 id="celebration-prompt-text" class="celebration-prompt-text">Tap each candle to light them...</h2>
-        </header>
-
-        <!-- Handcrafted CSS Birthday Cake -->
-        <div class="cake-display-rack" id="cake-rack">
-          <div class="cake-wrapper">
-            <div class="cake-candles-row" id="cake-candles-row"></div>
-            
-            <div class="cake-top-frosting">
-              <div class="icing-dripping"></div>
-              <div class="icing-dripping"></div>
-              <div class="icing-dripping"></div>
-              <div class="icing-dripping"></div>
-              <div class="icing-dripping"></div>
-            </div>
-            
-            <div class="cake-tier top-tier">
-              <div class="layer-stripes"></div>
-              <div class="cake-sugar-rose left"></div>
-              <div class="cake-sugar-rose right"></div>
-            </div>
-            
-            <div class="cake-tier bottom-tier">
-              <div class="layer-stripes"></div>
-              <div class="layer-stripes-back"></div>
-            </div>
-            
-            <div class="cake-pedestal"></div>
-            <div class="cake-stand-pole"></div>
-            <div class="cake-stand-base"></div>
+          <div class="card-footer">
+            <span class="finale-signature">Happy Birthday ❤️</span>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- V6 Grand Finale Interactive View Layer -->
-    <div id="finale-overlay" class="finale-overlay" aria-hidden="true">
-      <div class="finale-wrapper">
-        <div class="finale-card">
-          <h3 class="finale-message-title">Wishing You the Best...</h3>
-          <p class="finale-message-text">May your path ahead be lined with warm light, gentle laughter, and moments that make your heart soar. You deserve all the beauty this world has to offer.</p>
-          <div class="finale-heart-decor">❤️</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Global Sparkle, Confetti, and Fireworks system overlay -->
-    <div id="interactive-anchor" class="interactive-overlay"></div>
-
-    <!-- Glassmorphic Global Speech / Message Card -->
-    <div id="object-message-card" class="object-message-card" aria-hidden="true">
-      <p id="object-message-text" class="object-message-text"></p>
-      <div class="card-tail"></div>
-    </div>
+    </section>
 
   </main>
 
-  <!-- Main JavaScript Logic -->
+  <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>A Premium Celebration</title>
+  <!-- Google Fonts for Elegant Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient Living Background System -->
+  <div class="ambient-background" id="ambient-bg">
+    <div class="gradient-overlay"></div>
+    <div class="sun-glow"></div>
+    <div class="sun-rays"></div>
+    <div class="glow-sphere glow-1"></div>
+    <div class="glow-sphere glow-2"></div>
+    
+    <!-- Multi-Layer Moving Clouds -->
+    <div class="cloud-container" id="cloud-container">
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+    </div>
+
+    <!-- Interactive Environmental Canvas (60FPS Flowers, Particles & Galaxy Stars) -->
+    <canvas id="environmental-canvas"></canvas>
+  </div>
+
+  <!-- Persistent Day/Night Toggle Switch -->
+  <div class="theme-toggle-container" id="theme-toggle">
+    <button class="theme-toggle-btn" aria-label="Toggle Day and Night Mode">
+      <div class="toggle-icon-wrapper">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </div>
+    </button>
+  </div>
+
+  <!-- Main Viewport Container (Cinematic Lens/Perspective stage) -->
+  <main id="app-container">
+
+    <!-- SCENE 1: PREMIUM LOADING SCREEN -->
+    <section id="scene-loading" class="scene active">
+      <div class="loader-bg-ambient"></div>
+      <div class="loader-wrapper">
+        <div class="loader-logo-container">
+          <div class="loader-logo">
+            <span class="logo-initial">M</span>
+          </div>
+          <div class="logo-glow-ring"></div>
+        </div>
+        <div class="loader-typography">
+          <h2 class="loader-brand">MUSEUM OF CELEBRATION</h2>
+          <p class="loader-sub">Curating your interactive sensory experience</p>
+        </div>
+        <div class="loader-bar-container">
+          <div class="loader-bar" id="loader-progress"></div>
+        </div>
+        <div class="loader-status-wrapper">
+          <span class="loader-text" id="loader-status">Initializing Environment...</span>
+          <span class="loader-percentage" id="loader-percentage">0%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 2: WELCOME SCREEN -->
+    <section id="scene-welcome" class="scene hidden">
+      <div class="glass-card welcome-card">
+        <div class="card-accent-line"></div>
+        <div class="card-header">
+          <span class="subtitle">An Invitation</span>
+          <h1 class="main-title">A Journey of Celebration</h1>
+        </div>
+        <div class="card-body">
+          <p class="welcome-text">
+            Step into an interactive, curated experience crafted exclusively to celebrate your special day. A series of moments, memories, and wonders await your discovery.
+          </p>
+        </div>
+        <div class="card-footer">
+          <button id="btn-start-celebration" class="btn-premium">
+            <span class="btn-text">Begin the Celebration</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 3: INTERACTIVE BIRTHDAY CARD SCREEN -->
+    <section id="scene-card" class="scene hidden">
+      <div class="card-scene-container">
+        <!-- Interactive Helper Instruction Hint -->
+        <div class="interaction-hint" id="card-interaction-hint">Click the Envelope to open</div>
+
+        <!-- 3D Card and Envelope Stage -->
+        <div class="stage-3d">
+          
+          <!-- Envelope Container with Float/Bounce Physics -->
+          <div class="envelope-wrapper floating-envelope" id="envelope-wrapper">
+            <div class="envelope-back paper-texture"></div>
+            
+            <!-- Hidden sliding Birthday Card (emerges inside the envelope) -->
+            <div class="card-3d-wrapper" id="birthday-card-wrapper">
+              <div class="card-book" id="card-book">
+                <!-- Cover Face of Greeting Card -->
+                <div class="card-cover-container" id="card-cover-container">
+                  <div class="card-page card-cover-front">
+                    <!-- Premium Gloss Reflection Highlight -->
+                    <div class="gloss-overlay"></div>
+                    <div class="card-cover-design">
+                      <div class="foil-border"></div>
+                      <span class="cover-accent">For You</span>
+                      <div class="gold-embellishment">✿</div>
+                      <span class="cover-instruction">Opening...</span>
+                    </div>
+                  </div>
+                  <div class="card-page card-cover-back">
+                    <div class="gloss-overlay"></div>
+                    <div class="inside-left-design">
+                      <div class="decorative-pattern"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Stationary Inside Right Page -->
+                <div class="card-page card-inside-right">
+                  <div class="gloss-overlay"></div>
+                  <div class="inside-right-content">
+                    <span class="card-cursive-header">Happy Birthday</span>
+                    <h2 class="recipient-name">Dearest Sarah</h2>
+                    <div class="message-divider">✦</div>
+                    <p class="personal-message">
+                      May your year be filled with beautiful moments, silent peace, and dynamic joy. Today is a celebration of the incredible light you bring into this world.
+                    </p>
+                    <span class="signature">With love & admiration</span>
+
+                    <!-- Proceed button integrated elegantly within the Card Layout -->
+                    <button id="btn-next-scene" class="btn-circular-next hidden" aria-label="Continue Celebration">
+                      <span class="arrow-icon">→</span>
+                      <span class="btn-pulse"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Front Envelope Overlays -->
+            <div class="envelope-front-pocket paper-texture"></div>
+            <div class="envelope-flap" id="envelope-flap">
+              <div class="envelope-flap-inner paper-texture"></div>
+              <div class="wax-seal" id="wax-seal">
+                <span class="seal-logo">✦</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 4: GARDEN (V6 Unobstructed Immersive Environment Scene) -->
+    <section id="scene-garden" class="scene hidden">
+      <!-- Unobstructed viewing of the blooming species and sway branches -->
+      <button id="btn-garden-next" class="btn-circular-next floating-btn" aria-label="Continue to Gift">
+        <span class="arrow-icon">→</span>
+        <span class="btn-pulse"></span>
+      </button>
+    </section>
+
+    <!-- SCENE 5: INTERACTIVE GIFT SCREEN -->
+    <section id="scene-gift" class="scene hidden">
+      <div class="gift-scene-container">
+        <div class="interaction-hint" id="gift-interaction-hint">Tap the floating box to reveal your gift</div>
+        
+        <div class="gift-stage">
+          <!-- Floating interactive luxury gift box -->
+          <div class="gift-box" id="gift-box">
+            <div class="gift-lid"></div>
+            <div class="gift-ribbon-v"></div>
+            <div class="gift-ribbon-h"></div>
+            <div class="gift-body"></div>
+          </div>
+
+          <!-- Glossy floating mini letter revealed after box lid splits open -->
+          <div class="glass-card gift-letter hidden" id="gift-letter">
+            <div class="card-accent-line"></div>
+            <div class="card-header">
+              <span class="subtitle">A Small Token</span>
+              <h2 class="mini-title">For Your Beautiful Mind</h2>
+            </div>
+            <p class="welcome-text">
+              "Deep inside every memory is a spark of appreciation. This day is a gift to everyone who knows you. May all your dreams find beautiful wings today."
+            </p>
+            <div class="card-footer">
+              <button id="btn-gift-next" class="btn-circular-next floating-btn" aria-label="Continue to Cake">
+                <span class="arrow-icon">→</span>
+                <span class="btn-pulse"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 6: INTERACTIVE CAKE SCREEN -->
+    <section id="scene-cake" class="scene hidden">
+      <div class="cake-scene-container">
+        <div class="interaction-hint" id="cake-interaction-hint">Click the glowing candle to blow it out</div>
+        
+        <!-- Interactive French Pastry Cake Stage -->
+        <div class="cake-stage">
+          <div class="cake-pedestal"></div>
+          <div class="cake" id="interactive-cake">
+            <div class="cake-base"></div>
+            <div class="cake-frosting"></div>
+            <div class="candle">
+              <div class="candle-wick"></div>
+              <div class="candle-flame" id="candle-flame"></div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-cake-next" class="btn-circular-next hidden" aria-label="Begin Grand Finale">
+          <span class="arrow-icon">→</span>
+          <span class="btn-pulse"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SCENE 7: GALAXY GRAND FINALE (THE CLIMAX CINEMATIC WISH) -->
+    <section id="scene-celebration" class="scene hidden">
+      <div class="finale-scene-container">
+        <!-- Floating Glossy Wish Board -->
+        <div class="glass-card final-wish-card hidden" id="final-wish-card">
+          <div class="card-accent-line"></div>
+          <div class="card-header">
+            <span class="subtitle">Our Deepest Wish</span>
+            <h1 class="main-title">To New Beginnings</h1>
+          </div>
+          <div class="card-body">
+            <p class="welcome-text">
+              May this day be the starting point of your most peaceful, prosperous, and joyous year yet. Keep shining, keep smiling, and always believe in your incredible light.
+            </p>
+          </div>
+          <div class="card-footer">
+            <span class="finale-signature">Happy Birthday ❤️</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
   <script src="script.js"></script>
 </body>
 </html>
