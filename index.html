@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Magical Evening</title>
-    <!-- Google Fonts: Elegant Serif, Modern Sans, Premium Script, and highly readable cursive for letter -->
+    <!-- Google Fonts: Elegant Serif, Modern Sans, Premium Script, and Scrapbook Handwriting -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Reenie+Beanie&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -34,12 +34,16 @@
             <div id="stars-container"></div>
         </div>
 
-        <!-- Parallax Layer: Moon (Adjusted smaller and distant) -->
+        <!-- Parallax Layer: Moon (Enhanced with realistic 3D shading) -->
         <div class="moon-layer" data-speed="0.02">
             <div class="moon">
-                <div class="moon-crater crater-1"></div>
-                <div class="moon-crater crater-2"></div>
-                <div class="moon-crater crater-3"></div>
+                <!-- Detailed procedural craters with shadows and lit rims -->
+                <div class="moon-texture-overlay"></div>
+                <div class="moon-crater crater-1"><div class="crater-shadow"></div></div>
+                <div class="moon-crater crater-2"><div class="crater-shadow"></div></div>
+                <div class="moon-crater crater-3"><div class="crater-shadow"></div></div>
+                <div class="moon-crater crater-4"><div class="crater-shadow"></div></div>
+                <div class="moon-crater crater-5"><div class="crater-shadow"></div></div>
             </div>
             <div class="moon-halo"></div>
         </div>
@@ -51,7 +55,7 @@
             <div class="cloud cloud-3"></div>
         </div>
 
-        <!-- Canvas for Dynamic Fireflies, Petals, and Sparkle Blasts -->
+        <!-- Canvas for Dynamic Fireflies, Petals, and Sparkles -->
         <canvas id="atmosphere-canvas"></canvas>
 
         <!-- Foregrounds: Lush Meadow -->
@@ -61,34 +65,26 @@
         </div>
 
         <!-- Interactive Envelope Layer -->
-        <div class="interactive-overlay-container">
+        <div class="interactive-overlay-container" id="envelope-layer">
             <div class="envelope-wrapper" id="envelope-wrapper">
                 <div class="envelope" id="interactive-envelope" role="button" tabindex="0" aria-label="Open the magical letter">
-                    <!-- Flap Cover Back (base inside) -->
                     <div class="envelope-inside"></div>
-                    <!-- Slid-in Letter Preview -->
                     <div class="envelope-letter-preview" id="letter-preview"></div>
-                    <!-- Flap front folds -->
                     <div class="envelope-flap left-flap"></div>
-                    <!-- Right Flap -->
                     <div class="envelope-flap right-flap"></div>
-                    <!-- Bottom Flap -->
                     <div class="envelope-flap bottom-flap"></div>
-                    <!-- Top Flap (Animating 3D Fold) -->
                     <div class="envelope-flap top-flap"></div>
-                    <!-- Subtle seal -->
                     <div class="envelope-seal"></div>
                 </div>
                 <div class="envelope-prompt" id="envelope-prompt">Tap to open</div>
             </div>
         </div>
 
-        <!-- Decorative Modal Overlay (Displays Letter) -->
+        <!-- Letter Modal Layout -->
         <div class="letter-modal-overlay" id="letter-modal">
             <div class="letter-paper">
                 <div class="letter-decorative-border"></div>
                 
-                <!-- Tiny Decorative Hearts / Floral Ornaments (Pure CSS) -->
                 <div class="letter-header-ornament">
                     <span class="ornament-leaf"></span>
                     <span class="ornament-heart">♥</span>
@@ -109,9 +105,8 @@
                     </div>
                 </div>
 
-                <!-- Footer "Continue" Button -->
                 <div class="letter-footer">
-                    <button class="continue-btn" id="continue-btn" disabled aria-label="Continue journey">
+                    <button class="continue-btn" id="continue-btn" disabled aria-label="Continue to memories">
                         <span>Continue</span>
                         <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -119,6 +114,98 @@
                         </svg>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- 3. Scrapbook Memory Timeline Container -->
+        <div class="timeline-container" id="timeline-container">
+            <div class="timeline-scroll-wrapper">
+                <header class="timeline-header">
+                    <span class="timeline-subtitle">Chapter I</span>
+                    <h2 class="timeline-main-title">A Scrapbook of Shared Moments</h2>
+                    <p class="timeline-intro">Scroll down to wander through some of our favorite memories gathered along the way...</p>
+                </header>
+
+                <div class="timeline-track">
+                    <div class="timeline-line"></div>
+
+                    <!-- Item 1: Polaroid Photo -->
+                    <div class="timeline-item left reveal-on-scroll" style="--rand-rotation: -3deg;">
+                        <div class="scrapbook-card polaroid">
+                            <div class="polaroid-img-wrapper">
+                                <!-- Scenic CSS representation of a memories landscape -->
+                                <div class="polaroid-procedural-graphics starry-lake">
+                                    <div class="mini-moon"></div>
+                                    <div class="lake-reflection"></div>
+                                </div>
+                            </div>
+                            <p class="scrapbook-caption">The midnight walks where the world was entirely ours...</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: Postcard -->
+                    <div class="timeline-item right reveal-on-scroll" style="--rand-rotation: 2deg;">
+                        <div class="scrapbook-card postcard">
+                            <div class="postcard-grid">
+                                <div class="postcard-message">
+                                    <h3>Dear You,</h3>
+                                    <p>Of all the paths we've wandered, the ones beside you remain my absolute favorite. Looking forward to many more maps to unfold together.</p>
+                                    <span class="postcard-signature">Yours always</span>
+                                </div>
+                                <div class="postcard-divider"></div>
+                                <div class="postcard-meta">
+                                    <div class="postage-stamp">
+                                        <div class="stamp-serrated"></div>
+                                        <span class="stamp-icon">♥</span>
+                                    </div>
+                                    <div class="postcard-address">
+                                        <span>To: My Favorite Human</span>
+                                        <span>The Cozy Corner of the World</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 3: Sticky Note -->
+                    <div class="timeline-item left reveal-on-scroll" style="--rand-rotation: -4deg;">
+                        <div class="scrapbook-card sticky-note">
+                            <div class="sticky-tape"></div>
+                            <div class="sticky-content">
+                                <span class="sticky-pin">📍</span>
+                                <h4 class="sticky-title">A Little Reminder:</h4>
+                                <p class="sticky-body">"You are braver than you believe, stronger than you seem, and loved more than you will ever fully realize." Never forget how incredibly special you are.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 4: Perforated Ticket Stub -->
+                    <div class="timeline-item right reveal-on-scroll" style="--rand-rotation: 1.5deg;">
+                        <div class="scrapbook-card ticket-stub">
+                            <div class="ticket-perforation left"></div>
+                            <div class="ticket-perforation right"></div>
+                            <div class="ticket-inner-border">
+                                <div class="ticket-header">
+                                    <span class="ticket-type">ADMIT ONE</span>
+                                    <span class="ticket-serial">No. 082599</span>
+                                </div>
+                                <div class="ticket-main">
+                                    <h3 class="ticket-title">AN INFINITE ADVENTURE</h3>
+                                    <p class="ticket-detail">A lifetime pass for laughter, comfort, and silly late-night talks.</p>
+                                </div>
+                                <div class="ticket-footer">
+                                    <span>VALID FOREVER</span>
+                                    <span class="ticket-price">PRICE: FREE ♥</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <footer class="timeline-footer">
+                    <p class="timeline-end-text">The story continues...</p>
+                </footer>
             </div>
         </div>
 
