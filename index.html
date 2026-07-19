@@ -32,12 +32,16 @@
         <!-- Parallax Layer: Stars -->
         <div class="stars-layer" data-speed="0.015">
             <div id="stars-container"></div>
+            <!-- Interactive North Star -->
+            <div class="interactive-star" id="interactive-star" role="button" tabindex="0" aria-label="Interactive Star">
+                <div class="star-core"></div>
+                <div class="star-glow"></div>
+            </div>
         </div>
 
-        <!-- Parallax Layer: Moon (Enhanced with realistic 3D shading) -->
+        <!-- Parallax Layer: Moon (Enhanced distant Moon) -->
         <div class="moon-layer" data-speed="0.02">
-            <div class="moon">
-                <!-- Detailed procedural craters with shadows and lit rims -->
+            <div class="moon" id="interactive-moon" role="button" tabindex="0" aria-label="Interactive Moon">
                 <div class="moon-texture-overlay"></div>
                 <div class="moon-crater crater-1"><div class="crater-shadow"></div></div>
                 <div class="moon-crater crater-2"><div class="crater-shadow"></div></div>
@@ -48,6 +52,9 @@
             <div class="moon-halo"></div>
         </div>
 
+        <!-- Moonlight Beam (Atmospheric lighting aligned with the Moon's coordinates) -->
+        <div class="moonlight-beam"></div>
+
         <!-- Parallax Layer: Clouds -->
         <div class="clouds-layer" data-speed="0.045">
             <div class="cloud cloud-1"></div>
@@ -55,16 +62,113 @@
             <div class="cloud cloud-3"></div>
         </div>
 
-        <!-- Canvas for Dynamic Fireflies, Petals, and Sparkles -->
+        <!-- Canvas for Dynamic Fireflies, Petals, Sparkles, and Moon Ripples -->
         <canvas id="atmosphere-canvas"></canvas>
 
         <!-- Foregrounds: Lush Meadow -->
         <div class="meadow-container" data-speed="0.01">
             <div class="meadow-floor"></div>
             <div id="grass-canopy" class="grass-canopy"></div>
+
+            <!-- Interactive Objects Container nested naturally in the meadow environment -->
+            <div class="interactive-objects-layer" id="interactive-objects-layer">
+                
+                <!-- A. Magic Lantern -->
+                <div class="interactive-node node-lantern" id="obj-lantern" role="button" tabindex="0" aria-label="Magic Lantern">
+                    <div class="lantern">
+                        <div class="lantern-cap"></div>
+                        <div class="lantern-body">
+                            <div class="lantern-glass">
+                                <div class="lantern-flame"></div>
+                            </div>
+                        </div>
+                        <div class="lantern-base"></div>
+                    </div>
+                </div>
+
+                <!-- B. Sleepy Cat -->
+                <div class="interactive-node node-cat" id="obj-cat" role="button" tabindex="0" aria-label="Sleepy Cat">
+                    <div class="cat">
+                        <div class="cat-body">
+                            <div class="cat-tail"></div>
+                        </div>
+                        <div class="cat-head">
+                            <div class="cat-ear-l"></div>
+                            <div class="cat-ear-r"></div>
+                            <div class="cat-face">
+                                <div class="cat-eye-l"></div>
+                                <div class="cat-eye-r"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C. Teddy Bear -->
+                <div class="interactive-node node-teddy" id="obj-teddy" role="button" tabindex="0" aria-label="Teddy Bear">
+                    <div class="teddy">
+                        <div class="teddy-body">
+                            <div class="teddy-belly"></div>
+                        </div>
+                        <div class="teddy-head">
+                            <div class="teddy-ear-l"></div>
+                            <div class="teddy-ear-r"></div>
+                            <div class="teddy-snout"></div>
+                        </div>
+                        <div class="teddy-arm-l" id="teddy-arm-l"></div>
+                        <div class="teddy-arm-r"></div>
+                        <div class="teddy-leg-l"></div>
+                        <div class="teddy-leg-r"></div>
+                    </div>
+                </div>
+
+                <!-- D. Interactive Gift Box -->
+                <div class="interactive-node node-gift" id="obj-gift" role="button" tabindex="0" aria-label="Gift Box">
+                    <div class="gift-box">
+                        <div class="gift-lid"></div>
+                        <div class="gift-base"></div>
+                        <div class="gift-ribbon-v"></div>
+                        <div class="gift-ribbon-h"></div>
+                        <div class="gift-bow">
+                            <div class="bow-l"></div>
+                            <div class="bow-r"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E. Magic Butterfly -->
+                <div class="interactive-node node-butterfly" id="obj-butterfly" role="button" tabindex="0" aria-label="Butterfly">
+                    <div class="butterfly">
+                        <div class="bf-wing bf-wing-l"></div>
+                        <div class="bf-wing bf-wing-r"></div>
+                        <div class="bf-body"></div>
+                    </div>
+                </div>
+
+                <!-- F. Golden Interactive Flower -->
+                <div class="interactive-node node-flower" id="obj-flower" role="button" tabindex="0" aria-label="Glowing Flower">
+                    <div class="special-flower">
+                        <div class="sf-stem"></div>
+                        <div class="sf-head">
+                            <div class="sf-petal sf-p1"></div>
+                            <div class="sf-petal sf-p2"></div>
+                            <div class="sf-petal sf-p3"></div>
+                            <div class="sf-petal sf-p4"></div>
+                            <div class="sf-petal sf-p5"></div>
+                            <div class="sf-center"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
-        <!-- Interactive Envelope Layer -->
+        <!-- Universal Floating Speech Bubble (Centralized rendering for all interactive objects) -->
+        <div class="speech-bubble-card" id="central-bubble">
+            <button class="bubble-close-btn" id="bubble-close" aria-label="Close message">×</button>
+            <p class="bubble-text" id="bubble-text">Message goes here...</p>
+        </div>
+
+        <!-- Interactive Envelope Layer (Changed to premium Amethyst/Violet) -->
         <div class="interactive-overlay-container" id="envelope-layer">
             <div class="envelope-wrapper" id="envelope-wrapper">
                 <div class="envelope" id="interactive-envelope" role="button" tabindex="0" aria-label="Open the magical letter">
@@ -117,7 +221,7 @@
             </div>
         </div>
 
-        <!-- 3. Scrapbook Memory Timeline Container -->
+        <!-- Scrapbook Memory Timeline Container -->
         <div class="timeline-container" id="timeline-container">
             <div class="timeline-scroll-wrapper">
                 <header class="timeline-header">
@@ -133,7 +237,6 @@
                     <div class="timeline-item left reveal-on-scroll" style="--rand-rotation: -3deg;">
                         <div class="scrapbook-card polaroid">
                             <div class="polaroid-img-wrapper">
-                                <!-- Scenic CSS representation of a memories landscape -->
                                 <div class="polaroid-procedural-graphics starry-lake">
                                     <div class="mini-moon"></div>
                                     <div class="lake-reflection"></div>
