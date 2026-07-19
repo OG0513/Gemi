@@ -19,7 +19,7 @@
     --color-gold-bright: #ffd29d;
     --color-baby-blue: #b5c7d3;
 
-    /* Envelope Amethyst/Violet Redesign */
+    /* Envelope Amethyst/Violet */
     --color-envelope-ext: #56466d;
     --color-envelope-int: #3b2c51;
     --color-envelope-shadow: rgba(0, 0, 0, 0.45);
@@ -128,7 +128,7 @@ body, html {
 }
 
 /* ==========================================================================
-   4. Main Scene Layout
+   4. Main Scene Layout (Includes pull-back zoom mechanism)
    ========================================================================== */
 .scene-container {
     position: relative;
@@ -145,6 +145,21 @@ body, html {
     transform: scale(1.02);
 }
 
+/* Landscape Zoomable Wrapper (V6 Addition: Enables pull-back camera zoom) */
+.landscape-zoom-wrapper {
+    position: absolute;
+    top: -5%; left: -5%;
+    width: 110%; height: 110%;
+    transform: scale(1.04);
+    transform-origin: center center;
+    transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Active zoom camera pull-back class triggered during the Grand Finale */
+.landscape-zoom-wrapper.grand-camera-zoom-out {
+    transform: scale(1.0);
+}
+
 /* Sky Background Gradient */
 .sky-bg {
     position: absolute;
@@ -156,8 +171,25 @@ body, html {
     z-index: 1;
 }
 
+/* Warm Sunset Overlay (V6 Addition: Warms background for Finale) */
+.sky-warm-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(86, 70, 109, 0) 10%, rgba(244, 209, 174, 0.16) 100%);
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.sky-warm-overlay.warm-active {
+    opacity: 1;
+}
+
 /* ==========================================================================
-   5. Celestial Elements (Realistic Distant Moon & Stars)
+   5. Celestial Elements (Distant Moon & Stars)
    ========================================================================== */
 .stars-layer {
     position: absolute;
@@ -165,7 +197,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
 }
 
@@ -221,7 +253,7 @@ body, html {
     position: absolute;
     top: 8%;
     right: 18%;
-    z-index: 3;
+    z-index: 4;
     pointer-events: none;
     transition: transform 0.1s ease-out;
     display: flex;
@@ -292,7 +324,7 @@ body, html {
     animation: moonBreatheGlow 10s ease-in-out infinite alternate;
 }
 
-/* Atmospheric Moonlight Beam overlay (Illuminating upper meadow aligned with the Moon's coordinate segment) */
+/* Atmospheric Moonlight Beam */
 .moonlight-beam {
     position: absolute;
     top: 0;
@@ -300,8 +332,9 @@ body, html {
     width: 45%;
     height: 100%;
     background: linear-gradient(135deg, rgba(253, 246, 226, 0.04) 0%, rgba(253, 246, 226, 0) 80%);
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
+    transition: opacity 2s ease, filter 2s ease;
 }
 
 /* Clouds */
@@ -311,7 +344,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 4;
+    z-index: 5;
     pointer-events: none;
 }
 
@@ -349,20 +382,7 @@ body, html {
 }
 
 /* ==========================================================================
-   6. Atmosphere Layer (Canvas)
-   ========================================================================== */
-#atmosphere-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    pointer-events: none;
-}
-
-/* ==========================================================================
-   7. Meadow Layer
+   6. Meadow Layer & Flowering Canopy
    ========================================================================== */
 .meadow-container {
     position: absolute;
@@ -370,7 +390,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 45%;
-    z-index: 6;
+    z-index: 7;
     pointer-events: none;
     transition: opacity 1.5s ease, filter 1.5s ease;
 }
@@ -417,6 +437,12 @@ body, html {
     animation: windSway var(--sway-duration, 5.5s) ease-in-out infinite alternate;
     animation-delay: var(--sway-delay, 0.2s);
     z-index: 3;
+    transition: transform 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Visual bloom class triggered for finale */
+.flower.grand-finale-bloom {
+    transform: scale(1.3) rotate(var(--sway-angle, 4deg));
 }
 
 .flower-stem {
@@ -465,7 +491,7 @@ body, html {
 }
 
 /* ==========================================================================
-   8. Interactive Objects Layer (Teddy, Cat, Lantern, Gift, Butterfly, Flower)
+   8. Interactive Objects Layer
    ========================================================================== */
 .interactive-objects-layer {
     position: absolute;
@@ -485,12 +511,11 @@ body, html {
     transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 
-/* Interactive nodes subtle breathing/floating idles */
 .interactive-node:hover {
     filter: drop-shadow(0 0 8px rgba(253, 246, 226, 0.4));
 }
 
-/* A. MAGIC LANTERN (Left-Foreground) */
+/* A. MAGIC LANTERN */
 .node-lantern {
     left: 8%;
     bottom: 25px;
@@ -551,12 +576,11 @@ body, html {
     margin: 0 auto;
 }
 
-/* Activated Lantern Animation */
 .node-lantern.active-bounce {
     animation: lanternFlare 1s ease-out;
 }
 
-/* B. SLEEPY CAT (Center-Left) */
+/* B. SLEEPY CAT */
 .node-cat {
     left: 28%;
     bottom: 12px;
@@ -636,12 +660,11 @@ body, html {
 .cat-eye-l { left: 4px; }
 .cat-eye-r { right: 4px; }
 
-/* Activated stretch animation */
 .node-cat.active-bounce {
     animation: catStretch 0.8s ease-in-out;
 }
 
-/* C. COZY TEDDY BEAR (Right-Foreground) */
+/* C. COZY TEDDY BEAR */
 .node-teddy {
     right: 28%;
     bottom: 10px;
@@ -739,12 +762,11 @@ body, html {
 .teddy-leg-l { left: 4px; }
 .teddy-leg-r { right: 4px; }
 
-/* Wave animation applied on arm click */
 .teddy-arm-l.waving {
     animation: teddyWave 1.2s ease-in-out infinite;
 }
 
-/* D. INTERACTIVE GIFT BOX (Right-Foreground edge) */
+/* D. INTERACTIVE GIFT BOX */
 .node-gift {
     right: 8%;
     bottom: 20px;
@@ -820,12 +842,11 @@ body, html {
 .bow-l { transform: rotate(-30deg); left: 0; }
 .bow-r { transform: rotate(30deg); right: 0; }
 
-/* Activated Pop Animation */
 .node-gift.active-bounce .gift-lid {
     transform: translateY(-8px) rotate(-15deg);
 }
 
-/* E. MAGIC BUTTERFLY (Center Flowers hovering) */
+/* E. MAGIC BUTTERFLY */
 .node-butterfly {
     left: 45%;
     bottom: 155px;
@@ -875,12 +896,11 @@ body, html {
     top: 2px;
 }
 
-/* Click flight trajectory animation class */
 .node-butterfly.active-flight {
     animation: butterflyFlightPath 1.6s ease-in-out;
 }
 
-/* F. GOLDEN FOREGROUND SPECIAL FLOWER */
+/* F. GOLDEN SPECIAL FLOWER */
 .node-flower {
     left: 56%;
     bottom: 22px;
@@ -936,12 +956,10 @@ body, html {
 .sf-p4 { transform: rotate(216deg) translate(0, -5px); }
 .sf-p5 { transform: rotate(288deg) translate(0, -5px); }
 
-/* Activated Flower Bloom */
 .node-flower.active-bounce .sf-head {
     transform: scale(1.4);
 }
 
-/* Universal Object Click Bounce fallbacks */
 .active-bounce {
     animation: elementBounceScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -962,7 +980,7 @@ body, html {
         inset 0 0 1px rgba(255,255,255,0.15);
     border-radius: 12px;
     padding: 1.2rem 1.8rem;
-    z-index: 100; /* Placed over landscape graphics */
+    z-index: 100;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -1010,7 +1028,7 @@ body, html {
 }
 
 /* ==========================================================================
-   10. Interactive Envelope Redesign (Amethyst/Violet details)
+   10. Interactive Envelope Layer (Amethyst/Violet)
    ========================================================================== */
 .envelope-layer {
     position: absolute;
@@ -1021,7 +1039,7 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 7;
+    z-index: 8;
     perspective: 1200px;
     pointer-events: none;
     transition: opacity 1s ease, visibility 1s ease;
@@ -1151,7 +1169,6 @@ body, html {
     opacity: 1;
 }
 
-/* Envelope Open Animation States */
 .envelope.is-opening .top-flap {
     transform: rotateX(180deg);
     z-index: 1;
@@ -1356,25 +1373,6 @@ body, html {
     transform: translateY(-2px);
 }
 
-.continue-btn:active {
-    transform: translateY(0);
-}
-
-.continue-btn:disabled {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.arrow-icon {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.3s ease;
-}
-
-.continue-btn:hover .arrow-icon {
-    transform: translateX(4px);
-}
-
 /* ==========================================================================
    12. Scrapbook Memory Timeline Section
    ========================================================================== */
@@ -1493,9 +1491,7 @@ body, html {
     transform: translateY(0) scale(1) rotate(var(--rand-rotation));
 }
 
-/* ==========================================================================
-   13. Scrapbook Media Card Designs (Polaroid, Postcard, Notes, Tickets)
-   ========================================================================== */
+/* Scrapbook Media Card Designs */
 .scrapbook-card {
     background-color: var(--color-paper);
     box-shadow: 
@@ -1809,46 +1805,836 @@ body, html {
     animation: pulsePrompt 3s infinite alternate ease-in-out;
 }
 
-/* ==========================================================================
-   14. Responsive Layout Adjustments
-   ========================================================================== */
-@media (max-width: 768px) {
-    .timeline-line {
-        left: 20px;
-    }
-    .timeline-item.left, .timeline-item.right {
-        justify-content: flex-start;
-        padding-left: 35px;
-    }
-    .postcard-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    .postcard-divider {
-        width: 100%;
-        height: 1px;
-    }
-    .postcard-meta {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .postage-stamp {
-        width: 42px;
-        height: 52px;
-    }
-    .reveal-on-scroll {
-        transform: translateY(35px) scale(0.96) rotate(0deg);
-    }
-    .reveal-on-scroll.revealed {
-        transform: translateY(0) scale(1) rotate(calc(var(--rand-rotation) * 0.4));
-    }
-    .node-cat { left: 24%; }
-    .node-teddy { right: 24%; }
+/* Premium Navigation Trigger on Bottom of Timeline */
+.nurture-tree-btn {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #3a2e4d 0%, #251b33 100%);
+    color: var(--color-gold);
+    border: 1px solid rgba(244, 209, 174, 0.2);
+    padding: 1rem 2.4rem;
+    border-radius: 30px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.nurture-tree-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    border-color: rgba(244, 209, 174, 0.4);
 }
 
 /* ==========================================================================
-   15. Pure-CSS Keyframes / Animations
+   13. Magical Wish Tree
+   ========================================================================== */
+.wish-tree-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -46%) scale(0.95);
+    width: 320px;
+    height: 400px;
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 1.8s ease, visibility 1.8s ease, transform 1.8s ease;
+}
+
+.wish-tree-container.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, -46%) scale(1);
+}
+
+.wish-tree {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    cursor: pointer;
+}
+
+.tree-trunk {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 160px;
+    background: linear-gradient(to right, #2c1a11 0%, #3e2719 50%, #1e100a 100%);
+    border-radius: 8px 8px 0 0;
+    transform-origin: bottom center;
+}
+
+.tree-branch {
+    position: absolute;
+    background: linear-gradient(to top, #2c1a11 0%, #3e2719 100%);
+    border-radius: 4px;
+    transform-origin: bottom center;
+    transition: transform 2s ease;
+}
+
+.branch-1 {
+    width: 8px;
+    height: 70px;
+    bottom: 80px;
+    left: 10px;
+    transform: rotate(-35deg);
+}
+
+.branch-2 {
+    width: 8px;
+    height: 80px;
+    bottom: 95px;
+    right: 10px;
+    transform: rotate(38deg);
+}
+
+.branch-3 {
+    width: 6px;
+    height: 50px;
+    bottom: 130px;
+    left: 8px;
+    transform: rotate(-10deg);
+}
+
+.tree-foliage {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 200px;
+    pointer-events: none;
+}
+
+.foliage-leaf {
+    position: absolute;
+    background: radial-gradient(circle, var(--color-sage-light) 0%, var(--color-sage-dark) 100%);
+    border-radius: 50% 50% 10% 50% / 50% 50% 10% 10%;
+    opacity: 0;
+    transform: scale(0) rotate(-45deg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 1.2s ease;
+}
+
+.foliage-leaf.stage-visible {
+    opacity: 0.92;
+    transform: scale(1) rotate(-45deg);
+}
+
+.tree-blossom {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-blush);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    box-shadow: 0 2px 6px rgba(243, 176, 195, 0.3);
+    transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 1s ease;
+}
+
+.tree-blossom::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 4px; height: 4px;
+    background-color: var(--color-gold);
+    border-radius: 50%;
+}
+
+.tree-blossom.stage-visible {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.tree-lights {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.tree-fairy-light {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: #fff6e0;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    box-shadow: 0 0 10px #ffeaa7;
+    animation: twinkle 3s infinite alternate ease-in-out;
+    transition: transform 1.5s ease, opacity 1s ease;
+}
+
+.tree-fairy-light.stage-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.tree-prompt {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-cream);
+    margin-top: 1rem;
+    opacity: 0.7;
+    text-align: center;
+    animation: pulsePrompt 2s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   14. Pseudo-3D Cake Celebration Tier
+   ========================================================================== */
+.cake-celebration-container {
+    position: absolute;
+    bottom: -320px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 340px;
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+    transition: bottom 2.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1s ease;
+}
+
+.cake-celebration-container.is-active {
+    bottom: 30px;
+    pointer-events: auto;
+}
+
+.cake-celebration-container.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cake-assembly {
+    position: relative;
+    width: 250px;
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.cake-plate {
+    position: absolute;
+    bottom: -8px;
+    width: 280px;
+    height: 30px;
+    background: radial-gradient(ellipse at 50% 50%, #ffffff 0%, #e0e0e0 70%, #b5b5b5 100%);
+    border-radius: 50%;
+    box-shadow: 
+        0 8px 20px rgba(0,0,0,0.4),
+        inset 0 1px 2px rgba(255,255,255,0.8);
+    z-index: 1;
+}
+
+.cake-tier {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+}
+
+.cake-tier .tier-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.cake-tier .tier-side {
+    position: relative;
+    width: 100%;
+    border-radius: 0 0 50% 50% / 0 0 20px 20px;
+    overflow: hidden;
+    z-index: 2;
+}
+
+/* Tier Bottom */
+.tier-bottom {
+    width: 230px;
+    height: 100px;
+    z-index: 2;
+}
+
+.tier-bottom .tier-top {
+    background-color: #d6cbd3;
+    height: 34px;
+}
+
+.tier-bottom .tier-side {
+    height: 80px;
+    background: linear-gradient(to bottom, #d6cbd3 0%, #a494a0 100%);
+    top: 17px;
+}
+
+.cake-drip {
+    position: absolute;
+    width: 16px;
+    height: 25px;
+    background-color: #faf6f0;
+    border-radius: 0 0 8px 8px;
+    top: 0;
+    box-shadow: 0 1.5px 3px rgba(0,0,0,0.15);
+}
+
+.drip-1 { left: 15%; height: 28px; }
+.drip-2 { left: 40%; height: 35px; }
+.drip-3 { left: 65%; height: 22px; }
+.drip-4 { left: 85%; height: 32px; }
+
+/* Tier Top */
+.tier-top-layer {
+    width: 170px;
+    height: 80px;
+    z-index: 3;
+    margin-bottom: -10px;
+}
+
+.tier-top-layer .tier-top {
+    background-color: #f7ebe1;
+    height: 28px;
+}
+
+.tier-top-layer .tier-side {
+    height: 65px;
+    background: linear-gradient(to bottom, #f7ebe1 0%, #cfbfb2 100%);
+    top: 14px;
+}
+
+.candle-holder-plate {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.cake-candle {
+    position: absolute;
+    bottom: 12px;
+    width: 8px;
+    height: 38px;
+    background: linear-gradient(to right, #ff7675 0%, #d63031 100%);
+    border-radius: 2px;
+    transform-origin: bottom center;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.cake-candle::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 3px;
+    width: 1.5px;
+    height: 5px;
+    background-color: #2d3436;
+}
+
+.candle-flame {
+    position: absolute;
+    top: -16px;
+    left: -1px;
+    width: 10px;
+    height: 15px;
+    background: radial-gradient(circle, #ffeaa7 15%, #e1b12c 100%);
+    border-radius: 50% 50% 35% 35% / 60% 60% 40% 40%;
+    box-shadow: 
+        0 0 10px rgba(253, 203, 110, 0.7),
+        0 0 20px rgba(225, 177, 44, 0.4);
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: bottom center;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cake-candle.is-lit .candle-flame {
+    opacity: 1;
+    transform: scale(1);
+    animation: flameFlicker 0.15s infinite alternate;
+}
+
+.cake-wish-banner {
+    font-family: var(--font-handwritten);
+    font-size: clamp(2.4rem, 6vw, 3.4rem);
+    color: var(--color-gold);
+    text-shadow: 0 0 15px rgba(244, 209, 174, 0.35);
+    margin-top: 1.5rem;
+    opacity: 0;
+    transform: translateY(12px);
+    text-align: center;
+    transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.cake-wish-banner.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.cake-instruction {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-cream);
+    margin-top: 0.5rem;
+    opacity: 0.7;
+    text-align: center;
+    animation: pulsePrompt 2.5s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   15. Centralized Surprise Gift Box Wrapper (V6 Addition)
+   ========================================================================== */
+.surprise-gift-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -42%) scale(0.9);
+    width: 220px;
+    height: 250px;
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 1.5s ease, transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.surprise-gift-container.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, -42%) scale(1);
+}
+
+.surprise-gift-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    background-color: var(--color-envelope-ext);
+    border-radius: 6px;
+    box-shadow: 
+        0 15px 35px rgba(0,0,0,0.5),
+        inset -5px -5px 12px rgba(0,0,0,0.15);
+    cursor: pointer;
+    animation: floatIdle 3s ease-in-out infinite, pulseGiftGlow 3s infinite alternate;
+}
+
+.surprise-box-lid {
+    position: absolute;
+    top: -6px;
+    left: -5px;
+    width: 150px;
+    height: 22px;
+    background-color: #6a5682;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    z-index: 3;
+    transform-origin: bottom center;
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;
+}
+
+/* Open sequence animation triggers on click */
+.surprise-gift-wrapper.is-opening .surprise-box-lid {
+    transform: translateY(-90px) rotate(-35deg) scale(0.8);
+    opacity: 0;
+}
+
+.surprise-box-body {
+    position: absolute;
+    top: 15px; left: 0;
+    width: 100%; height: calc(100% - 15px);
+    background-color: var(--color-envelope-ext);
+    border-radius: 0 0 6px 6px;
+}
+
+.surprise-box-ribbon-v {
+    position: absolute;
+    left: 50%; top: -6px;
+    transform: translateX(-50%);
+    width: 14px; height: 152px;
+    background-color: var(--color-gold);
+    z-index: 2;
+}
+
+.surprise-box-ribbon-h {
+    position: absolute;
+    top: 50%; left: 0;
+    transform: translateY(-50%);
+    width: 100%; height: 14px;
+    background-color: var(--color-gold);
+    z-index: 2;
+}
+
+.surprise-box-bow {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 18px;
+    z-index: 4;
+    transition: transform 0.8s ease, opacity 0.6s ease;
+}
+
+.surprise-gift-wrapper.is-opening .surprise-box-bow {
+    transform: translate(-50%, -60px) scale(0.2);
+    opacity: 0;
+}
+
+.s-bow-l, .s-bow-r {
+    width: 24px;
+    height: 18px;
+    border: 3px solid var(--color-gold);
+    border-radius: 50%;
+    position: absolute;
+}
+
+.s-bow-l { transform: rotate(-25deg); left: 0; }
+.s-bow-r { transform: rotate(25deg); right: 0; }
+
+.surprise-prompt {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-cream);
+    margin-top: 2rem;
+    opacity: 0.85;
+    text-align: center;
+    animation: pulsePrompt 2s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   16. Personalized Media Showcase Modal Card (V6 Addition)
+   ========================================================================== */
+.surprise-media-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    background-color: rgba(6, 9, 19, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(1rem, 4vw, 3rem);
+    transition: opacity 1.2s ease, visibility 1.2s ease;
+}
+
+.surprise-media-overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.media-card-wrapper {
+    background-color: var(--color-paper);
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    transform: translateY(30px) scale(0.96);
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.surprise-media-overlay.is-active .media-card-wrapper {
+    transform: translateY(0) scale(1);
+}
+
+.media-card-border {
+    position: absolute;
+    top: 15px; left: 15px; right: 15px; bottom: 15px;
+    border: 1px dashed rgba(86, 70, 109, 0.15);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.media-card-header {
+    text-align: center;
+    margin-bottom: 1.2rem;
+}
+
+.media-header-badge {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #bc8f60;
+    margin-bottom: 0.4rem;
+    display: inline-block;
+}
+
+.media-card-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    color: var(--color-envelope-int);
+    font-weight: 500;
+}
+
+/* Media placeholder box */
+.media-placeholder-frame {
+    width: 100%;
+    height: clamp(200px, 40vw, 280px);
+    background-color: #121926;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(86, 70, 109, 0.1);
+}
+
+.procedural-illustration-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #090f1d 0%, #1c152a 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.illustration-stars {
+    position: absolute;
+    top: 15%; left: 15%; width: 2px; height: 2px; background: #fff;
+    box-shadow: 
+        120px 40px 0 #fff,
+        250px -10px 0 #fff,
+        80px 140px 0 rgba(255,255,255,0.4),
+        310px 110px 0 #fff;
+}
+
+.illustration-glowing-heart {
+    width: 45px;
+    height: 45px;
+    background-color: #ff7675;
+    transform: rotate(-45deg);
+    position: relative;
+    box-shadow: 0 0 25px rgba(255, 118, 117, 0.45);
+    margin-bottom: 1.5rem;
+    animation: pulseGiftGlow 1.5s infinite alternate;
+}
+
+.illustration-glowing-heart::before,
+.illustration-glowing-heart::after {
+    content: '';
+    width: 45px; height: 45px;
+    background-color: #ff7675;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.illustration-glowing-heart::before { top: -22px; left: 0; }
+.illustration-glowing-heart::after { left: 22px; top: 0; }
+
+.illustration-caption {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.4);
+    max-width: 260px;
+}
+
+.media-card-body {
+    margin: 1.2rem 0;
+    text-align: center;
+}
+
+.media-card-text {
+    font-family: var(--font-letter-body);
+    font-size: clamp(1.4rem, 4vw, 1.7rem);
+    line-height: 1.4;
+    color: #4a3b32;
+}
+
+.media-card-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.finale-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--color-envelope-int);
+    color: var(--color-cream);
+    border: none;
+    padding: 0.9rem 2.4rem;
+    border-radius: 30px;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.finale-trigger-btn:hover {
+    background-color: var(--color-envelope-ext);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.surprise-media-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   17. Starry Grand Constellation Layer (V6 Addition)
+   ========================================================================== */
+.constellation-container {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(800px, 95vw);
+    height: 350px;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 4s cubic-bezier(0.25, 1, 0.5, 1), visibility 4s ease;
+}
+
+.constellation-container.constellation-active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.constellation-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.pulse-star {
+    animation: starPulseSpike 3s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   18. Grand Finale Overlay Panel (V6 Addition)
+   ========================================================================== */
+.finale-message-overlay {
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    width: min(580px, 90vw);
+    background: rgba(6, 9, 19, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+        0 15px 35px rgba(0,0,0,0.2),
+        inset 0 0 1px rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: clamp(1.2rem, 4vw, 2.2rem);
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: 
+        opacity 3.5s cubic-bezier(0.25, 1, 0.5, 1), 
+        transform 3.5s cubic-bezier(0.25, 1, 0.5, 1), 
+        visibility 3.5s ease;
+}
+
+.finale-message-overlay.finale-active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.finale-inner-banner {
+    text-align: center;
+    color: var(--color-paper);
+}
+
+.finale-cursive-subtitle {
+    font-family: var(--font-handwritten);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    color: var(--color-gold);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.finale-bold-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    margin-bottom: 1.2rem;
+    color: #ffffff;
+}
+
+.finale-body-text {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
+    line-height: 1.6;
+    opacity: 0.85;
+    max-width: 480px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.finale-glowing-signature {
+    font-size: 1.4rem;
+    color: #ff7675;
+    animation: starPulseSpike 2s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   19. Atmospheric Keyframes
    ========================================================================== */
 @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -1888,7 +2674,7 @@ body, html {
 
 @keyframes starPulseSpike {
     0% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(2.5); filter: brightness(2); }
+    50% { transform: scale(2.2); filter: brightness(2); }
     100% { transform: scale(1); filter: brightness(1); }
 }
 
@@ -1984,6 +2770,11 @@ body, html {
 @keyframes elementBounceScale {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.15); }
+}
+
+@keyframes pulseGiftGlow {
+    0% { filter: drop-shadow(0 0 5px rgba(244, 209, 174, 0.15)); }
+    100% { filter: drop-shadow(0 0 20px rgba(244, 209, 174, 0.45)); }
 }
 
 /* Atmosphere Dimming modifiers */
