@@ -5,8 +5,8 @@
     /* Color Palette */
     --color-sky-top: #060913;
     --color-sky-bottom: #1a2639;
-    --color-moon: #fdf6e2;
-    --color-moon-glow: rgba(253, 246, 226, 0.18);
+    --color-moon: #fffef2;
+    --color-moon-glow: rgba(253, 246, 226, 0.22);
     
     /* Floral & Foliage Palette */
     --color-sage-dark: #1b2a1c;
@@ -28,6 +28,7 @@
     /* Typography */
     --font-handwritten: 'Pinyon Script', cursive;
     --font-letter-body: 'Alex Brush', cursive;
+    --font-scrapbook: 'Reenie Beanie', cursive;
     --font-serif: 'Playfair Display', serif;
     --font-sans: 'Montserrat', sans-serif;
 
@@ -155,7 +156,7 @@ body, html {
 }
 
 /* ==========================================================================
-   5. Celestial Elements (Adjusted Moon to look far away)
+   5. Celestial Elements (Realistic High-Fidelity Distant Moon)
    ========================================================================== */
 .stars-layer {
     position: absolute;
@@ -175,7 +176,7 @@ body, html {
     animation: twinkle var(--twinkle-duration, 4s) infinite ease-in-out;
 }
 
-/* Redesigned smaller, distant Moon */
+/* Realistic 3D Moon Positioning */
 .moon-layer {
     position: absolute;
     top: 8%;
@@ -189,39 +190,63 @@ body, html {
 }
 
 .moon {
-    width: clamp(55px, 7vw, 75px);
-    height: clamp(55px, 7vw, 75px);
-    background-color: var(--color-moon);
+    width: clamp(60px, 8vw, 85px);
+    height: clamp(60px, 8vw, 85px);
+    background: radial-gradient(circle at 35% 35%, #fffef7 0%, #fdf6e2 45%, #e6d8b3 85%, #baa575 100%);
     border-radius: 50%;
     position: relative;
     z-index: 2;
+    overflow: hidden;
     box-shadow: 
         0 0 15px rgba(253, 246, 226, 0.1),
-        inset -5px -5px 12px rgba(0, 0, 0, 0.08);
+        inset -8px -8px 18px rgba(0, 0, 0, 0.18);
 }
 
-.moon-halo {
+/* Overlay representing natural crater texture patterns */
+.moon-texture-overlay {
     position: absolute;
-    width: clamp(120px, 15vw, 160px);
-    height: clamp(120px, 15vw, 160px);
-    background: radial-gradient(circle, var(--color-moon-glow) 0%, rgba(253, 246, 226, 0) 70%);
-    border-radius: 50%;
-    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 80%);
     pointer-events: none;
-    animation: ambientPulse 12s ease-in-out infinite alternate;
 }
 
-/* Subtle moon crater structures */
+/* Detailed realistic crater styling */
 .moon-crater {
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(186, 165, 117, 0.16);
     border-radius: 50%;
-    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.02);
+    box-shadow: 
+        inset 1.5px 1.5px 3px rgba(0, 0, 0, 0.15), 
+        0.5px 0.5px 1px rgba(255, 255, 255, 0.4);
+}
+
+.crater-shadow {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 60%);
 }
 
 .crater-1 { width: 22%; height: 22%; top: 25%; left: 30%; }
-.crater-2 { width: 12%; height: 12%; top: 55%; left: 18%; }
-.crater-3 { width: 14%; height: 14%; top: 48%; left: 62%; }
+.crater-2 { width: 14%; height: 14%; top: 55%; left: 18%; }
+.crater-3 { width: 16%; height: 16%; top: 48%; left: 62%; }
+.crater-4 { width: 8%; height: 8%; top: 18%; left: 55%; }
+.crater-5 { width: 10%; height: 10%; top: 70%; left: 45%; }
+
+/* Ambient Halo (Breathing illumination) */
+.moon-halo {
+    position: absolute;
+    width: clamp(140px, 18vw, 190px);
+    height: clamp(140px, 18vw, 190px);
+    background: radial-gradient(circle, var(--color-moon-glow) 0%, rgba(253, 246, 226, 0.05) 50%, rgba(253, 246, 226, 0) 75%);
+    border-radius: 50%;
+    z-index: 1;
+    pointer-events: none;
+    animation: moonBreatheGlow 10s ease-in-out infinite alternate;
+}
 
 /* Clouds */
 .clouds-layer {
@@ -291,6 +316,7 @@ body, html {
     height: 45%;
     z-index: 6;
     pointer-events: none;
+    transition: opacity 1.5s ease, filter 1.5s ease;
 }
 
 .meadow-floor {
@@ -396,9 +422,10 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 7; /* Placed over meadow, under heavy vignettes */
+    z-index: 7;
     perspective: 1200px;
     pointer-events: none;
+    transition: opacity 1s ease, visibility 1s ease;
 }
 
 .envelope-wrapper {
@@ -409,12 +436,11 @@ body, html {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transform: translateY(15vh); /* Naturally settled inside the garden meadow */
+    transform: translateY(15vh);
     pointer-events: auto;
     transition: transform var(--transition-medium);
 }
 
-/* Subtle physical shadow behind envelope */
 .envelope {
     position: relative;
     width: 100%;
@@ -429,7 +455,6 @@ body, html {
     transition: transform var(--transition-medium), box-shadow var(--transition-medium);
 }
 
-/* Soft breathing hover effect on envelope */
 .envelope-wrapper:hover .envelope {
     transform: translateY(-8px) rotateX(4deg);
     box-shadow: 
@@ -437,7 +462,6 @@ body, html {
         0 8px 15px rgba(0, 0, 0, 0.35);
 }
 
-/* Inner lining visible once flap opens */
 .envelope-inside {
     position: absolute;
     top: 0;
@@ -449,7 +473,6 @@ body, html {
     z-index: 1;
 }
 
-/* Letter preview peeking out before click */
 .envelope-letter-preview {
     position: absolute;
     bottom: 5px;
@@ -464,7 +487,6 @@ body, html {
     transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Core procedural folded flaps */
 .envelope-flap {
     position: absolute;
     width: 100%;
@@ -498,7 +520,6 @@ body, html {
     transition: transform 0.6s ease-in-out;
 }
 
-/* Wax-like dynamic gold physical seal */
 .envelope-seal {
     position: absolute;
     top: 50%;
@@ -513,7 +534,6 @@ body, html {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
 }
 
-/* Envelope prompts styling */
 .envelope-prompt {
     font-size: 0.8rem;
     font-weight: 500;
@@ -532,10 +552,10 @@ body, html {
     opacity: 1;
 }
 
-/* Active Open Animations States */
+/* Envelope Open Animation States */
 .envelope.is-opening .top-flap {
     transform: rotateX(180deg);
-    z-index: 1; /* Move behind inside contents */
+    z-index: 1;
 }
 
 .envelope.is-opening .envelope-seal {
@@ -548,7 +568,7 @@ body, html {
     z-index: 10;
 }
 
-.envelope.is-disappearing {
+.envelope-wrapper.envelope-disappearing {
     transform: translateY(100vh) scale(0.8);
     opacity: 0;
     pointer-events: none;
@@ -603,7 +623,6 @@ body, html {
     transform: translateY(0) scale(1);
 }
 
-/* Decorative Ornaments & Borders */
 .letter-decorative-border {
     position: absolute;
     top: 15px;
@@ -640,7 +659,6 @@ body, html {
     background: linear-gradient(to left, rgba(43, 33, 30, 0) 0%, rgba(43, 33, 30, 0.25) 100%);
 }
 
-/* Scrollable message content body */
 .letter-scroll-content {
     flex-grow: 1;
     overflow-y: auto;
@@ -687,7 +705,6 @@ body, html {
     transform: translateY(0);
 }
 
-/* Accent words glows */
 .glow-word {
     color: #bc8f60;
     font-weight: 500;
@@ -696,7 +713,7 @@ body, html {
     text-shadow: 0 0 12px rgba(188, 143, 96, 0.12);
 }
 
-/* Letter Footer & Premium Action Button */
+/* Buttons */
 .letter-footer {
     display: flex;
     justify-content: center;
@@ -761,11 +778,547 @@ body, html {
 }
 
 /* ==========================================================================
-   10. Ambient Animations
+   10. Scrapbook Memory Timeline Section
    ========================================================================== */
-@keyframes ambientPulse {
-    0% { opacity: 0.7; transform: scale(0.95); }
-    100% { opacity: 1; transform: scale(1.05); }
+.timeline-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 12;
+    opacity: 0;
+    pointer-events: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    transition: opacity 1.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.timeline-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.timeline-container.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.timeline-scroll-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 8vh 20px 15vh 20px;
+}
+
+/* Timeline Header */
+.timeline-header {
+    text-align: center;
+    color: var(--color-cream);
+    margin-bottom: 12vh;
+}
+
+.timeline-subtitle {
+    font-family: var(--font-handwritten);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--color-gold);
+    display: block;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 10px rgba(244, 209, 174, 0.2);
+}
+
+.timeline-main-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+    letter-spacing: -0.01em;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+}
+
+.timeline-intro {
+    max-width: 520px;
+    margin: 0 auto;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    line-height: 1.6;
+    opacity: 0.75;
+    font-weight: 300;
+}
+
+/* Timeline Tracks & Connections */
+.timeline-track {
+    position: relative;
+    padding: 2rem 0;
+}
+
+/* Soft golden centered connection thread line */
+.timeline-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    background: linear-gradient(to bottom, 
+        rgba(244, 209, 174, 0) 0%, 
+        rgba(244, 209, 174, 0.25) 8%, 
+        rgba(244, 209, 174, 0.25) 92%, 
+        rgba(244, 209, 174, 0) 100%);
+}
+
+/* Timeline Staggered Grid Positions */
+.timeline-item {
+    display: flex;
+    width: 100%;
+    margin-bottom: 12vh;
+    perspective: 1000px;
+}
+
+.timeline-item.left {
+    justify-content: flex-start;
+}
+
+.timeline-item.right {
+    justify-content: flex-end;
+}
+
+/* Scroll Animation Transitions states */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(60px) scale(0.92) rotate(calc(var(--rand-rotation) * 1.5));
+    transition: 
+        opacity 1.4s cubic-bezier(0.25, 1, 0.5, 1), 
+        transform 1.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(var(--rand-rotation));
+}
+
+/* ==========================================================================
+   11. Scrapbook Media Card Designs (Polaroid, Postcard, Notes, Tickets)
+   ========================================================================== */
+.scrapbook-card {
+    background-color: var(--color-paper);
+    box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.35),
+        0 3px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+}
+
+.scrapbook-card:hover {
+    transform: scale(1.03) rotate(0deg) !important;
+    box-shadow: 
+        0 22px 55px rgba(0, 0, 0, 0.45),
+        0 8px 20px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+}
+
+/* A. Polaroid Element Design */
+.polaroid {
+    width: clamp(250px, 35vw, 300px);
+    padding: 16px 16px 24px 16px;
+}
+
+.polaroid-img-wrapper {
+    width: 100%;
+    height: clamp(180px, 25vw, 220px);
+    background-color: #0d1624;
+    overflow: hidden;
+    position: relative;
+    border-radius: 2px;
+}
+
+/* High Fidelity CSS Procedural memories artwork inside Polaroid */
+.polaroid-procedural-graphics.starry-lake {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #030816 0%, #172a45 60%, #3a5c85 100%);
+    position: relative;
+}
+
+.starry-lake::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 20%;
+    width: 2px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 
+        30px 15px 0 #fff,
+        110px -5px 0 #fff,
+        140px 25px 0 rgba(255,255,255,0.7),
+        75px 40px 0 #fff;
+}
+
+.mini-moon {
+    position: absolute;
+    top: 20%;
+    right: 25%;
+    width: 22px;
+    height: 22px;
+    background-color: #fdf6e2;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(253, 246, 226, 0.4);
+}
+
+.lake-reflection {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%;
+    background: linear-gradient(to bottom, rgba(58, 92, 133, 0.8) 0%, rgba(23, 42, 69, 0.95) 100%);
+    border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.lake-reflection::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 40%;
+    width: 30%;
+    height: 1px;
+    background-color: rgba(253, 246, 226, 0.35);
+    box-shadow: 
+        -10px 4px 0 rgba(253, 246, 226, 0.2),
+        5px 8px 0 rgba(253, 246, 226, 0.25);
+}
+
+.scrapbook-caption {
+    font-family: var(--font-scrapbook);
+    font-size: clamp(1.4rem, 2.5vw, 1.7rem);
+    color: #4a3b32;
+    text-align: center;
+    margin-top: 18px;
+    line-height: 1.1;
+}
+
+/* B. Vintage Postcard Element Design */
+.postcard {
+    width: clamp(320px, 50vw, 480px);
+    padding: 24px clamp(16px, 3vw, 28px);
+}
+
+.postcard-grid {
+    display: grid;
+    grid-template-columns: 1.1fr auto 0.9fr;
+    gap: 20px;
+}
+
+.postcard-message {
+    font-family: var(--font-scrapbook);
+    color: #4a3b32;
+}
+
+.postcard-message h3 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+    font-weight: normal;
+}
+
+.postcard-message p {
+    font-size: 1.25rem;
+    line-height: 1.3;
+    margin-bottom: 12px;
+}
+
+.postcard-signature {
+    font-size: 1.35rem;
+    display: block;
+}
+
+.postcard-divider {
+    width: 1px;
+    background-color: rgba(74, 59, 50, 0.15);
+    height: 100%;
+}
+
+.postcard-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+/* Detailed Stamps details */
+.postage-stamp {
+    position: relative;
+    width: 48px;
+    height: 58px;
+    background-color: #ebdcb9;
+    border: 1px solid rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.stamp-serrated {
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    border: 3px dotted var(--color-paper);
+    pointer-events: none;
+}
+
+.stamp-icon {
+    font-size: 1.3rem;
+    color: #a85856;
+}
+
+.postcard-address {
+    font-family: var(--font-scrapbook);
+    font-size: 1.15rem;
+    color: rgba(74, 59, 50, 0.7);
+    width: 100%;
+    border-top: 1px solid rgba(74, 59, 50, 0.1);
+    padding-top: 10px;
+}
+
+.postcard-address span {
+    display: block;
+    border-bottom: 1px solid rgba(74, 59, 50, 0.1);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+/* C. Pastel Sticky Note Design */
+.sticky-note {
+    width: clamp(230px, 30vw, 260px);
+    background: linear-gradient(135deg, #fffcf0 0%, #fff9d6 100%);
+    padding: 24px 20px;
+    border-radius: 1px;
+    position: relative;
+}
+
+/* Textured tape simulation holding the sticky note */
+.sticky-tape {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 80px;
+    height: 25px;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(1px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.sticky-pin {
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.85;
+}
+
+.sticky-title {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #7a6e4d;
+    margin-bottom: 8px;
+}
+
+.sticky-body {
+    font-family: var(--font-scrapbook);
+    font-size: 1.35rem;
+    color: #4a4430;
+    line-height: 1.25;
+}
+
+/* D. Perforated Event Ticket Stub Design */
+.ticket-stub {
+    width: clamp(300px, 45vw, 420px);
+    background-color: #eedcc3;
+    position: relative;
+    overflow: hidden;
+    padding: 14px;
+}
+
+/* Perforated holes styled with matching background colors to blend */
+.ticket-perforation {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: var(--color-sky-bottom);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+.ticket-perforation.left { left: -9px; }
+.ticket-perforation.right { right: -9px; }
+
+.ticket-inner-border {
+    border: 1px dashed rgba(74, 59, 50, 0.3);
+    border-radius: 2px;
+    padding: 16px;
+    height: 100%;
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: rgba(74, 59, 50, 0.6);
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(74, 59, 50, 0.15);
+    padding-bottom: 8px;
+}
+
+.ticket-main {
+    margin-bottom: 15px;
+}
+
+.ticket-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: #4a3b32;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.ticket-detail {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: rgba(74, 59, 50, 0.85);
+    line-height: 1.4;
+}
+
+.ticket-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: rgba(74, 59, 50, 0.6);
+    border-top: 1px solid rgba(74, 59, 50, 0.15);
+    padding-top: 8px;
+}
+
+/* Timeline Footer */
+.timeline-footer {
+    text-align: center;
+    margin-top: 8vh;
+}
+
+.timeline-end-text {
+    font-family: var(--font-handwritten);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    color: var(--color-gold);
+    opacity: 0.6;
+    animation: pulsePrompt 3s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   12. Responsive Design Framework adjustments
+   ========================================================================== */
+@media (max-width: 768px) {
+    .timeline-line {
+        left: 20px;
+    }
+    .timeline-item.left, .timeline-item.right {
+        justify-content: flex-start;
+        padding-left: 35px;
+    }
+    .postcard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .postcard-divider {
+        width: 100%;
+        height: 1px;
+    }
+    .postcard-meta {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .postage-stamp {
+        width: 42px;
+        height: 52px;
+    }
+    .reveal-on-scroll {
+        transform: translateY(35px) scale(0.96) rotate(0deg);
+    }
+    .reveal-on-scroll.revealed {
+        transform: translateY(0) scale(1) rotate(calc(var(--rand-rotation) * 0.4));
+    }
+}
+
+/* ==========================================================================
+   13. Overlays & Keyframes
+   ========================================================================== */
+.ambient-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 50%, rgba(6, 9, 19, 0.4) 100%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInBreath {
+    0% { opacity: 0; transform: scale(0.98); filter: blur(2px); }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes fillProgress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+@keyframes moonBreatheGlow {
+    0% {
+        box-shadow: 
+            0 0 25px var(--color-moon-glow),
+            0 0 50px rgba(253, 246, 226, 0.08);
+        transform: scale(0.97);
+    }
+    100% {
+        box-shadow: 
+            0 0 35px var(--color-moon-glow),
+            0 0 75px rgba(253, 246, 226, 0.16);
+        transform: scale(1.03);
+    }
+}
+
+@keyframes drift {
+    0% { transform: translateX(-15%); }
+    100% { transform: translateX(15%); }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: var(--star-max-opacity, 0.8); }
+}
+
+@keyframes windSway {
+    0% { transform: rotate(calc(var(--sway-angle, 4deg) * -1)); }
+    100% { transform: rotate(var(--sway-angle, 4deg)); }
 }
 
 @keyframes pulsePrompt {
@@ -773,7 +1326,7 @@ body, html {
     100% { opacity: 0.8; }
 }
 
-/* Dynamic backdrop modifications during reading phase */
+/* Blurred background transition when reading letter */
 .scene-container.dimmed-atmosphere .meadow-container,
 .scene-container.dimmed-atmosphere .moon-layer,
 .scene-container.dimmed-atmosphere .clouds-layer {
@@ -781,3 +1334,11 @@ body, html {
     filter: blur(1.5px);
     transition: opacity 1.5s ease, filter 1.5s ease;
 }
+
+/* Dimmed backdrop when reading memories */
+.scene-container.dimmed-for-timeline .meadow-container,
+.scene-container.dimmed-for-timeline .moon-layer {
+    opacity: 0.22;
+    filter: blur(2.5px);
+    transition: opacity 2s ease, filter 2s ease;
+   }
