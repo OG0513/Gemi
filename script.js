@@ -1,13 +1,13 @@
 /**
  * Interactive Magical Garden Environment
- * Version 2 (Envelope & Reading Mechanics)
+ * Version 3 (Scrapbook Memory Timeline)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 
-let atmEngineInstance = null; // Reference to trigger canvas effects
+let atmEngineInstance = null; 
 
 function initApp() {
     const starsContainer = document.getElementById('stars-container');
@@ -28,17 +28,20 @@ function initApp() {
     generateCelestialSky(starsContainer, CONFIG.starCount);
     generateMeadow(grassCanopy, CONFIG.grassDensity, CONFIG.flowerCount);
     
-    // Fireflies, Petals and Sparkles Canvas Engine
+    // Fireflies, Petals, and Sparkles Engine
     atmEngineInstance = new AtmosphereEngine(atmosphereCanvas);
     atmEngineInstance.start();
 
-    // Set up Parallax (Only desktop / mouse hover devices)
+    // Set up Parallax (Only desktop / hover devices)
     if (window.matchMedia('(hover: hover)').matches) {
         setupParallax();
     }
 
-    // Set up Envelope Interactions
+    // Set up Envelope & Letter Mechanics
     setupEnvelopeEngine();
+
+    // Set up Scroll Observers for Timeline Scrapbook elements
+    setupTimelineScrollReveal();
 
     // Handles Loading Completion Screen Transitions
     setTimeout(() => {
@@ -80,7 +83,7 @@ function generateCelestialSky(container, count) {
         star.className = 'star';
         
         const x = Math.random() * 100;
-        const y = Math.random() * 65; // Stars kept nicely above terrain
+        const y = Math.random() * 65; 
         const size = (Math.random() * 1.5 + 0.5).toFixed(1);
         const duration = (Math.random() * 4 + 3).toFixed(1);
         const delay = (Math.random() * 5).toFixed(1);
@@ -110,13 +113,13 @@ function generateMeadow(container, grassDensity, flowerCount) {
     const flowerColors = ['#f3b0c3', '#d6cbd3', '#eae5d9', '#f4d1ae', '#b5c7d3'];
     const flowerTypes = ['bell', 'star', 'bud'];
 
-    // 1. Generate Procedural Grass
+    // 1. Generate Grass
     for (let i = 0; i < grassDensity; i++) {
         const blade = document.createElement('div');
         blade.className = 'grass-blade';
 
         const positionX = (i / grassDensity) * 100 + (Math.random() * 2 - 1);
-        const height = Math.floor(Math.random() * 70) + 60; // 60px to 130px
+        const height = Math.floor(Math.random() * 70) + 60; 
         const width = (Math.random() * 2.5 + 2).toFixed(1);
         const swayDuration = (Math.random() * 3 + 3.5).toFixed(1);
         const swayDelay = (Math.random() * -5).toFixed(1);
@@ -135,14 +138,14 @@ function generateMeadow(container, grassDensity, flowerCount) {
         fragment.appendChild(blade);
     }
 
-    // 2. Generate Scenic Wildflowers
+    // 2. Generate Wildflowers
     for (let i = 0; i < flowerCount; i++) {
         const flower = document.createElement('div');
         const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
         flower.className = `flower flower-type-${type}`;
 
         const positionX = (Math.random() * 96) + 2;
-        const stemHeight = Math.floor(Math.random() * 60) + 70; // 70px to 130px
+        const stemHeight = Math.floor(Math.random() * 60) + 70; 
         const swayDuration = (Math.random() * 2.5 + 4).toFixed(1);
         const swayDelay = (Math.random() * -5).toFixed(1);
         const swayAngle = (Math.random() * 3 + 2).toFixed(1);
@@ -234,7 +237,6 @@ class AtmosphereEngine {
         }
     }
 
-    // Triggered when clicking envelope to create magical visual reinforcement
     triggerSparkleBlast(x, y) {
         const sparkleColors = ['#f4d1ae', '#ffd29d', '#ffffff', '#f3b0c3'];
         for (let i = 0; i < 40; i++) {
@@ -244,7 +246,7 @@ class AtmosphereEngine {
                 x: x,
                 y: y,
                 vx: Math.cos(angle) * velocity,
-                vy: Math.sin(angle) * velocity - 1.5, // Bias upward trajectory
+                vy: Math.sin(angle) * velocity - 1.5,
                 radius: Math.random() * 2.5 + 1,
                 alpha: 1,
                 decay: Math.random() * 0.02 + 0.01,
@@ -283,13 +285,13 @@ class AtmosphereEngine {
             }
         });
 
-        // Update Interactive Burst Sparkles
+        // Update Sparkles
         for (let i = this.sparkles.length - 1; i >= 0; i--) {
             const s = this.sparkles[i];
             s.x += s.vx;
             s.y += s.vy;
-            s.vy += 0.05; // Gentle gravity effect
-            s.vx *= 0.98; // Friction drag
+            s.vy += 0.05; 
+            s.vx *= 0.98; 
             s.alpha -= s.decay;
 
             if (s.alpha <= 0) {
@@ -321,7 +323,7 @@ class AtmosphereEngine {
             this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
             this.ctx.fill();
         });
-        this.ctx.globalAlpha = 1.0; // Reset canvas context alpha map
+        this.ctx.globalAlpha = 1.0; 
 
         // 3. Petals
         this.petals.forEach(p => {
@@ -354,53 +356,47 @@ class AtmosphereEngine {
    ========================================================================== */
 function setupEnvelopeEngine() {
     const envelope = document.getElementById('interactive-envelope');
+    const envelopeLayer = document.getElementById('envelope-layer');
     const wrapper = document.getElementById('envelope-wrapper');
     const promptText = document.getElementById('envelope-prompt');
     const modal = document.getElementById('letter-modal');
     const paragraphs = document.querySelectorAll('.letter-para');
     const continueBtn = document.getElementById('continue-btn');
+    const timelineContainer = document.getElementById('timeline-container');
     const scene = document.getElementById('scene');
 
     let letterOpened = false;
 
-    // Combined click or key press interaction handler
     const openAction = (e) => {
         if (letterOpened) return;
         letterOpened = true;
 
-        // Obtain dynamic viewport positions for sparkle system coordinates
         const rect = envelope.getBoundingClientRect();
         const sparkleX = rect.left + rect.width / 2;
         const sparkleY = rect.top + rect.height / 2;
 
-        // 1. Emit magical interactive visual effects
         if (atmEngineInstance) {
             atmEngineInstance.triggerSparkleBlast(sparkleX, sparkleY);
         }
 
-        // 2. Phase 1: Open Flap 3D structure
         promptText.style.opacity = '0';
         envelope.classList.add('is-opening');
 
-        // 3. Phase 2: Slide letter preview smoothly out of back envelope pocket
         setTimeout(() => {
             envelope.classList.add('is-extracting');
         }, 850);
 
-        // 4. Phase 3: Transition view context beautifully into writing-desk mode
         setTimeout(() => {
             wrapper.classList.add('envelope-disappearing');
             scene.classList.add('dimmed-atmosphere');
             modal.classList.add('is-active');
             
-            // Execute comfortable chronological paragraph reveals
             revealLetterParagraphs(paragraphs, continueBtn);
         }, 1900);
     };
 
     envelope.addEventListener('click', openAction);
     
-    // Keyboard accessibility fallback triggers
     envelope.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -408,13 +404,24 @@ function setupEnvelopeEngine() {
         }
     });
 
-    // Premium interactive click response for disabled continue button
+    // Premium Transition from Letter Modal -> Memory Timeline
     continueBtn.addEventListener('click', () => {
-        // Non-navigating reactive state loop (Micro-interactions ready for next version phase)
-        continueBtn.style.transform = 'scale(0.95)';
+        // 1. Gently close the letter paper modal
+        modal.classList.remove('is-active');
+        
+        // 2. Clear envelope structure elements entirely
         setTimeout(() => {
-            continueBtn.style.transform = 'scale(1)';
-        }, 150);
+            if (envelopeLayer) {
+                envelopeLayer.style.display = 'none';
+            }
+        }, 800);
+
+        // 3. Unveil Memory Timeline & Dim Garden further
+        setTimeout(() => {
+            scene.classList.remove('dimmed-atmosphere');
+            scene.classList.add('dimmed-for-timeline');
+            timelineContainer.classList.add('is-active');
+        }, 1000);
     });
 }
 
@@ -425,21 +432,48 @@ function revealLetterParagraphs(paragraphs, button) {
         if (index < paragraphs.length) {
             paragraphs[index].classList.add('visible');
             index++;
-            // Soft pacing delays
             setTimeout(showNext, 1800);
         } else {
-            // Unlock and reveal continue actions smoothly on completion of message narrative
             button.removeAttribute('disabled');
             button.classList.add('is-unlocked');
         }
     };
 
-    // Stagger slightly before releasing first sentence block
     setTimeout(showNext, 1200);
 }
 
 /* ==========================================================================
-   6. Dynamic Parallax Layer Scrolling Effects
+   6. Scroll-Triggered Scrapbook Reveals (IntersectionObserver)
+   ========================================================================== */
+function setupTimelineScrollReveal() {
+    const timelineItems = document.querySelectorAll('.reveal-on-scroll');
+    
+    // Configured observer targeting beautiful 60FPS natural entries
+    const observerOptions = {
+        root: document.getElementById('timeline-container'), // Relative viewport
+        rootMargin: '0px 0px -10% 0px', // Trigger slightly before crossing threshold
+        threshold: 0.15 // 15% visibility minimum
+    };
+
+    const revealCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                // Clean up tracking observer once successfully rendered
+                observer.unobserve(entry.target);
+            }
+        });
+    };
+
+    const observer = new IntersectionObserver(revealCallback, observerOptions);
+
+    timelineItems.forEach(item => {
+        observer.observe(item);
+    });
+}
+
+/* ==========================================================================
+   7. Dynamic Parallax Scrolling Effects
    ========================================================================== */
 function setupParallax() {
     const moon = document.querySelector('.moon-layer');
@@ -466,11 +500,10 @@ function setupParallax() {
         }
         if (meadow) {
             const speed = meadow.getAttribute('data-speed');
-            meadow.style.transform = `translate(${mouseX * speed}px, 0)`; // Vertical alignment locked on floor bounds
+            meadow.style.transform = `translate(${mouseX * speed}px, 0)`; 
         }
         if (envelopeWrapper && !envelopeWrapper.classList.contains('envelope-disappearing')) {
-            // Delicate, heavy responsive translation shift for visual tracking
             envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(15vh + ${mouseY * 0.006}px))`;
         }
     });
-            }
+        }
