@@ -1,185 +1,15 @@
 /**
  * Interactive Magical Garden Environment
  * Version 4 (Interactive Garden Objects)
+ * 
+ * Mobile-Proof & Safe-Evaluation Edition
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-});
-
+// Global variable for canvas controller
 let atmEngineInstance = null; 
 
-function initApp() {
-    const starsContainer = document.getElementById('stars-container');
-    const grassCanopy = document.getElementById('grass-canopy');
-    const atmosphereCanvas = document.getElementById('atmosphere-canvas');
-    const scene = document.getElementById('scene');
-    const loader = document.getElementById('loader');
-
-    // Configuration Settings
-    const CONFIG = {
-        starCount: 120,
-        grassDensity: calculateGrassDensity(),
-        flowerCount: calculateFlowerCount(),
-        loadingDuration: 3500
-    };
-
-    // Initialize Components
-    generateCelestialSky(starsContainer, CONFIG.starCount);
-    generateMeadow(grassCanopy, CONFIG.grassDensity, CONFIG.flowerCount);
-    
-    // Fireflies, Petals, and Sparkles Engine
-    atmEngineInstance = new AtmosphereEngine(atmosphereCanvas);
-    atmEngineInstance.start();
-
-    // Set up Parallax (Only desktop / hover devices)
-    if (window.matchMedia('(hover: hover)').matches) {
-        setupParallax();
-    }
-
-    // Set up Envelope & Letter Mechanics
-    setupEnvelopeEngine();
-
-    // Set up Interactive Objects (Cat, Teddy, Lantern, etc.)
-    setupInteractiveObjects();
-
-    // Set up Scroll Observers for Timeline Scrapbook elements
-    setupTimelineScrollReveal();
-
-    // Handles Loading Completion Screen Transitions
-    setTimeout(() => {
-        loader.classList.add('fade-out');
-        scene.classList.remove('hidden-scene');
-    }, CONFIG.loadingDuration);
-
-    window.addEventListener('resize', () => {
-        atmEngineInstance.resize();
-    });
-}
-
 /* ==========================================================================
-   1. Helper Layout Calculators
-   ========================================================================== */
-function calculateGrassDensity() {
-    const width = window.innerWidth;
-    if (width < 600) return 90;
-    if (width < 1200) return 160;
-    return 270;
-}
-
-function calculateFlowerCount() {
-    const width = window.innerWidth;
-    if (width < 600) return 12;
-    if (width < 1200) return 22;
-    return 34;
-}
-
-/* ==========================================================================
-   2. Celestial & Starfield Generator
-   ========================================================================== */
-function generateCelestialSky(container, count) {
-    if (!container) return;
-    const fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        
-        const x = Math.random() * 100;
-        const y = Math.random() * 65; 
-        const size = (Math.random() * 1.5 + 0.5).toFixed(1);
-        const duration = (Math.random() * 4 + 3).toFixed(1);
-        const delay = (Math.random() * 5).toFixed(1);
-        const maxOpacity = (Math.random() * 0.6 + 0.3).toFixed(2);
-
-        star.style.left = `${x}%`;
-        star.style.top = `${y}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.setProperty('--twinkle-duration', `${duration}s`);
-        star.style.setProperty('--twinkle-delay', `${delay}s`);
-        star.style.setProperty('--star-max-opacity', maxOpacity);
-
-        fragment.appendChild(star);
-    }
-    container.appendChild(fragment);
-}
-
-/* ==========================================================================
-   3. Procedural Meadow Engine
-   ========================================================================== */
-function generateMeadow(container, grassDensity, flowerCount) {
-    if (!container) return;
-    const fragment = document.createDocumentFragment();
-
-    const grassColors = ['#1e2f1f', '#2d4230', '#3b553f', '#445f48', '#324634'];
-    const flowerColors = ['#f3b0c3', '#d6cbd3', '#eae5d9', '#f4d1ae', '#b5c7d3'];
-    const flowerTypes = ['bell', 'star', 'bud'];
-
-    // 1. Generate Grass
-    for (let i = 0; i < grassDensity; i++) {
-        const blade = document.createElement('div');
-        blade.className = 'grass-blade';
-
-        const positionX = (i / grassDensity) * 100 + (Math.random() * 2 - 1);
-        const height = Math.floor(Math.random() * 70) + 60; 
-        const width = (Math.random() * 2.5 + 2).toFixed(1);
-        const swayDuration = (Math.random() * 3 + 3.5).toFixed(1);
-        const swayDelay = (Math.random() * -5).toFixed(1);
-        const swayAngle = (Math.random() * 4 + 3).toFixed(1);
-        const color = grassColors[Math.floor(Math.random() * grassColors.length)];
-
-        blade.style.left = `${positionX}%`;
-        blade.style.height = `${height}px`;
-        blade.style.width = `${width}px`;
-        blade.style.zIndex = Math.floor(height);
-        blade.style.setProperty('--blade-color', color);
-        blade.style.setProperty('--sway-duration', `${swayDuration}s`);
-        blade.style.setProperty('--sway-delay', `${swayDelay}s`);
-        blade.style.setProperty('--sway-angle', `${swayAngle}deg`);
-
-        fragment.appendChild(blade);
-    }
-
-    // 2. Generate Wildflowers
-    for (let i = 0; i < flowerCount; i++) {
-        const flower = document.createElement('div');
-        const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
-        flower.className = `flower flower-type-${type}`;
-
-        const positionX = (Math.random() * 96) + 2;
-        const stemHeight = Math.floor(Math.random() * 60) + 70; 
-        const swayDuration = (Math.random() * 2.5 + 4).toFixed(1);
-        const swayDelay = (Math.random() * -5).toFixed(1);
-        const swayAngle = (Math.random() * 3 + 2).toFixed(1);
-        const flowerScale = (Math.random() * 0.4 + 0.8).toFixed(2);
-        const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-
-        flower.style.left = `${positionX}%`;
-        flower.style.zIndex = Math.floor(stemHeight + 10);
-        flower.style.setProperty('--stem-height', `${stemHeight}px`);
-        flower.style.setProperty('--sway-duration', `${swayDuration}s`);
-        flower.style.setProperty('--sway-delay', `${swayDelay}s`);
-        flower.style.setProperty('--sway-angle', `${swayAngle}deg`);
-        flower.style.setProperty('--flower-color', color);
-        flower.style.setProperty('--flower-scale', flowerScale);
-
-        const stem = document.createElement('div');
-        stem.className = 'flower-stem';
-        
-        const head = document.createElement('div');
-        head.className = 'flower-head';
-
-        flower.appendChild(stem);
-        flower.appendChild(head);
-        fragment.appendChild(flower);
-    }
-
-    container.appendChild(fragment);
-}
-
-/* ==========================================================================
-   4. Atmospheric Canvas Simulation (Fireflies, Petals, Sparkles, and Ripples)
+   1. Atmospheric Canvas Simulation Engine (Evaluated first to prevent TDZ)
    ========================================================================== */
 class AtmosphereEngine {
     constructor(canvas) {
@@ -242,7 +72,6 @@ class AtmosphereEngine {
         }
     }
 
-    // Interactive sparkle burst triggers
     triggerSparkleBlast(x, y, customColors = null) {
         const sparkleColors = customColors || ['#f4d1ae', '#ffd29d', '#ffffff', '#f3b0c3'];
         for (let i = 0; i < 35; i++) {
@@ -261,7 +90,6 @@ class AtmosphereEngine {
         }
     }
 
-    // Floating petal cascades triggered when blooming flowers
     triggerPetalCascade(x, y, count = 10) {
         for (let i = 0; i < count; i++) {
             this.petals.push({
@@ -280,7 +108,6 @@ class AtmosphereEngine {
         }
     }
 
-    // Full Screen Moonlight ripple trigger (Centered coordinates)
     triggerMoonlightRipple(x, y) {
         this.ripples.push({
             x: x,
@@ -293,7 +120,6 @@ class AtmosphereEngine {
     }
 
     update() {
-        // Update Fireflies
         this.fireflies.forEach(f => {
             f.direction += f.turnSpeed;
             f.x += Math.cos(f.direction) * f.speed;
@@ -309,7 +135,6 @@ class AtmosphereEngine {
             if (f.y > this.height + 20) f.y = -20;
         });
 
-        // Update Petals
         this.petals.forEach(p => {
             p.y += p.speedY;
             p.x += p.speedX + Math.sin(p.phase) * 0.15;
@@ -322,7 +147,6 @@ class AtmosphereEngine {
             }
         });
 
-        // Update Sparkles
         for (let i = this.sparkles.length - 1; i >= 0; i--) {
             const s = this.sparkles[i];
             s.x += s.vx;
@@ -330,28 +154,20 @@ class AtmosphereEngine {
             s.vy += 0.04; 
             s.vx *= 0.98; 
             s.alpha -= s.decay;
-
-            if (s.alpha <= 0) {
-                this.sparkles.splice(i, 1);
-            }
+            if (s.alpha <= 0) this.sparkles.splice(i, 1);
         }
 
-        // Update Moonlight Ripples
         for (let i = this.ripples.length - 1; i >= 0; i--) {
             const r = this.ripples[i];
             r.radius += r.speed;
             r.alpha = 0.35 * (1 - r.radius / r.maxRadius);
-
-            if (r.radius >= r.maxRadius) {
-                this.ripples.splice(i, 1);
-            }
+            if (r.radius >= r.maxRadius) this.ripples.splice(i, 1);
         }
     }
 
     render() {
         this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // 1. Moonlight Ripples (Cool translucent silver ring)
         this.ripples.forEach(r => {
             this.ctx.beginPath();
             this.ctx.strokeStyle = `rgba(253, 246, 226, ${r.alpha})`;
@@ -360,7 +176,6 @@ class AtmosphereEngine {
             this.ctx.stroke();
         });
 
-        // 2. Fireflies
         this.fireflies.forEach(f => {
             this.ctx.beginPath();
             const gradient = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius * 6);
@@ -372,7 +187,6 @@ class AtmosphereEngine {
             this.ctx.fill();
         });
 
-        // 3. Sparkles
         this.sparkles.forEach(s => {
             this.ctx.beginPath();
             this.ctx.fillStyle = s.color;
@@ -382,7 +196,6 @@ class AtmosphereEngine {
         });
         this.ctx.globalAlpha = 1.0; 
 
-        // 4. Petals
         this.petals.forEach(p => {
             this.ctx.save();
             this.ctx.translate(p.x, p.y);
@@ -409,7 +222,184 @@ class AtmosphereEngine {
 }
 
 /* ==========================================================================
-   5. Interactive Envelope & Folding Letter Mechanics
+   2. Main Safe Sandbox Initializer
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+});
+
+function safeInit(moduleName, initFunc) {
+    try {
+        initFunc();
+    } catch (error) {
+        console.warn(`[Safe-Init] Warning inside "${moduleName}":`, error.message);
+    }
+}
+
+function initApp() {
+    const scene = document.getElementById('scene');
+    const loader = document.getElementById('loader');
+
+    // Loader scheduled immediately to prevent freeze states
+    setTimeout(() => {
+        if (loader) loader.classList.add('fade-out');
+        if (scene) scene.classList.remove('hidden-scene');
+    }, 3500);
+
+    // Stars
+    safeInit('Stars Canopy', () => {
+        const starsContainer = document.getElementById('stars-container');
+        if (starsContainer) generateCelestialSky(starsContainer, 120);
+    });
+
+    // Meadow & grass
+    safeInit('Meadow Layer', () => {
+        const grassCanopy = document.getElementById('grass-canopy');
+        if (grassCanopy) generateMeadow(grassCanopy, calculateGrassDensity(), calculateFlowerCount());
+    });
+    
+    // Canvas Engine
+    safeInit('Atmospheric Canvas Engine', () => {
+        const atmosphereCanvas = document.getElementById('atmosphere-canvas');
+        if (atmosphereCanvas) {
+            atmEngineInstance = new AtmosphereEngine(atmosphereCanvas);
+            atmEngineInstance.start();
+        }
+    });
+
+    // Parallax
+    safeInit('Parallax Scrolling', () => {
+        if (window.matchMedia('(hover: hover)').matches) {
+            setupParallax();
+        }
+    });
+
+    // Interaction setups
+    safeInit('Envelope Engine', setupEnvelopeEngine);
+    safeInit('Interactive Objects Layer', setupInteractiveObjects);
+
+    window.addEventListener('resize', () => {
+        if (atmEngineInstance) {
+            atmEngineInstance.resize();
+        }
+    });
+}
+
+/* ==========================================================================
+   3. Procedural Meadow Engine Helper Calculators
+   ========================================================================== */
+function calculateGrassDensity() {
+    const width = window.innerWidth;
+    if (width < 600) return 90;
+    if (width < 1200) return 160;
+    return 270;
+}
+
+function calculateFlowerCount() {
+    const width = window.innerWidth;
+    if (width < 600) return 12;
+    if (width < 1200) return 22;
+    return 34;
+}
+
+function generateCelestialSky(container, count) {
+    if (!container) return;
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        
+        const x = Math.random() * 100;
+        const y = Math.random() * 65; 
+        const size = (Math.random() * 1.5 + 0.5).toFixed(1);
+        const duration = (Math.random() * 4 + 3).toFixed(1);
+        const delay = (Math.random() * 5).toFixed(1);
+        const maxOpacity = (Math.random() * 0.6 + 0.3).toFixed(2);
+
+        star.style.left = `${x}%`;
+        star.style.top = `${y}%`;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.setProperty('--twinkle-duration', `${duration}s`);
+        star.style.setProperty('--twinkle-delay', `${delay}s`);
+        star.style.setProperty('--star-max-opacity', maxOpacity);
+
+        fragment.appendChild(star);
+    }
+    container.appendChild(fragment);
+}
+
+function generateMeadow(container, grassDensity, flowerCount) {
+    if (!container) return;
+    const fragment = document.createDocumentFragment();
+
+    const grassColors = ['#1e2f1f', '#2d4230', '#3b553f', '#445f48', '#324634'];
+    const flowerColors = ['#f3b0c3', '#d6cbd3', '#eae5d9', '#f4d1ae', '#b5c7d3'];
+    const flowerTypes = ['bell', 'star', 'bud'];
+
+    for (let i = 0; i < grassDensity; i++) {
+        const blade = document.createElement('div');
+        blade.className = 'grass-blade';
+
+        const positionX = (i / grassDensity) * 100 + (Math.random() * 2 - 1);
+        const height = Math.floor(Math.random() * 70) + 60; 
+        const width = (Math.random() * 2.5 + 2).toFixed(1);
+        const swayDuration = (Math.random() * 3 + 3.5).toFixed(1);
+        const swayDelay = (Math.random() * -5).toFixed(1);
+        const swayAngle = (Math.random() * 4 + 3).toFixed(1);
+        const color = grassColors[Math.floor(Math.random() * grassColors.length)];
+
+        blade.style.left = `${positionX}%`;
+        blade.style.height = `${height}px`;
+        blade.style.width = `${width}px`;
+        blade.style.zIndex = Math.floor(height);
+        blade.style.setProperty('--blade-color', color);
+        blade.style.setProperty('--sway-duration', `${swayDuration}s`);
+        blade.style.setProperty('--sway-delay', `${swayDelay}s`);
+        blade.style.setProperty('--sway-angle', `${swayAngle}deg`);
+
+        fragment.appendChild(blade);
+    }
+
+    for (let i = 0; i < flowerCount; i++) {
+        const flower = document.createElement('div');
+        const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+        flower.className = `flower flower-type-${type}`;
+
+        const positionX = (Math.random() * 96) + 2;
+        const stemHeight = Math.floor(Math.random() * 60) + 70; 
+        const swayDuration = (Math.random() * 2.5 + 4).toFixed(1);
+        const swayDelay = (Math.random() * -5).toFixed(1);
+        const swayAngle = (Math.random() * 3 + 2).toFixed(1);
+        const flowerScale = (Math.random() * 0.4 + 0.8).toFixed(2);
+        const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+
+        flower.style.left = `${positionX}%`;
+        flower.style.zIndex = Math.floor(stemHeight + 10);
+        flower.style.setProperty('--stem-height', `${stemHeight}px`);
+        flower.style.setProperty('--sway-duration', `${swayDuration}s`);
+        flower.style.setProperty('--sway-delay', `${swayDelay}s`);
+        flower.style.setProperty('--sway-angle', `${swayAngle}deg`);
+        flower.style.setProperty('--flower-color', color);
+        flower.style.setProperty('--flower-scale', flowerScale);
+
+        const stem = document.createElement('div');
+        stem.className = 'flower-stem';
+        
+        const head = document.createElement('div');
+        head.className = 'flower-head';
+
+        flower.appendChild(stem);
+        flower.appendChild(head);
+        fragment.appendChild(flower);
+    }
+
+    container.appendChild(fragment);
+}
+
+/* ==========================================================================
+   4. Interaction Engines & Safe Sandbox Guards
    ========================================================================== */
 function setupEnvelopeEngine() {
     const envelope = document.getElementById('interactive-envelope');
@@ -419,9 +409,10 @@ function setupEnvelopeEngine() {
     const modal = document.getElementById('letter-modal');
     const paragraphs = document.querySelectorAll('.letter-para');
     const continueBtn = document.getElementById('continue-btn');
-    const timelineContainer = document.getElementById('timeline-container');
     const objectsLayer = document.getElementById('interactive-objects-layer');
     const scene = document.getElementById('scene');
+
+    if (!envelope || !modal || !continueBtn) return;
 
     let letterOpened = false;
 
@@ -429,7 +420,6 @@ function setupEnvelopeEngine() {
         if (letterOpened) return;
         letterOpened = true;
 
-        // Hide any active speech bubble card during envelope transitions
         closeSpeechBubble();
 
         const rect = envelope.getBoundingClientRect();
@@ -440,7 +430,7 @@ function setupEnvelopeEngine() {
             atmEngineInstance.triggerSparkleBlast(sparkleX, sparkleY);
         }
 
-        promptText.style.opacity = '0';
+        if (promptText) promptText.style.opacity = '0';
         envelope.classList.add('is-opening');
 
         setTimeout(() => {
@@ -448,8 +438,8 @@ function setupEnvelopeEngine() {
         }, 850);
 
         setTimeout(() => {
-            wrapper.classList.add('envelope-disappearing');
-            scene.classList.add('dimmed-atmosphere');
+            if (wrapper) wrapper.classList.add('envelope-disappearing');
+            if (scene) scene.classList.add('dimmed-atmosphere');
             modal.classList.add('is-active');
             
             revealLetterParagraphs(paragraphs, continueBtn);
@@ -468,17 +458,11 @@ function setupEnvelopeEngine() {
     continueBtn.addEventListener('click', () => {
         modal.classList.remove('is-active');
         
-        // Hide envelope elements and foreground interactive objects before presenting scrapbook
         setTimeout(() => {
             if (envelopeLayer) envelopeLayer.style.display = 'none';
-            if (objectsLayer) objectsLayer.style.opacity = '0';
+            // Continue stays active in V4 as the end button of the loop
+            if (scene) scene.classList.remove('dimmed-atmosphere');
         }, 800);
-
-        setTimeout(() => {
-            scene.classList.remove('dimmed-atmosphere');
-            scene.classList.add('dimmed-for-timeline');
-            timelineContainer.classList.add('is-active');
-        }, 1000);
     });
 }
 
@@ -499,19 +483,14 @@ function revealLetterParagraphs(paragraphs, button) {
     setTimeout(showNext, 1200);
 }
 
-/* ==========================================================================
-   6. Interactive Objects Core Engine (V4 Addition)
-   ========================================================================== */
-const activeBubbleTimeout = null;
-
 function setupInteractiveObjects() {
     const centralBubble = document.getElementById('central-bubble');
     const bubbleCloseBtn = document.getElementById('bubble-close');
 
-    // Central close handler
+    if (!centralBubble || !bubbleCloseBtn) return;
+
     bubbleCloseBtn.addEventListener('click', closeSpeechBubble);
 
-    // List of interactive element configs
     const configs = [
         {
             id: 'obj-lantern',
@@ -519,7 +498,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerSparkleBlast(rect.left + 14, rect.top + 20, ['#f1c40f', '#f39c12', '#ffffff']);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 14, rect.top + 20, ['#f1c40f', '#f39c12', '#ffffff']);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 1000);
             }
         },
@@ -548,7 +529,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerSparkleBlast(rect.left + 16, rect.top + 16, ['#eb4d4b', '#f0932b', '#6ab04c', '#ffffff']);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 16, rect.top + 16, ['#eb4d4b', '#f0932b', '#6ab04c', '#ffffff']);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 1000);
             }
         },
@@ -566,7 +549,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerPetalCascade(rect.left + 9, rect.top + 10, 12);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerPetalCascade(rect.left + 9, rect.top + 10, 12);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 1000);
             }
         },
@@ -576,8 +561,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('active-bounce');
                 const rect = node.getBoundingClientRect();
-                // Trigger soft silver expanding ripple from moon core
-                atmEngineInstance.triggerMoonlightRipple(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerMoonlightRipple(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                }
                 setTimeout(() => node.classList.remove('active-bounce'), 600);
             }
         },
@@ -587,7 +573,9 @@ function setupInteractiveObjects() {
             action: (node) => {
                 node.classList.add('pulse-active');
                 const rect = node.getBoundingClientRect();
-                atmEngineInstance.triggerSparkleBlast(rect.left + 8, rect.top + 8, ['#ffffff', '#eccc68', '#f1f2f6']);
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 8, rect.top + 8, ['#ffffff', '#eccc68', '#f1f2f6']);
+                }
                 setTimeout(() => node.classList.remove('pulse-active'), 800);
             }
         }
@@ -598,9 +586,7 @@ function setupInteractiveObjects() {
         if (node) {
             const interactHandler = (e) => {
                 e.stopPropagation();
-                // Trigger customized element physics action
                 cfg.action(node);
-                // Present central floating text bubble
                 presentSpeechBubble(cfg.msg);
             };
             node.addEventListener('click', interactHandler);
@@ -613,10 +599,9 @@ function setupInteractiveObjects() {
         }
     });
 
-    // Close speech bubble on ambient landscape tap
     document.addEventListener('click', (e) => {
         const bubble = document.getElementById('central-bubble');
-        if (bubble.classList.contains('is-active') && !bubble.contains(e.target)) {
+        if (bubble && bubble.classList.contains('is-active') && !bubble.contains(e.target)) {
             closeSpeechBubble();
         }
     });
@@ -625,10 +610,8 @@ function setupInteractiveObjects() {
 function presentSpeechBubble(text) {
     const bubble = document.getElementById('central-bubble');
     const textEl = document.getElementById('bubble-text');
-    
-    // Smooth reset fade if already active
+    if (!bubble || !textEl) return;
     bubble.classList.remove('is-active');
-    
     setTimeout(() => {
         textEl.textContent = text;
         bubble.classList.add('is-active');
@@ -637,47 +620,17 @@ function presentSpeechBubble(text) {
 
 function closeSpeechBubble() {
     const bubble = document.getElementById('central-bubble');
-    if (bubble) {
-        bubble.classList.remove('is-active');
-    }
+    if (bubble) bubble.classList.remove('is-active');
 }
 
 /* ==========================================================================
-   7. Scroll-Triggered Scrapbook Reveals
-   ========================================================================== */
-function setupTimelineScrollReveal() {
-    const timelineItems = document.querySelectorAll('.reveal-on-scroll');
-    
-    const observerOptions = {
-        root: document.getElementById('timeline-container'), 
-        rootMargin: '0px 0px -10% 0px', 
-        threshold: 0.15 
-    };
-
-    const revealCallback = (entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
-                observer.unobserve(entry.target);
-            }
-        });
-    };
-
-    const observer = new IntersectionObserver(revealCallback, observerOptions);
-
-    timelineItems.forEach(item => {
-        observer.observe(item);
-    });
-}
-
-/* ==========================================================================
-   8. Dynamic Parallax Layer Scrolling Effects
+   5. Dynamic Parallax Scrolling Engine
    ========================================================================== */
 function setupParallax() {
     const moon = document.querySelector('.moon-layer');
     const stars = document.querySelector('.stars-layer');
     const clouds = document.querySelector('.clouds-layer');
-    const meadow = document.querySelector('.meadow-container');
+    const meadow = document.getElementById('meadow-container');
     const envelopeWrapper = document.getElementById('envelope-wrapper');
 
     window.addEventListener('mousemove', (e) => {
@@ -701,7 +654,8 @@ function setupParallax() {
             meadow.style.transform = `translate(${mouseX * speed}px, 0)`; 
         }
         if (envelopeWrapper && !envelopeWrapper.classList.contains('envelope-disappearing')) {
-            envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(15vh + ${mouseY * 0.006}px))`;
+            // Updated centering maths to keep the envelope absolutely centered in tablet browsers
+            envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(-20% + ${mouseY * 0.006}px))`;
         }
     });
 }
