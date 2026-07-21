@@ -128,7 +128,7 @@ body, html {
 }
 
 /* ==========================================================================
-   4. Main Scene Layout (Zoom Wrapper prevents edge exposure)
+   4. Main Scene Layout (Safe Parallax Outer boundaries)
    ========================================================================== */
 .scene-container {
     position: relative;
@@ -300,7 +300,7 @@ body, html {
     animation: moonBreatheGlow 10s ease-in-out infinite alternate;
 }
 
-/* Atmospheric Moonlight Beam (Radial setup avoids vertical divider seam) */
+/* Atmospheric Moonlight Beam */
 .moonlight-beam {
     position: absolute;
     top: 0;
@@ -365,7 +365,7 @@ body, html {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 45%;
+    height: clamp(160px, 35vh, 320px); /* V5 Constraint: Guaranteed safe container height */
     z-index: 7;
     pointer-events: none;
     transition: opacity 1.5s ease, filter 1.5s ease;
@@ -461,36 +461,39 @@ body, html {
 }
 
 /* ==========================================================================
-   7. Atmosphere Canvas Element
+   8. Interactive self-aligning Objects Grid (V5 Responsive Design Fix)
    ========================================================================== */
-#atmosphere-canvas {
+.interactive-objects-grid {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 6;
-    pointer-events: none;
-}
-
-/* ==========================================================================
-   8. Interactive Objects Layer
-   ========================================================================== */
-.interactive-objects-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    bottom: clamp(10px, 4vh, 40px); /* Lifted safely from bottom navigation cut-offs */
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(850px, 92%);
+    height: 110px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
     z-index: 5;
     pointer-events: auto;
     transition: opacity 1s ease;
 }
 
+.grid-item-wrap {
+    position: relative;
+    width: 60px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+/* Fluid responsive scaling factor for all nested objects inside small tablet/mobile viewports */
 .interactive-node {
-    position: absolute;
+    position: relative;
     cursor: pointer;
     pointer-events: auto;
+    transform-origin: bottom center;
+    transform: scale(clamp(0.68, 1vw, 1.0)); /* Keeps items 100% visible on small screens */
     transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 
@@ -498,454 +501,83 @@ body, html {
     filter: drop-shadow(0 0 8px rgba(253, 246, 226, 0.4));
 }
 
-/* A. MAGIC LANTERN */
-.node-lantern {
-    left: 8%;
-    bottom: 25px;
-    width: 28px;
-    height: 45px;
-    animation: floatIdle 4s ease-in-out infinite;
-}
+/* Individual Object Anchors */
+.node-lantern { width: 28px; height: 45px; animation: floatIdle 4s ease-in-out infinite; }
+.node-cat { width: 45px; height: 30px; }
+.node-teddy { width: 40px; height: 48px; animation: breathingBear 5s ease-in-out infinite; }
+.node-gift { width: 32px; height: 32px; animation: giftWiggle 6s ease-in-out infinite; }
+.node-butterfly { width: 18px; height: 18px; animation: butterHover 4s ease-in-out infinite; }
+.node-flower { width: 18px; height: 55px; }
 
-.lantern {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
+/* Pure CSS Objects (Structural graphics styles) */
+.lantern { width: 100%; height: 100%; position: relative; }
+.lantern-cap { width: 24px; height: 6px; background-color: #3e332d; border-radius: 3px 3px 0 0; margin: 0 auto; }
+.lantern-body { width: 20px; height: 32px; background-color: #55443a; border: 1px solid #3e332d; border-radius: 2px; margin: 0 auto; padding: 2px; }
+.lantern-glass { width: 100%; height: 100%; background-color: rgba(253, 246, 226, 0.15); position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+.lantern-flame { width: 6px; height: 12px; background: radial-gradient(circle, #ffeaa7 20%, #e1b12c 100%); border-radius: 50% 50% 35% 35%; box-shadow: 0 0 12px #f1c40f; animation: flameFlicker 0.15s infinite alternate; }
+.lantern-base { width: 24px; height: 4px; background-color: #3e332d; border-radius: 1px; margin: 0 auto; }
+.node-lantern.active-bounce { animation: lanternFlare 1s ease-out; }
 
-.lantern-cap {
-    width: 24px;
-    height: 6px;
-    background-color: #3e332d;
-    border-radius: 3px 3px 0 0;
-    margin: 0 auto;
-}
-
-.lantern-body {
-    width: 20px;
-    height: 32px;
-    background-color: #55443a;
-    border: 1px solid #3e332d;
-    border-radius: 2px;
-    margin: 0 auto;
-    padding: 2px;
-}
-
-.lantern-glass {
-    width: 100%;
-    height: 100%;
-    background-color: rgba(253, 246, 226, 0.15);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.lantern-flame {
-    width: 6px;
-    height: 12px;
-    background: radial-gradient(circle, #ffeaa7 20%, #e1b12c 100%);
-    border-radius: 50% 50% 35% 35% / 60% 60% 40% 40%;
-    box-shadow: 0 0 12px #f1c40f;
-    animation: flameFlicker 0.15s infinite alternate;
-}
-
-.lantern-base {
-    width: 24px;
-    height: 4px;
-    background-color: #3e332d;
-    border-radius: 1px;
-    margin: 0 auto;
-}
-
-.node-lantern.active-bounce {
-    animation: lanternFlare 1s ease-out;
-}
-
-/* B. SLEEPY CAT */
-.node-cat {
-    left: 28%;
-    bottom: 12px;
-    width: 45px;
-    height: 30px;
-}
-
-.cat {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.cat-body {
-    width: 32px;
-    height: 20px;
-    background-color: #bdc3c7;
-    border-radius: 15px 15px 12px 12px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1);
-}
-
-.cat-tail {
-    position: absolute;
-    right: -6px;
-    bottom: 4px;
-    width: 12px;
-    height: 16px;
-    border: 3px solid #bdc3c7;
-    border-left: none;
-    border-bottom: none;
-    border-radius: 0 8px 8px 0;
-    transform-origin: bottom left;
-    animation: tailWag 3.5s ease-in-out infinite alternate;
-}
-
-.cat-head {
-    position: absolute;
-    left: 20px;
-    bottom: 12px;
-    width: 22px;
-    height: 22px;
-    background-color: #bdc3c7;
-    border-radius: 50%;
-}
-
-.cat-ear-l, .cat-ear-r {
-    position: absolute;
-    top: -3px;
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-bottom: 6px solid #bdc3c7;
-}
-
+.cat { width: 100%; height: 100%; position: relative; }
+.cat-body { width: 32px; height: 20px; background-color: #bdc3c7; border-radius: 15px 15px 12px 12px; position: absolute; bottom: 0; left: 0; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1); }
+.cat-tail { position: absolute; right: -6px; bottom: 4px; width: 12px; height: 16px; border: 3px solid #bdc3c7; border-left: none; border-bottom: none; border-radius: 0 8px 8px 0; transform-origin: bottom left; animation: tailWag 3.5s ease-in-out infinite alternate; }
+.cat-head { position: absolute; left: 20px; bottom: 12px; width: 22px; height: 22px; background-color: #bdc3c7; border-radius: 50%; }
+.cat-ear-l, .cat-ear-r { position: absolute; top: -3px; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 6px solid #bdc3c7; }
 .cat-ear-l { left: 2px; transform: rotate(-15deg); }
 .cat-ear-r { right: 2px; transform: rotate(15deg); }
-
-.cat-face {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.cat-eye-l, .cat-eye-r {
-    position: absolute;
-    top: 10px;
-    width: 4px;
-    height: 1.5px;
-    background-color: #7f8c8d;
-    border-radius: 1px;
-}
-
+.cat-face { position: relative; width: 100%; height: 100%; }
+.cat-eye-l, .cat-eye-r { position: absolute; top: 10px; width: 4px; height: 1.5px; background-color: #7f8c8d; border-radius: 1px; }
 .cat-eye-l { left: 4px; }
 .cat-eye-r { right: 4px; }
+.node-cat.active-bounce { animation: catStretch 0.8s ease-in-out; }
 
-.node-cat.active-bounce {
-    animation: catStretch 0.8s ease-in-out;
-}
-
-/* C. COZY TEDDY BEAR */
-.node-teddy {
-    right: 28%;
-    bottom: 10px;
-    width: 40px;
-    height: 48px;
-    animation: breathingBear 5s ease-in-out infinite;
-}
-
-.teddy {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.teddy-body {
-    width: 28px;
-    height: 26px;
-    background-color: #9c7c5d;
-    border-radius: 50%;
-    position: absolute;
-    bottom: 4px;
-    left: 6px;
-    box-shadow: inset -2px -2px 6px rgba(0,0,0,0.15);
-}
-
-.teddy-belly {
-    width: 18px;
-    height: 16px;
-    background-color: #dfbf9f;
-    border-radius: 50%;
-    position: absolute;
-    bottom: 4px;
-    left: 5px;
-}
-
-.teddy-head {
-    width: 24px;
-    height: 22px;
-    background-color: #9c7c5d;
-    border-radius: 50%;
-    position: absolute;
-    top: 4px;
-    left: 8px;
-}
-
-.teddy-snout {
-    width: 10px;
-    height: 8px;
-    background-color: #dfbf9f;
-    border-radius: 50%;
-    position: absolute;
-    bottom: 2px;
-    left: 7px;
-}
-
-.teddy-ear-l, .teddy-ear-r {
-    width: 8px;
-    height: 8px;
-    background-color: #9c7c5d;
-    border-radius: 50%;
-    position: absolute;
-    top: -2px;
-}
-
+.teddy { width: 100%; height: 100%; position: relative; }
+.teddy-body { width: 28px; height: 26px; background-color: #9c7c5d; border-radius: 50%; position: absolute; bottom: 4px; left: 6px; box-shadow: inset -2px -2px 6px rgba(0,0,0,0.15); }
+.teddy-belly { width: 18px; height: 16px; background-color: #dfbf9f; border-radius: 50%; position: absolute; bottom: 4px; left: 5px; }
+.teddy-head { width: 24px; height: 22px; background-color: #9c7c5d; border-radius: 50%; position: absolute; top: 4px; left: 8px; }
+.teddy-snout { width: 10px; height: 8px; background-color: #dfbf9f; border-radius: 50%; position: absolute; bottom: 2px; left: 7px; }
+.teddy-ear-l, .teddy-ear-r { width: 8px; height: 8px; background-color: #9c7c5d; border-radius: 50%; position: absolute; top: -2px; }
 .teddy-ear-l { left: 0; }
 .teddy-ear-r { right: 0; }
-
-.teddy-arm-l, .teddy-arm-r {
-    width: 8px;
-    height: 16px;
-    background-color: #9c7c5d;
-    border-radius: 4px;
-    position: absolute;
-    top: 20px;
-}
-
-.teddy-arm-l {
-    left: 1px;
-    transform-origin: top center;
-}
-
-.teddy-arm-r {
-    right: 1px;
-}
-
-.teddy-leg-l, .teddy-leg-r {
-    width: 11px;
-    height: 11px;
-    background-color: #836547;
-    border-radius: 50%;
-    position: absolute;
-    bottom: 0;
-}
-
+.teddy-arm-l, .teddy-arm-r { width: 8px; height: 16px; background-color: #9c7c5d; border-radius: 4px; position: absolute; top: 20px; }
+.teddy-arm-l { left: 1px; transform-origin: top center; }
+.teddy-arm-r { right: 1px; }
+.teddy-leg-l, .teddy-leg-r { width: 11px; height: 11px; background-color: #836547; border-radius: 50%; position: absolute; bottom: 0; }
 .teddy-leg-l { left: 4px; }
 .teddy-leg-r { right: 4px; }
+.teddy-arm-l.waving { animation: teddyWave 1.2s ease-in-out infinite; }
 
-.teddy-arm-l.waving {
-    animation: teddyWave 1.2s ease-in-out infinite;
-}
-
-/* D. INTERACTIVE GIFT BOX */
-.node-gift {
-    right: 8%;
-    bottom: 20px;
-    width: 32px;
-    height: 32px;
-    animation: giftWiggle 6s ease-in-out infinite;
-}
-
-.gift-box {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.gift-base {
-    width: 28px;
-    height: 24px;
-    background-color: #e58e26;
-    border-radius: 2px;
-    position: absolute;
-    bottom: 0;
-    left: 2px;
-}
-
-.gift-lid {
-    width: 32px;
-    height: 7px;
-    background-color: #f0932b;
-    border-radius: 2px;
-    position: absolute;
-    top: 3px;
-    left: 0;
-    transition: transform var(--transition-fast);
-}
-
-.gift-ribbon-v {
-    position: absolute;
-    left: 14px;
-    top: 3px;
-    width: 4px;
-    height: 29px;
-    background-color: #eb4d4b;
-    z-index: 2;
-}
-
-.gift-ribbon-h {
-    position: absolute;
-    top: 12px;
-    left: 2px;
-    width: 28px;
-    height: 4px;
-    background-color: #eb4d4b;
-    z-index: 2;
-}
-
-.gift-bow {
-    position: absolute;
-    top: -5px;
-    left: 10px;
-    width: 12px;
-    height: 10px;
-    z-index: 3;
-}
-
-.bow-l, .bow-r {
-    width: 6px;
-    height: 8px;
-    border: 1.5px solid #eb4d4b;
-    border-radius: 50%;
-    position: absolute;
-}
-
+.gift-box { width: 100%; height: 100%; position: relative; }
+.gift-base { width: 28px; height: 24px; background-color: #e58e26; border-radius: 2px; position: absolute; bottom: 0; left: 2px; }
+.gift-lid { width: 32px; height: 7px; background-color: #f0932b; border-radius: 2px; position: absolute; top: 3px; left: 0; transition: transform var(--transition-fast); }
+.gift-ribbon-v { position: absolute; left: 14px; top: 3px; width: 4px; height: 29px; background-color: #eb4d4b; z-index: 2; }
+.gift-ribbon-h { position: absolute; top: 12px; left: 2px; width: 28px; height: 4px; background-color: #eb4d4b; z-index: 2; }
+.gift-bow { position: absolute; top: -5px; left: 10px; width: 12px; height: 10px; z-index: 3; }
+.bow-l, .bow-r { width: 6px; height: 8px; border: 1.5px solid #eb4d4b; border-radius: 50%; position: absolute; }
 .bow-l { transform: rotate(-30deg); left: 0; }
 .bow-r { transform: rotate(30deg); right: 0; }
+.node-gift.active-bounce .gift-lid { transform: translateY(-8px) rotate(-15deg); }
 
-.node-gift.active-bounce .gift-lid {
-    transform: translateY(-8px) rotate(-15deg);
-}
+.butterfly { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+.bf-wing { position: absolute; top: 0; width: 9px; height: 14px; background-color: var(--color-blush); border-radius: 50% 50% 20% 50%; opacity: 0.95; box-shadow: 0 0 4px rgba(243, 176, 195, 0.4); }
+.bf-wing-l { left: 0; transform-origin: right center; animation: wingFlapL 0.2s linear infinite alternate; }
+.bf-wing-r { right: 0; transform-origin: left center; border-radius: 50% 50% 50% 20%; animation: wingFlapR 0.2s linear infinite alternate; }
+.bf-body { width: 2px; height: 12px; background-color: #2c3e50; border-radius: 1px; position: absolute; left: 8px; top: 2px; }
+.node-butterfly.active-flight { animation: butterflyFlightPath 1.6s ease-in-out; }
 
-/* E. MAGIC BUTTERFLY */
-.node-butterfly {
-    left: 45%;
-    bottom: 155px;
-    width: 18px;
-    height: 18px;
-    animation: butterHover 4s ease-in-out infinite;
-}
-
-.butterfly {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-}
-
-.bf-wing {
-    position: absolute;
-    top: 0;
-    width: 9px;
-    height: 14px;
-    background-color: var(--color-blush);
-    border-radius: 50% 50% 20% 50% / 50% 50% 20% 20%;
-    opacity: 0.95;
-    box-shadow: 0 0 4px rgba(243, 176, 195, 0.4);
-}
-
-.bf-wing-l {
-    left: 0;
-    transform-origin: right center;
-    animation: wingFlapL 0.2s linear infinite alternate;
-}
-
-.bf-wing-r {
-    right: 0;
-    transform-origin: left center;
-    border-radius: 50% 50% 50% 20% / 50% 50% 20% 20%;
-    animation: wingFlapR 0.2s linear infinite alternate;
-}
-
-.bf-body {
-    width: 2px;
-    height: 12px;
-    background-color: #2c3e50;
-    border-radius: 1px;
-    position: absolute;
-    left: 8px;
-    top: 2px;
-}
-
-.node-butterfly.active-flight {
-    animation: butterflyFlightPath 1.6s ease-in-out;
-}
-
-/* F. GOLDEN SPECIAL FLOWER */
-.node-flower {
-    left: 56%;
-    bottom: 22px;
-    width: 18px;
-    height: 55px;
-}
-
-.special-flower {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-origin: bottom center;
-    animation: windSway 4.5s ease-in-out infinite alternate;
-}
-
-.sf-stem {
-    width: 2px;
-    height: 42px;
-    background-color: var(--color-sage-light);
-    margin: 0 auto;
-}
-
-.sf-head {
-    width: 16px;
-    height: 16px;
-    position: absolute;
-    top: 0;
-    left: 1px;
-    transition: transform var(--transition-medium);
-}
-
-.sf-petal {
-    position: absolute;
-    width: 6px;
-    height: 12px;
-    background-color: var(--color-gold);
-    border-radius: 50%;
-    transform-origin: center bottom;
-}
-
-.sf-center {
-    position: absolute;
-    top: 5px; left: 5px;
-    width: 6px; height: 6px;
-    background-color: #d35400;
-    border-radius: 50%;
-    z-index: 2;
-}
-
+.special-flower { width: 100%; height: 100%; position: relative; transform-origin: bottom center; animation: windSway 4.5s ease-in-out infinite alternate; }
+.sf-stem { width: 2px; height: 42px; background-color: var(--color-sage-light); margin: 0 auto; }
+.sf-head { width: 16px; height: 16px; position: absolute; top: 0; left: 1px; transition: transform var(--transition-medium); }
+.sf-petal { position: absolute; width: 6px; height: 12px; background-color: var(--color-gold); border-radius: 50%; transform-origin: center bottom; }
+.sf-center { position: absolute; top: 5px; left: 5px; width: 6px; height: 6px; background-color: #d35400; border-radius: 50%; z-index: 2; }
 .sf-p1 { transform: rotate(0deg) translate(0, -5px); }
 .sf-p2 { transform: rotate(72deg) translate(0, -5px); }
 .sf-p3 { transform: rotate(144deg) translate(0, -5px); }
 .sf-p4 { transform: rotate(216deg) translate(0, -5px); }
 .sf-p5 { transform: rotate(288deg) translate(0, -5px); }
+.node-flower.active-bounce .sf-head { transform: scale(1.4); }
 
-.node-flower.active-bounce .sf-head {
-    transform: scale(1.4);
-}
-
-.active-bounce {
-    animation: elementBounceScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+.active-bounce { animation: elementBounceScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
 /* ==========================================================================
    9. Universal Glassmorphism Speech Bubble Card
@@ -1029,7 +661,7 @@ body, html {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -20%); /* Meadow height balance offset */
+    transform: translate(-50%, -20%); /* Centered safely above the meadow boundary */
     width: min(290px, 85vw);
     height: 190px;
     display: flex;
@@ -1356,181 +988,363 @@ body, html {
     transform: translateY(-2px);
 }
 
-.continue-btn:active {
-    transform: translateY(0);
+/* ==========================================================================
+   12. Magical Wish Tree Layout & Assets (V5 Addition)
+   ========================================================================== */
+.wish-tree-container {
+    position: absolute;
+    bottom: clamp(140px, 32vh, 260px); /* Anchored relative to mobile screens safely */
+    left: 4.5vw;
+    width: min(150px, 35vw);
+    height: 180px;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 1.8s ease, visibility 1.8s ease, transform 1.8s ease;
 }
 
-.continue-btn:disabled {
-    opacity: 0;
+.wish-tree-container.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.wish-tree {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    cursor: pointer;
+    transform-origin: bottom center;
+    animation: windSway 6s ease-in-out infinite alternate;
+}
+
+.tree-trunk {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 80px;
+    background: linear-gradient(to right, #2c1a11 0%, #3e2719 50%, #1e100a 100%);
+    border-radius: 4px 4px 0 0;
+}
+
+.tree-branch {
+    position: absolute;
+    background: linear-gradient(to top, #2c1a11 0%, #3e2719 100%);
+    border-radius: 2px;
+    transform-origin: bottom center;
+}
+
+.branch-1 { width: 4px; height: 35px; bottom: 40px; left: -10px; transform: rotate(-35deg); }
+.branch-2 { width: 4px; height: 40px; bottom: 48px; right: -10px; transform: rotate(38deg); }
+.branch-3 { width: 3px; height: 25px; bottom: 65px; left: -2px; transform: rotate(-10deg); }
+
+.tree-foliage {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 100px;
     pointer-events: none;
 }
 
-.arrow-icon {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.3s ease;
+.foliage-leaf {
+    position: absolute;
+    background: radial-gradient(circle, var(--color-sage-light) 0%, var(--color-sage-dark) 100%);
+    border-radius: 50% 50% 10% 50%;
+    opacity: 0;
+    transform: scale(0) rotate(-45deg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 1.2s ease;
 }
 
-.continue-btn:hover .arrow-icon {
-    transform: translateX(4px);
+.foliage-leaf.stage-visible {
+    opacity: 0.92;
+    transform: scale(1) rotate(-45deg);
 }
 
-/* ==========================================================================
-   12. Overlays & Keyframes
-   ========================================================================== */
-.ambient-vignette {
+.tree-blossom {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-blush);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 1s ease;
+}
+
+.tree-blossom::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 2px; height: 2px;
+    background-color: var(--color-gold);
+    border-radius: 50%;
+}
+
+.tree-blossom.stage-visible {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.tree-lights {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 50%, rgba(6, 9, 19, 0.4) 100%);
     pointer-events: none;
+}
+
+.tree-fairy-light {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #fff6e0;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    box-shadow: 0 0 6px #ffeaa7;
+    animation: twinkle 3s infinite alternate ease-in-out;
+    transition: transform 1.5s ease, opacity 1s ease;
+}
+
+.tree-fairy-light.stage-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.tree-prompt {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-cream);
+    margin-top: 0.5rem;
+    opacity: 0.7;
+    text-align: center;
+    animation: pulsePrompt 2s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   13. Pseudo-3D Cake Celebration Tier (V5 CSS Assembly)
+   ========================================================================== */
+.cake-celebration-container {
+    position: absolute;
+    bottom: -320px; /* Rises seamlessly when triggered */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 310px;
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+    transition: bottom 2.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.cake-celebration-container.is-active {
+    bottom: clamp(10px, 4vh, 40px);
+    pointer-events: auto;
+}
+
+.cake-assembly {
+    position: relative;
+    width: 220px;
+    height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.cake-plate {
+    position: absolute;
+    bottom: -8px;
+    width: 250px;
+    height: 25px;
+    background: radial-gradient(ellipse at 50% 50%, #ffffff 0%, #e0e0e0 70%, #b5b5b5 100%);
+    border-radius: 50%;
+    box-shadow: 
+        0 8px 20px rgba(0,0,0,0.4),
+        inset 0 1px 2px rgba(255,255,255,0.8);
+    z-index: 1;
+}
+
+.cake-tier {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+}
+
+.cake-tier .tier-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 34px;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.cake-tier .tier-side {
+    position: relative;
+    width: 100%;
+    border-radius: 0 0 50% 50% / 0 0 20px 20px;
+    overflow: hidden;
+    z-index: 2;
+}
+
+/* Bottom Tier (Pastel Lavender-Blush) */
+.tier-bottom {
+    width: 200px;
+    height: 85px;
+    z-index: 2;
+}
+
+.tier-bottom .tier-top {
+    background-color: #d6cbd3;
+    height: 30px;
+}
+
+.tier-bottom .tier-side {
+    height: 70px;
+    background: linear-gradient(to bottom, #d6cbd3 0%, #a494a0 100%);
+    top: 15px;
+}
+
+/* Cake Drips */
+.cake-drip {
+    position: absolute;
+    width: 14px;
+    height: 22px;
+    background-color: #faf6f0;
+    border-radius: 0 0 6px 6px;
+    top: 0;
+    box-shadow: 0 1.5px 3px rgba(0,0,0,0.15);
+}
+
+.drip-1 { left: 15%; height: 24px; }
+.drip-2 { left: 40%; height: 32px; }
+.drip-3 { left: 65%; height: 20px; }
+.drip-4 { left: 85%; height: 28px; }
+
+/* Top Tier (Cream Icing) */
+.tier-top-layer {
+    width: 150px;
+    height: 70px;
+    z-index: 3;
+    margin-bottom: -10px;
+}
+
+.tier-top-layer .tier-top {
+    background-color: #f7ebe1;
+    height: 24px;
+}
+
+.tier-top-layer .tier-side {
+    height: 55px;
+    background: linear-gradient(to bottom, #f7ebe1 0%, #cfbfb2 100%);
+    top: 12px;
+}
+
+.candle-holder-plate {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+/* Dynamic Candles */
+.cake-candle {
+    position: absolute;
+    bottom: 12px;
+    width: 7px;
+    height: 34px;
+    background: linear-gradient(to right, #ff7675 0%, #d63031 100%);
+    border-radius: 2px;
+    transform-origin: bottom center;
+    cursor: pointer;
     z-index: 10;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.cake-candle::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 2.5px;
+    width: 1px;
+    height: 4px;
+    background-color: #2d3436;
 }
 
-@keyframes fadeInBreath {
-    0% { opacity: 0; transform: scale(0.98); filter: blur(2px); }
-    50% { opacity: 0.8; }
-    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+/* Flickering Flame */
+.candle-flame {
+    position: absolute;
+    top: -14px;
+    left: -1px;
+    width: 9px;
+    height: 13px;
+    background: radial-gradient(circle, #ffeaa7 15%, #e1b12c 100%);
+    border-radius: 50% 50% 35% 35%;
+    box-shadow: 
+        0 0 8px rgba(253, 203, 110, 0.7),
+        0 0 15px rgba(225, 177, 44, 0.4);
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: bottom center;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes fillProgress {
-    0% { width: 0%; }
-    100% { width: 100%; }
+.cake-candle.is-lit .candle-flame {
+    opacity: 1;
+    transform: scale(1);
+    animation: flameFlicker 0.15s infinite alternate;
 }
 
-@keyframes moonBreatheGlow {
-    0% {
-        box-shadow: 
-            0 0 25px var(--color-moon-glow),
-            0 0 50px rgba(253, 246, 226, 0.08);
-        transform: scale(0.97);
-    }
-    100% {
-        box-shadow: 
-            0 0 35px var(--color-moon-glow),
-            0 0 75px rgba(253, 246, 226, 0.16);
-        transform: scale(1.03);
-    }
+/* Action Wish Banners */
+.cake-wish-banner {
+    font-family: var(--font-handwritten);
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    color: var(--color-gold);
+    text-shadow: 0 0 12px rgba(244, 209, 174, 0.35);
+    margin-top: 1.2rem;
+    opacity: 0;
+    transform: translateY(12px);
+    text-align: center;
+    transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-@keyframes starBlink {
-    0%, 100% { transform: scale(0.95); opacity: 0.55; }
-    50% { transform: scale(1.15); opacity: 1; }
+.cake-wish-banner.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-@keyframes starPulseSpike {
-    0% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(2.2); filter: brightness(2); }
-    100% { transform: scale(1); filter: brightness(1); }
-}
-
-@keyframes drift {
-    0% { transform: translateX(-15%); }
-    100% { transform: translateX(15%); }
-}
-
-@keyframes twinkle {
-    0%, 100% { opacity: 0.1; }
-    50% { opacity: var(--star-max-opacity, 0.8); }
-}
-
-@keyframes windSway {
-    0% { transform: rotate(calc(var(--sway-angle, 4deg) * -1)); }
-    100% { transform: rotate(var(--sway-angle, 4deg)); }
-}
-
-@keyframes pulsePrompt {
-    0% { opacity: 0.4; }
-    100% { opacity: 0.8; }
-}
-
-/* Object Idles */
-@keyframes floatIdle {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-}
-
-@keyframes flameFlicker {
-    0% { transform: scale(1) rotate(-1deg); }
-    100% { transform: scale(1.08) rotate(1deg); filter: brightness(1.15); }
-}
-
-@keyframes tailWag {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(20deg); }
-}
-
-@keyframes breathingBear {
-    0%, 100% { transform: scaleY(1); }
-    50% { transform: scaleY(1.03) translateY(-1px); }
-}
-
-@keyframes giftWiggle {
-    0%, 94%, 100% { transform: rotate(0deg); }
-    95%, 97%, 99% { transform: rotate(-3deg); }
-    96%, 98% { transform: rotate(3deg); }
-}
-
-@keyframes butterHover {
-    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
-    33% { transform: translateY(-4px) translateX(3px) rotate(2deg); }
-    66% { transform: translateY(2px) translateX(-2px) rotate(-2deg); }
-}
-
-@keyframes wingFlapL {
-    0% { transform: rotateY(0deg); }
-    100% { transform: rotateY(70deg); }
-}
-
-@keyframes wingFlapR {
-    0% { transform: rotateY(0deg); }
-    100% { transform: rotateY(-70deg); }
-}
-
-/* Unique Click Triggers */
-@keyframes teddyWave {
-    0%, 100% { transform: rotate(0deg); }
-    25%, 75% { transform: rotate(110deg); }
-    50% { transform: rotate(85deg); }
-}
-
-@keyframes catStretch {
-    0%, 100% { transform: scaleX(1) scaleY(1); }
-    50% { transform: scaleX(1.18) scaleY(0.9); }
-}
-
-@keyframes lanternFlare {
-    0% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.1); filter: brightness(1.8) drop-shadow(0 0 15px #f1c40f); }
-    100% { transform: scale(1); filter: brightness(1); }
-}
-
-@keyframes butterflyFlightPath {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(-30px, -45px) rotate(-10deg); }
-    50% { transform: translate(15px, -75px) rotate(15deg); }
-    75% { transform: translate(-10px, -25px) rotate(-5deg); }
-    100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-@keyframes elementBounceScale {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-}
-
-/* Atmosphere Dimming modifiers */
-.scene-container.dimmed-atmosphere .meadow-container,
-.scene-container.dimmed-atmosphere .moon-layer,
-.scene-container.dimmed-atmosphere .clouds-layer,
-.scene-container.dimmed-atmosphere .moonlight-beam {
-    opacity: 0.35;
-    filter: blur(1.5px);
-    transition: opacity 1.5s ease, filter 1.5s ease;
-}
+.cake-instruction {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-cream);
+    margin-top: 0.4rem;
+    opacity: 0.7;
+    text-align: center;
+    animation: pulsePrompt 2.5s infinite alternate ease-in-out;
+       }
