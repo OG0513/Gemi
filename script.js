@@ -1005,8 +1005,10 @@ function setupParallax() {
             const speed = meadow.getAttribute('data-speed');
             meadow.style.transform = `translate(${mouseX * speed}px, 0)`; 
         }
+        // Replace the envelopeWrapper.style.transform line inside setupParallax with this:
         if (envelopeWrapper && !envelopeWrapper.classList.contains('envelope-disappearing')) {
-            envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(15vh + ${mouseY * 0.006}px))`;
+            // Respects absolute centering (-50%) and meadow height offsets (-20%)
+            envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(-20% + ${mouseY * 0.006}px))`;
         }
     });
                               }
