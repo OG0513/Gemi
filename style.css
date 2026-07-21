@@ -328,10 +328,10 @@ body, html {
 .moonlight-beam {
     position: absolute;
     top: 0;
-    right: 5%;
-    width: 45%;
+    left: 0;
+    width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(253, 246, 226, 0.04) 0%, rgba(253, 246, 226, 0) 80%);
+    background: radial-gradient(circle at 82% 18%, rgba(253, 246, 226, 0.05) 0%, rgba(253, 246, 226, 0) 55%);
     z-index: 3;
     pointer-events: none;
     transition: opacity 2s ease, filter 2s ease;
@@ -1046,14 +1046,16 @@ body, html {
 }
 
 .envelope-wrapper {
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -20%); /* Balanced horizontal/vertical offset */
     width: min(290px, 85vw);
     height: 190px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transform: translateY(15vh);
     pointer-events: auto;
     transition: transform var(--transition-medium);
 }
