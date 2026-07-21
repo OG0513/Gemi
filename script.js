@@ -1,12 +1,13 @@
 /**
  * Interactive Magical Garden Environment
- * Version 4 (Interactive Garden Objects)
+ * Version 5 (Wish Tree & Cake Celebration)
  * 
  * Mobile-Proof & Safe-Evaluation Edition
  */
 
 // Global variable for canvas controller
 let atmEngineInstance = null; 
+const CONFIG_CANDLES = 3; // Configurable candle quantity
 
 /* ==========================================================================
    1. Atmospheric Canvas Simulation Engine (Evaluated first to prevent TDZ)
@@ -19,6 +20,9 @@ class AtmosphereEngine {
         this.petals = [];
         this.sparkles = [];
         this.ripples = [];
+        this.confetti = [];
+        this.smoke = [];
+        this.fireworks = [];
         this.active = true;
         this.resize();
         
@@ -38,6 +42,9 @@ class AtmosphereEngine {
         this.petals = [];
         this.sparkles = [];
         this.ripples = [];
+        this.confetti = [];
+        this.smoke = [];
+        this.fireworks = [];
 
         // Create Fireflies
         for (let i = 0; i < this.fireflyCount; i++) {
@@ -119,6 +126,56 @@ class AtmosphereEngine {
         });
     }
 
+    triggerConfettiShower() {
+        const colors = ['#f3b0c3', '#d6cbd3', '#f4d1ae', '#b5c7d3', '#ffd29d', '#ffffff'];
+        for (let i = 0; i < 110; i++) {
+            this.confetti.push({
+                x: Math.random() * this.width,
+                y: Math.random() * -100 - 10,
+                size: Math.random() * 7 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: Math.random() * 2.5 + 2,
+                speedX: Math.random() * 2 - 1,
+                rot: Math.random() * 360,
+                rotSpeed: Math.random() * 4 - 2
+            });
+        }
+    }
+
+    triggerSmokePuff(x, y) {
+        for (let i = 0; i < 6; i++) {
+            this.smoke.push({
+                x: x + (Math.random() * 6 - 3),
+                y: y,
+                vx: Math.random() * 0.5 - 0.25,
+                vy: Math.random() * -0.6 - 0.4,
+                radius: Math.random() * 4 + 3,
+                alpha: 0.6,
+                decay: Math.random() * 0.012 + 0.008
+            });
+        }
+    }
+
+    triggerFireworksBurst() {
+        const colors = ['#ff7675', '#74b9ff', '#55efc4', '#ffeaa7', '#a29bfe'];
+        const originX = Math.random() * (this.width * 0.6) + (this.width * 0.2);
+        const originY = this.height * 0.35; 
+
+        for (let i = 0; i < 45; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const power = Math.random() * 4.5 + 1.5;
+            this.fireworks.push({
+                x: originX,
+                y: originY,
+                vx: Math.cos(angle) * power,
+                vy: Math.sin(angle) * power,
+                alpha: 1.0,
+                decay: Math.random() * 0.02 + 0.01,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            });
+        }
+    }
+
     update() {
         this.fireflies.forEach(f => {
             f.direction += f.turnSpeed;
@@ -163,6 +220,32 @@ class AtmosphereEngine {
             r.alpha = 0.35 * (1 - r.radius / r.maxRadius);
             if (r.radius >= r.maxRadius) this.ripples.splice(i, 1);
         }
+
+        for (let i = this.confetti.length - 1; i >= 0; i--) {
+            const c = this.confetti[i];
+            c.y += c.speedY;
+            c.x += c.speedX;
+            c.rot += c.rotSpeed;
+            if (c.y > this.height + 20) this.confetti.splice(i, 1);
+        }
+
+        for (let i = this.smoke.length - 1; i >= 0; i--) {
+            const k = this.smoke[i];
+            k.x += k.vx;
+            k.y += k.vy;
+            k.radius += 0.1; 
+            k.alpha -= k.decay;
+            if (k.alpha <= 0) this.smoke.splice(i, 1);
+        }
+
+        for (let i = this.fireworks.length - 1; i >= 0; i--) {
+            const w = this.fireworks[i];
+            w.x += w.vx;
+            w.y += w.vy;
+            w.vy += 0.06; 
+            w.alpha -= w.decay;
+            if (w.alpha <= 0) this.fireworks.splice(i, 1);
+        }
     }
 
     render() {
@@ -175,6 +258,15 @@ class AtmosphereEngine {
             this.ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
             this.ctx.stroke();
         });
+
+        this.fireworks.forEach(w => {
+            this.ctx.beginPath();
+            this.ctx.fillStyle = w.color;
+            this.ctx.globalAlpha = w.alpha;
+            this.ctx.arc(w.x, w.y, Math.max(1, 1.8 * w.alpha), 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+        this.ctx.globalAlpha = 1.0;
 
         this.fireflies.forEach(f => {
             this.ctx.beginPath();
@@ -195,6 +287,22 @@ class AtmosphereEngine {
             this.ctx.fill();
         });
         this.ctx.globalAlpha = 1.0; 
+
+        this.confetti.forEach(c => {
+            this.ctx.save();
+            this.ctx.translate(c.x, c.y);
+            this.ctx.rotate((c.rot * Math.PI) / 180);
+            this.ctx.fillStyle = c.color;
+            this.ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 0.6);
+            this.ctx.restore();
+        });
+
+        this.smoke.forEach(k => {
+            this.ctx.beginPath();
+            this.ctx.fillStyle = `rgba(189, 195, 199, ${k.alpha})`;
+            this.ctx.arc(k.x, k.y, k.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
 
         this.petals.forEach(p => {
             this.ctx.save();
@@ -277,6 +385,8 @@ function initApp() {
     // Interaction setups
     safeInit('Envelope Engine', setupEnvelopeEngine);
     safeInit('Interactive Objects Layer', setupInteractiveObjects);
+    safeInit('Wish Tree Engine', setupWishTreeEngine);
+    safeInit('Cake Celebration Engine', setupCakeCelebrationEngine);
 
     window.addEventListener('resize', () => {
         if (atmEngineInstance) {
@@ -410,7 +520,9 @@ function setupEnvelopeEngine() {
     const paragraphs = document.querySelectorAll('.letter-para');
     const continueBtn = document.getElementById('continue-btn');
     const objectsLayer = document.getElementById('interactive-objects-layer');
+    const objectsGrid = document.getElementById('interactive-objects-grid');
     const scene = document.getElementById('scene');
+    const wishTreeContainer = document.getElementById('wish-tree-container');
 
     if (!envelope || !modal || !continueBtn) return;
 
@@ -460,9 +572,15 @@ function setupEnvelopeEngine() {
         
         setTimeout(() => {
             if (envelopeLayer) envelopeLayer.style.display = 'none';
-            // Continue stays active in V4 as the end button of the loop
-            if (scene) scene.classList.remove('dimmed-atmosphere');
+            if (objectsGrid) objectsGrid.style.opacity = '0';
+            if (objectsLayer) objectsLayer.style.opacity = '0';
         }, 800);
+
+        // Transition seamlessly to revealing the bare Wish Tree
+        setTimeout(() => {
+            if (scene) scene.classList.remove('dimmed-atmosphere');
+            if (wishTreeContainer) wishTreeContainer.classList.add('is-active');
+        }, 1000);
     });
 }
 
@@ -624,7 +742,238 @@ function closeSpeechBubble() {
 }
 
 /* ==========================================================================
-   5. Dynamic Parallax Scrolling Engine
+   5. Magical Wish Tree Engine (V5 Growth Stages)
+   ========================================================================== */
+function setupWishTreeEngine() {
+    const wishTreeContainer = document.getElementById('wish-tree-container');
+    const wishTree = document.getElementById('wish-tree');
+    const foliage = document.getElementById('tree-foliage');
+    const lightsContainer = document.getElementById('tree-lights');
+    const prompt = document.getElementById('tree-prompt');
+
+    if (!wishTree) return;
+
+    let treeStage = 0;
+    const maxStages = 4;
+    let growthActive = false;
+
+    const growTreeAction = () => {
+        if (growthActive || treeStage >= maxStages) return;
+        growthActive = true;
+
+        treeStage++;
+        triggerTreeStageAssets(treeStage, foliage, lightsContainer);
+
+        wishTree.classList.add('active-bounce');
+        const rect = wishTree.getBoundingClientRect();
+        if (atmEngineInstance) {
+            atmEngineInstance.triggerSparkleBlast(rect.left + rect.width / 2, rect.top + 50, ['#ffd29d', '#ffffff', '#f4d1ae']);
+        }
+
+        setTimeout(() => {
+            wishTree.classList.remove('active-bounce');
+            growthActive = false;
+        }, 800);
+
+        if (prompt) {
+            if (treeStage === 1) {
+                prompt.textContent = "It begins to adapt... click again.";
+            } else if (treeStage === 2) {
+                prompt.textContent = "Warm lights find their branches... nurture further.";
+            } else if (treeStage === 3) {
+                prompt.textContent = "The blossom unfolds... one final touch of magic!";
+            } else if (treeStage === 4) {
+                prompt.textContent = "The Wish Tree is in full bloom! ✨";
+                
+                setTimeout(() => {
+                    transitionToCakeCelebration();
+                }, 1800);
+            }
+        }
+    };
+
+    wishTree.addEventListener('click', growTreeAction);
+    wishTree.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            growTreeAction();
+        }
+    });
+}
+
+function triggerTreeStageAssets(stage, foliage, lights) {
+    if (!foliage || !lights) return;
+    if (stage === 1) {
+        // Growth Stage 1: Sprout Green Foliage
+        for (let i = 0; i < 16; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'foliage-leaf';
+            leaf.style.width = `${Math.random() * 20 + 12}px`;
+            leaf.style.height = `${Math.random() * 20 + 12}px`;
+            leaf.style.top = `${Math.random() * 70 + 10}%`;
+            leaf.style.left = `${Math.random() * 70 + 10}%`;
+            foliage.appendChild(leaf);
+            setTimeout(() => leaf.classList.add('stage-visible'), i * 30);
+        }
+    } else if (stage === 2) {
+        // Growth Stage 2: Sprout fairy lights
+        for (let i = 0; i < 10; i++) {
+            const light = document.createElement('div');
+            light.className = 'tree-fairy-light';
+            light.style.top = `${Math.random() * 65 + 15}%`;
+            light.style.left = `${Math.random() * 65 + 15}%`;
+            light.style.animationDelay = `${Math.random() * 3}s`;
+            lights.appendChild(light);
+            setTimeout(() => light.classList.add('stage-visible'), i * 40);
+        }
+    } else if (stage === 3) {
+        // Growth Stage 3: Sprout Pink blossoms
+        for (let i = 0; i < 12; i++) {
+            const bloom = document.createElement('div');
+            bloom.className = 'tree-blossom';
+            bloom.style.top = `${Math.random() * 60 + 20}%`;
+            bloom.style.left = `${Math.random() * 60 + 20}%`;
+            foliage.appendChild(bloom);
+            setTimeout(() => bloom.classList.add('stage-visible'), i * 35);
+        }
+    } else if (stage === 4) {
+        // Final Stage: Ambient brightening
+        const leaves = document.querySelectorAll('.foliage-leaf');
+        leaves.forEach(l => {
+            l.style.filter = 'brightness(1.15)';
+            l.style.boxShadow = '0 0 10px rgba(244, 209, 174, 0.25)';
+        });
+    }
+}
+
+/* ==========================================================================
+   6. Birthday Cake Celebration Engine
+   ========================================================================== */
+function setupCakeCelebrationEngine() {
+    const holder = document.getElementById('candle-holder');
+    if (!holder) return;
+    
+    for (let i = 0; i < CONFIG_CANDLES; i++) {
+        const candle = document.createElement('div');
+        candle.className = 'cake-candle';
+        candle.setAttribute('role', 'button');
+        candle.setAttribute('tabindex', '0');
+        candle.setAttribute('aria-label', `Birthday Candle ${i + 1}`);
+
+        const offsetLeft = (100 / (CONFIG_CANDLES + 1)) * (i + 1);
+        candle.style.left = `calc(${offsetLeft}% - 3.5px)`;
+        candle.style.bottom = `${12 + Math.abs((i - (CONFIG_CANDLES - 1)/2) * 3)}px`; 
+
+        const flame = document.createElement('div');
+        flame.className = 'candle-flame';
+        
+        candle.appendChild(flame);
+        holder.appendChild(candle);
+
+        const lightEvent = (e) => {
+            e.stopPropagation();
+            if (!candle.classList.contains('is-lit')) {
+                candle.classList.add('is-lit');
+                
+                const rect = candle.getBoundingClientRect();
+                if (atmEngineInstance) {
+                    atmEngineInstance.triggerSparkleBlast(rect.left + 3.5, rect.top, ['#ffd29d', '#ffffff']);
+                }
+                
+                checkAllCandlesState();
+            }
+        };
+
+        candle.addEventListener('click', lightEvent);
+        candle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                lightEvent(e);
+            }
+        });
+    }
+}
+
+function checkAllCandlesState() {
+    const candles = document.querySelectorAll('.cake-candle');
+    const instruction = document.getElementById('cake-instruction');
+    const wishBanner = document.getElementById('cake-wish-banner');
+    
+    const allLit = Array.from(candles).every(c => c.classList.contains('is-lit'));
+
+    if (allLit) {
+        if (instruction) instruction.textContent = "Close your eyes, clear your mind...";
+        if (wishBanner) wishBanner.classList.add('visible');
+        
+        setTimeout(() => {
+            document.addEventListener('click', blowOutCelebrationHandler, { once: true });
+        }, 1000);
+    }
+}
+
+function blowOutCelebrationHandler(e) {
+    e.stopPropagation();
+
+    const candles = document.querySelectorAll('.cake-candle');
+    const instruction = document.getElementById('cake-instruction');
+    const wishBanner = document.getElementById('cake-wish-banner');
+
+    candles.forEach(candle => {
+        if (candle.classList.contains('is-lit')) {
+            candle.classList.remove('is-lit');
+            const rect = candle.getBoundingClientRect();
+            if (atmEngineInstance) {
+                atmEngineInstance.triggerSmokePuff(rect.left + 3.5, rect.top);
+            }
+        }
+    });
+
+    if (wishBanner) wishBanner.textContent = "Happy Birthday! 💖✨";
+    if (instruction) instruction.textContent = "May all your wishes and dreams come true.";
+
+    if (atmEngineInstance) {
+        atmEngineInstance.triggerConfettiShower();
+    }
+    
+    let shellCount = 0;
+    const interval = setInterval(() => {
+        if (atmEngineInstance) {
+            atmEngineInstance.triggerFireworksBurst();
+        }
+        shellCount++;
+        if (shellCount >= 6) clearInterval(interval);
+    }, 650);
+}
+
+function transitionToCakeCelebration() {
+    const treeContainer = document.getElementById('wish-tree-container');
+    const cakeContainer = document.getElementById('cake-celebration-container');
+    const moonHalo = document.getElementById('moon-halo');
+    const beam = document.getElementById('moonlight-beam');
+
+    if (treeContainer) {
+        treeContainer.style.opacity = '0';
+        treeContainer.style.transform = 'translate(0, 40px) scale(0.9)';
+    }
+    
+    setTimeout(() => {
+        if (treeContainer) treeContainer.style.display = 'none';
+        
+        if (moonHalo) {
+            moonHalo.style.width = 'clamp(180px, 24vw, 240px)';
+            moonHalo.style.height = 'clamp(180px, 24vw, 240px)';
+            moonHalo.style.background = 'radial-gradient(circle, rgba(253, 246, 226, 0.35) 0%, rgba(253, 246, 226, 0) 70%)';
+        }
+        if (beam) {
+            beam.style.opacity = '0.12';
+        }
+
+        if (cakeContainer) cakeContainer.classList.add('is-active');
+    }, 1500);
+}
+
+/* ==========================================================================
+   7. Dynamic Parallax Scrolling Engine
    ========================================================================== */
 function setupParallax() {
     const moon = document.querySelector('.moon-layer');
@@ -654,8 +1003,7 @@ function setupParallax() {
             meadow.style.transform = `translate(${mouseX * speed}px, 0)`; 
         }
         if (envelopeWrapper && !envelopeWrapper.classList.contains('envelope-disappearing')) {
-            // Updated centering maths to keep the envelope absolutely centered in tablet browsers
             envelopeWrapper.style.transform = `translate(calc(-50% + ${mouseX * 0.006}px), calc(-20% + ${mouseY * 0.006}px))`;
         }
     });
-}
+    }
