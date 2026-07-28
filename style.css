@@ -230,7 +230,8 @@ body {
   z-index: 5;
 }
 
-.fireflies-canvas {
+/* Effects Canvas (Version 2.8 Cleaned: Consolidates Fireflies, Petals, Dust) */
+.effects-canvas {
   position: absolute;
   top: 0;
   left: 0;
