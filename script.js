@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 2.4 Volumetric Cinematic Clouds)
+ * Cinematic Environment Engine (Version 2.5 Dynamic Insect Fireflies)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -22,12 +22,12 @@ const GardenEngine = (() => {
     lastFrameTime: 0,
     deltaTime: 0,
     
-    // Cursor tracking state variables for the dynamic parallax thread
+    // Cursor tracking states for the parallax layer displacement
     mouseX: 0,
     mouseY: 0,
     targetMouseX: 0,
     targetMouseY: 0,
-    parallaxSpeed: 0.05 // Interpolo factor (creates exceptionally smooth lag)
+    parallaxSpeed: 0.05
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
@@ -48,12 +48,10 @@ const GardenEngine = (() => {
     },
 
     bindMouseParallax() {
-      // Passive listeners track client cursor positions on modern viewports
       const trackMove = (e) => {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         
-        // Map cursor coordinates into centered ranges (-0.5 to 0.5)
         State.targetMouseX = (clientX / State.width) - 0.5;
         State.targetMouseY = (clientY / State.height) - 0.5;
       };
@@ -543,9 +541,8 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Cloud System (Version 2.4 Sub-System - Added)
+   * Cloud System (Version 2.4 Sub-System - Preserved)
    * Renders volumetric clouds using grouped puff particles of offset radial gradients.
-   * Clouds drift at staggered speeds and react dynamically to ambient moonlight.
    */
   const CloudSystem = {
     name: 'CloudSystem',
@@ -571,42 +568,31 @@ const GardenEngine = (() => {
       this.generateClouds(width, height);
     },
 
-    /**
-     * Builds 6 unique volumetric clouds composed of smaller nested circular puffs.
-     * Staggers clouds across height paths while leaving open sky frames for the stars.
-     */
     generateClouds(width, height) {
       this.clouds = [];
       const utils = GardenEngine.getUtils();
 
-      // Cloud lane offsets (avoids packing the center screen)
       const lanes = [
-        { y: height * 0.15, depth: 0, scale: 0.7 },  /* Distant background lane */
-        { y: height * 0.42, depth: 1, scale: 1.0 },  /* Middle lane */
-        { y: height * 0.28, depth: 2, scale: 1.3 },  /* Foreground lane (skims moon region) */
-        { y: height * 0.60, depth: 1, scale: 1.1 },  /* Low middle lane */
-        { y: height * 0.50, depth: 0, scale: 0.8 },  /* Low background lane */
-        { y: height * 0.32, depth: 2, scale: 1.45 }  /* Massive foreground sweeping layer */
+        { y: height * 0.15, depth: 0, scale: 0.7 },
+        { y: height * 0.42, depth: 1, scale: 1.0 },
+        { y: height * 0.28, depth: 2, scale: 1.3 },
+        { y: height * 0.60, depth: 1, scale: 1.1 },
+        { y: height * 0.50, depth: 0, scale: 0.8 },
+        { y: height * 0.32, depth: 2, scale: 1.45 }
       ];
 
       lanes.forEach((lane, index) => {
         const cloudBaseWidth = utils.randomRange(180, 280) * lane.scale;
         const cloudBaseHeight = utils.randomRange(50, 80) * lane.scale;
         
-        // Setup puff metadata (clusters of 14 overlapping spheres form the cloud)
         const puffs = [];
         const puffCount = 14;
 
         for (let p = 0; p < puffCount; p++) {
-          // Horizontal distribution (gaussian curve bias toward cluster center)
           const ratio = p / (puffCount - 1);
           const px = (ratio - 0.5) * cloudBaseWidth * utils.randomRange(0.8, 1.1);
-          
-          // Domed vertical offsets (tallest in the center, tapering on edges)
           const domeFactor = Math.sin(ratio * Math.PI);
           const py = -domeFactor * cloudBaseHeight * utils.randomRange(0.4, 0.85);
-
-          // Puff radius sizing
           const pr = cloudBaseHeight * (0.35 + domeFactor * utils.randomRange(0.4, 0.65));
 
           puffs.push({
@@ -617,26 +603,24 @@ const GardenEngine = (() => {
           });
         }
 
-        // Stagger cloud layer speeds (Background: slow, Fore: slower per prompt specs)
         let driftVelocity = 0;
         let baseOpacity = 0.15;
         let parallaxFactor = 0.01;
 
         if (lane.depth === 0) {
-          driftVelocity = utils.randomRange(3.5, 6.0); // Background wind speeds
+          driftVelocity = utils.randomRange(3.5, 6.0);
           baseOpacity = 0.22;
-          parallaxFactor = 0.008; // Minimal movement response
+          parallaxFactor = 0.008;
         } else if (lane.depth === 1) {
-          driftVelocity = utils.randomRange(2.0, 3.2); // Mid-sky wind speeds
+          driftVelocity = utils.randomRange(2.0, 3.2);
           baseOpacity = 0.38;
           parallaxFactor = 0.018;
         } else {
-          driftVelocity = utils.randomRange(0.9, 1.8);  // Slow, sweeping foreground masses
+          driftVelocity = utils.randomRange(0.9, 1.8);
           baseOpacity = 0.45;
-          parallaxFactor = 0.03;  // Pronounced parallax depth
+          parallaxFactor = 0.03;
         }
 
-        // Space out starting horizontal locations naturally
         const startX = utils.randomRange(-width * 0.2, width * 0.85);
 
         this.clouds.push({
@@ -654,15 +638,12 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
-      const boundaryOffset = 450; // Coordinates threshold to recycle clouds off-screen
+      const boundaryOffset = 450;
 
       for (let i = 0; i < this.clouds.length; i++) {
         const c = this.clouds[i];
-
-        // Frame-rate independent drifting physics (calm evening winds)
         c.x += (c.vx * dt);
 
-        // Recycle cloud when it drifts past the right margin boundaries
         if (c.x > State.width + boundaryOffset) {
           c.x = -boundaryOffset - c.width;
         }
@@ -675,17 +656,14 @@ const GardenEngine = (() => {
       const ctx = this.ctx;
       ctx.clearRect(0, 0, State.width, State.height);
 
-      // Fetch public moon state details for backlighting vectors
       const moonX = MoonSystem.centerX;
       const moonY = MoonSystem.centerY;
 
-      // Draw clouds sorted by depth (Background first, Foreground on top)
       const sortedClouds = [...this.clouds].sort((a, b) => a.depth - b.depth);
 
       for (let i = 0; i < sortedClouds.length; i++) {
         const c = sortedClouds[i];
 
-        // Apply dynamic cursor parallax offset calculations based on depth coefficients
         const px = State.mouseX * State.width * c.parallax;
         const py = State.mouseY * State.height * c.parallax;
 
@@ -697,30 +675,24 @@ const GardenEngine = (() => {
           const puffX = renderX + p.offsetX;
           const puffY = renderY + p.offsetY;
 
-          // 1. Moonlight Highlight Vector (Rim lighting offsets toward the moon)
           const dx = moonX - puffX;
           const dy = moonY - puffY;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          // Compute angle of light arrival
           const dirX = dx / dist;
           const dirY = dy / dist;
 
-          // Offset the radial lighting hotspot toward the light source
           const lightIntensity = Math.max(0.1, 1.0 - dist / (State.width * 0.75));
           const offsetDist = p.radius * 0.24 * lightIntensity;
           const gradCenterX = puffX + (dirX * offsetDist);
           const gradCenterY = puffY + (dirY * offsetDist);
 
-          // 2. Volumetric Gradient Paint
           const puffGrad = ctx.createRadialGradient(
             gradCenterX, gradCenterY, p.radius * 0.05,
             puffX, puffY, p.radius
           );
 
-          // Edge facing the moon catches warm cream-gold light
           const goldenRim = `hsla(43, 60%, 82%, ${c.opacity * p.baseAlpha * 1.5 * lightIntensity})`;
-          // Main interior body fades into soft lavender-pink gray shadow values
           const shadowBody = `hsla(262, 12%, 40%, ${c.opacity * p.baseAlpha * 0.8})`;
           const diffuseFade = 'rgba(25, 20, 35, 0)';
 
@@ -733,6 +705,256 @@ const GardenEngine = (() => {
           ctx.fillStyle = puffGrad;
           ctx.fill();
         }
+      }
+    }
+  };
+
+  /**
+   * Firefly System (Version 2.5 Sub-System - Added)
+   * Renders realistic, insect-like fireflies utilizing dynamic path steering vectors,
+   * gravitational bounds, and moon light glares avoidance parameters.
+   */
+  const FireflySystem = {
+    name: 'FireflySystem',
+    canvas: null,
+    ctx: null,
+    fireflies: [],
+    
+    init(width, height, dpr) {
+      this.canvas = document.getElementById('fireflies-canvas');
+      if (!this.canvas) return;
+
+      this.ctx = this.canvas.getContext('2d');
+      this.onResize(width, height, dpr);
+    },
+
+    onResize(width, height, dpr) {
+      if (!this.canvas) return;
+
+      this.canvas.width = width * dpr;
+      this.canvas.height = height * dpr;
+      this.ctx.scale(dpr, dpr);
+
+      this.generateFireflies(width, height);
+    },
+
+    /**
+     * Builds fireflies scattered across the screen with a spatial bias
+     * toward the lower and middle portions of the viewport (the future meadow layer).
+     */
+    generateFireflies(width, height) {
+      this.fireflies = [];
+      const utils = GardenEngine.getUtils();
+
+      // Responsive quantity calculations (caps rendering load on lower-res viewports)
+      const area = width * height;
+      const count = utils.clamp(Math.floor(area / 30000), 20, 55);
+
+      for (let i = 0; i < count; i++) {
+        // Classify deep layering offsets
+        const depthRandom = Math.random();
+        let depth = 1; // Middle range
+        let size = utils.randomRange(1.0, 1.8);
+        let maxOpacity = utils.randomRange(0.4, 0.7);
+        let speedFactor = 1.0;
+        let parallax = 0.012;
+
+        if (depthRandom < 0.35) {
+          depth = 0; // Background (smaller, slower, more transparent)
+          size = utils.randomRange(0.5, 0.95);
+          maxOpacity = utils.randomRange(0.2, 0.45);
+          speedFactor = 0.6;
+          parallax = 0.005;
+        } else if (depthRandom > 0.88) {
+          depth = 2; // Foreground (larger, brighter)
+          size = utils.randomRange(2.0, 3.2);
+          maxOpacity = utils.randomRange(0.7, 0.95);
+          speedFactor = 1.4;
+          parallax = 0.024;
+        }
+
+        // Concentrates firefly bounds in the bottom 50% of the viewport height
+        const startX = utils.randomRange(50, width - 50);
+        const startY = utils.randomRange(height * 0.45, height * 0.92);
+
+        this.fireflies.push({
+          x: startX,
+          y: startY,
+          size: size,
+          depth: depth,
+          parallax: parallax,
+          
+          // Speed vectors (allows insect-like velocity pauses)
+          speed: 0,
+          targetSpeed: utils.randomRange(15, 30) * speedFactor,
+          angle: utils.randomRange(0, Math.PI * 2),
+          targetAngle: utils.randomRange(0, Math.PI * 2),
+          steeringForce: utils.randomRange(1.8, 3.5),
+          
+          // Blinking metadata
+          maxOpacity: maxOpacity,
+          opacity: 0,
+          pulsePhase: utils.randomRange(0, Math.PI * 2),
+          pulseSpeed: utils.randomRange(0.8, 2.5),
+          
+          // Event state cycles (Wandering, Pausing, Circling)
+          behaviorTimer: utils.randomRange(0.5, 2.5),
+          isCircling: false,
+          circleSpeed: 0
+        });
+      }
+    },
+
+    update(dt) {
+      const utils = GardenEngine.getUtils();
+      const w = State.width;
+      const h = State.height;
+
+      // Fetch public moon state details for avoidance checking
+      const moonX = MoonSystem.centerX;
+      const moonY = MoonSystem.centerY;
+      const moonR = MoonSystem.radius;
+      const avoidanceShield = moonR * 1.35; // Invisible boundary around the moon
+
+      for (let i = 0; i < this.fireflies.length; i++) {
+        const f = this.fireflies[i];
+
+        // 1. Behavior State Cycles (Pausing, Steering, or Circling)
+        f.behaviorTimer -= dt;
+        if (f.behaviorTimer <= 0) {
+          f.behaviorTimer = utils.randomRange(1.0, 3.5);
+          
+          const roll = Math.random();
+          if (roll < 0.15) {
+            // Freeze motion (simulate settling on grass blades)
+            f.targetSpeed = 0;
+          } else if (roll >= 0.15 && roll < 0.35) {
+            // Circle loop mode
+            f.isCircling = true;
+            f.circleSpeed = utils.randomRange(-3.5, 3.5);
+            f.targetSpeed = utils.randomRange(10, 22);
+          } else {
+            // General wandering steer
+            f.isCircling = false;
+            f.targetSpeed = utils.randomRange(15, 32);
+            f.targetAngle = utils.randomRange(0, Math.PI * 2);
+          }
+        }
+
+        // Calculate steering angles
+        if (f.isCircling) {
+          f.targetAngle += f.circleSpeed * dt;
+        }
+
+        // Interpolate current speeds and coordinates safely
+        f.speed += (f.targetSpeed - f.speed) * (4.0 * dt);
+        f.angle += (f.targetAngle - f.angle) * (f.steeringForce * dt);
+
+        // Vector translation coordinates
+        let nextX = f.x + Math.cos(f.angle) * f.speed * dt;
+        let nextY = f.y + Math.sin(f.angle) * f.speed * dt;
+
+        // 2. Avoid Moon Surface (reverses velocity vectors on approaching glare limits)
+        if (moonR > 0) {
+          const dx = nextX - moonX;
+          const dy = nextY - moonY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < avoidanceShield) {
+            // Instantly steer away from the moon's surface
+            f.targetAngle = Math.atan2(dy, dx) + utils.randomRange(-0.4, 0.4);
+            f.angle = f.targetAngle;
+            f.isCircling = false;
+            
+            // Push coordinates out to edge of the shield to prevent entry glitches
+            nextX = moonX + (dx / dist) * avoidanceShield;
+            nextY = moonY + (dy / dist) * avoidanceShield;
+          }
+        }
+
+        // 3. Gravity Boundaries (keeps fireflies down inside the lower half of the screen)
+        if (nextY < h * 0.42) {
+          f.targetAngle = Math.PI / 2 + utils.randomRange(-0.5, 0.5); // Steer downwards
+        }
+
+        // Apply translated coordinates
+        f.x = nextX;
+        f.y = nextY;
+
+        // 4. Wrap viewport edges smoothly
+        const padding = 20;
+        if (f.x < -padding) f.x = w + padding;
+        if (f.x > w + padding) f.x = -padding;
+        if (f.y > h + padding) f.y = h * 0.45; // Force spawn back above ground limit
+
+        // 5. Breathing illumination cycles (clamped sine-waves produce dark periods)
+        f.pulsePhase += f.pulseSpeed * dt;
+        const sineWave = Math.sin(f.pulsePhase);
+        
+        let activeOpacity = 0;
+        if (sineWave > -0.3) {
+          // Map opacity curve on positive sine ranges
+          const ratio = (sineWave + 0.3) / 1.3;
+          activeOpacity = f.maxOpacity * ratio;
+        }
+
+        // 6. Proximity Glare Attenuation (dims glowing points near moon's light)
+        if (moonR > 0) {
+          const dx = f.x - moonX;
+          const dy = f.y - moonY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const glareLimit = moonR * 3.5;
+
+          if (distance < glareLimit) {
+            const factor = utils.clamp((distance - moonR * 1.1) / (glareLimit - moonR * 1.1), 0.1, 1.0);
+            activeOpacity *= factor;
+          }
+        }
+
+        f.opacity = activeOpacity;
+      }
+    },
+
+    render() {
+      if (!this.ctx) return;
+
+      const ctx = this.ctx;
+      ctx.clearRect(0, 0, State.width, State.height);
+
+      for (let i = 0; i < this.fireflies.length; i++) {
+        const f = this.fireflies[i];
+        if (f.opacity <= 0.01) continue;
+
+        // Apply mouse displacement calculations directly to rendering coords
+        const px = State.mouseX * State.width * f.parallax;
+        const py = State.mouseY * State.height * f.parallax;
+
+        const renderX = f.x + px;
+        const renderY = f.y + py;
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+
+        // Warm yellow-green color configurations
+        const innerColor = `hsla(74, 90%, 65%, ${f.opacity})`;
+        const midColor = `hsla(74, 80%, 60%, ${f.opacity * 0.35})`;
+        const outerFade = 'rgba(150, 200, 50, 0)';
+
+        // Multi-tiered glowing composite circles (body, soft inner glow, outer haze)
+        const glow = ctx.createRadialGradient(
+          renderX, renderY, f.size * 0.2,
+          renderX, renderY, f.size * 5.0
+        );
+        glow.addColorStop(0, innerColor);
+        glow.addColorStop(0.2, midColor);
+        glow.addColorStop(1, outerFade);
+
+        ctx.beginPath();
+        ctx.arc(renderX, renderY, f.size * 5.0, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+
+        ctx.restore();
       }
     }
   };
@@ -920,7 +1142,8 @@ const GardenEngine = (() => {
       this.registerSystem(EnvironmentSystem);
       this.registerSystem(MoonSystem); 
       this.registerSystem(StarSystem); 
-      this.registerSystem(CloudSystem); // Version 2.4 Active
+      this.registerSystem(CloudSystem); 
+      this.registerSystem(FireflySystem); // Version 2.5 Active
       
       AnimationManager.start();
 
