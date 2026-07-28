@@ -1,288 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Magical Evening</title>
-    <!-- Google Fonts: Elegant Serif, Modern Sans, Premium Script, and Scrapbook Handwriting -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Reenie+Beanie&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>The Garden</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. Loading Screen -->
-    <div id="loader" class="loader-container">
-        <div class="loader-content">
-            <div class="loader-glow-ring"></div>
-            <p class="loader-text">Someone made something special for you...</p>
-            <div class="loader-progress-bar">
-                <div class="loader-progress-fill"></div>
-            </div>
-        </div>
+  <!-- Root Application Container -->
+  <main id="app-root" class="app-root" aria-hidden="true">
+    
+    <!-- 1. Loading Layer (Version 1.2 Immersive Entry) -->
+    <div id="layer-loading" class="layer layer-loading">
+      <canvas id="loading-canvas" class="loading-canvas"></canvas>
+      <div class="loading-container">
+        <svg class="monogram-svg" viewBox="0 0 200 100" aria-label="Personalized initials">
+          <path class="draw-path path-left" d="M 45,25 C 35,25 30,35 30,45 C 30,65 50,75 65,75 C 75,75 80,70 80,60 C 80,50 70,45 60,50 C 50,55 55,65 65,65" />
+          <path class="draw-path path-amp" d="M 103,63 C 97,57 93,51 98,45 C 102,40 106,44 102,50 C 96,57 91,61 106,65" />
+          <path class="draw-path path-right" d="M 120,65 L 120,35 C 120,35 128,55 135,55 C 142,55 150,35 150,35 L 150,65 C 150,65 155,70 165,70" />
+        </svg>
+        <p class="loading-message">Someone made something special for you...</p>
+      </div>
     </div>
 
-    <!-- 2. Main Garden Scene -->
-    <main id="scene" class="scene-container hidden-scene">
-        
-        <!-- Landscape Zoomable Wrapper (Keeps parallax boundaries safe) -->
-        <div class="landscape-zoom-wrapper" id="landscape-wrapper">
-            <!-- Sky Background -->
-            <div class="sky-bg"></div>
-            
-            <!-- Parallax Layer: Stars -->
-            <div class="stars-layer" data-speed="0.015">
-                <div id="stars-container"></div>
-                <!-- Interactive North Star -->
-                <div class="interactive-star" id="interactive-star" role="button" tabindex="0" aria-label="Interactive Star">
-                    <div class="star-core"></div>
-                    <div class="star-glow"></div>
-                </div>
-            </div>
+    <!-- 2. World Container (Contains all core visual layers) -->
+    <div id="layer-world" class="layer layer-world">
+      
+      <!-- Environment Layer (Version 2.4: Added Clouds Canvas Layer) -->
+      <div id="layer-environment" class="layer sub-layer">
+        <canvas id="environment-canvas" class="environment-canvas"></canvas>
+        <canvas id="stars-canvas" class="stars-canvas"></canvas>
+        <canvas id="moon-canvas" class="moon-canvas"></canvas>
+        <canvas id="clouds-canvas" class="clouds-canvas"></canvas>
+      </div>
 
-            <!-- Parallax Layer: Moon (Enhanced distant Moon) -->
-            <div class="moon-layer" data-speed="0.02">
-                <div class="moon" id="interactive-moon" role="button" tabindex="0" aria-label="Interactive Moon">
-                    <div class="moon-texture-overlay"></div>
-                    <div class="moon-crater crater-1"><div class="crater-shadow"></div></div>
-                    <div class="moon-crater crater-2"><div class="crater-shadow"></div></div>
-                    <div class="moon-crater crater-3"><div class="crater-shadow"></div></div>
-                    <div class="moon-crater crater-4"><div class="crater-shadow"></div></div>
-                    <div class="moon-crater crater-5"><div class="crater-shadow"></div></div>
-                </div>
-                <div class="moon-halo" id="moon-halo"></div>
-            </div>
+      <!-- Foreground Layer (Reserved for meadow, grass, flowers) -->
+      <div id="layer-foreground" class="layer sub-layer"></div>
 
-            <!-- Moonlight Beam (Atmospheric lighting aligned with Moon) -->
-            <div class="moonlight-beam" id="moonlight-beam"></div>
+      <!-- Effects Layer (Reserved for fireflies, floating petals) -->
+      <div id="layer-effects" class="layer sub-layer"></div>
 
-            <!-- Parallax Layer: Clouds -->
-            <div class="clouds-layer" data-speed="0.045">
-                <div class="cloud cloud-1"></div>
-                <div class="cloud cloud-2"></div>
-                <div class="cloud cloud-3"></div>
-            </div>
+      <!-- UI Layer (Reserved for minimal narrative overlay, letter interface) -->
+      <div id="layer-ui" class="layer sub-layer"></div>
 
-            <!-- Canvas for Dynamic Fireflies, Petals, Sparkles, Ripples, Confetti, and Fireworks -->
-            <canvas id="atmosphere-canvas"></canvas>
+    </div>
 
-            <!-- Foregrounds: Lush Meadow Layout -->
-            <div class="meadow-container" id="meadow-container" data-speed="0.01">
-                <div class="meadow-floor"></div>
-                <div id="grass-canopy" class="grass-canopy"></div>
+    <!-- 3. Overlay Layer (Reserved for global transitions, vignettes, post-processing) -->
+    <div id="layer-overlay" class="layer layer-overlay"></div>
 
-                <!-- Self-Aligning Grid for Interactive Objects (V5 Fix: Prevents overflows/overlaps) -->
-                <div class="interactive-objects-grid" id="interactive-objects-grid">
-                    
-                    <!-- A. Magic Lantern -->
-                    <div class="grid-item-wrap">
-                        <div class="interactive-node node-lantern" id="obj-lantern" role="button" tabindex="0" aria-label="Magic Lantern">
-                            <div class="lantern">
-                                <div class="lantern-cap"></div>
-                                <div class="lantern-body">
-                                    <div class="lantern-glass">
-                                        <div class="lantern-flame"></div>
-                                    </div>
-                                </div>
-                                <div class="lantern-base"></div>
-                            </div>
-                        </div>
-                    </div>
+  </main>
 
-                    <!-- B. Sleepy Cat -->
-                    <div class="grid-item-wrap">
-                        <div class="interactive-node node-cat" id="obj-cat" role="button" tabindex="0" aria-label="Sleepy Cat">
-                            <div class="cat">
-                                <div class="cat-body">
-                                    <div class="cat-tail"></div>
-                                </div>
-                                <div class="cat-head">
-                                    <div class="cat-ear-l"></div>
-                                    <div class="cat-ear-r"></div>
-                                    <div class="cat-face">
-                                        <div class="cat-eye-l"></div>
-                                        <div class="cat-eye-r"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- C. Teddy Bear -->
-                    <div class="grid-item-wrap">
-                        <div class="interactive-node node-teddy" id="obj-teddy" role="button" tabindex="0" aria-label="Teddy Bear">
-                            <div class="teddy">
-                                <div class="teddy-body">
-                                    <div class="teddy-belly"></div>
-                                </div>
-                                <div class="teddy-head">
-                                    <div class="teddy-ear-l"></div>
-                                    <div class="teddy-ear-r"></div>
-                                    <div class="teddy-snout"></div>
-                                </div>
-                                <div class="teddy-arm-l" id="teddy-arm-l"></div>
-                                <div class="teddy-arm-r"></div>
-                                <div class="teddy-leg-l"></div>
-                                <div class="teddy-leg-r"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- D. Interactive Gift Box -->
-                    <div class="grid-item-wrap">
-                        <div class="interactive-node node-gift" id="obj-gift" role="button" tabindex="0" aria-label="Gift Box">
-                            <div class="gift-box">
-                                <div class="gift-lid"></div>
-                                <div class="gift-base"></div>
-                                <div class="gift-ribbon-v"></div>
-                                <div class="gift-ribbon-h"></div>
-                                <div class="gift-bow">
-                                    <div class="bow-l"></div>
-                                    <div class="bow-r"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- E. Magic Butterfly -->
-                    <div class="grid-item-wrap">
-                        <div class="interactive-node node-butterfly" id="obj-butterfly" role="button" tabindex="0" aria-label="Butterfly">
-                            <div class="butterfly">
-                                <div class="bf-wing bf-wing-l"></div>
-                                <div class="bf-wing bf-wing-r"></div>
-                                <div class="bf-body"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- F. Golden Interactive Flower -->
-                    <div class="grid-item-wrap">
-                        <div class="interactive-node node-flower" id="obj-flower" role="button" tabindex="0" aria-label="Glowing Flower">
-                            <div class="special-flower">
-                                <div class="sf-stem"></div>
-                                <div class="sf-head">
-                                    <div class="sf-petal sf-p1"></div>
-                                    <div class="sf-petal sf-p2"></div>
-                                    <div class="sf-petal sf-p3"></div>
-                                    <div class="sf-petal sf-p4"></div>
-                                    <div class="sf-petal sf-p5"></div>
-                                    <div class="sf-center"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- 3. Magical Wish Tree (V5 Addition: Left-aligned structural tree) -->
-            <div class="wish-tree-container" id="wish-tree-container">
-                <div class="wish-tree" id="wish-tree" role="button" tabindex="0" aria-label="Grow the magical Wish Tree">
-                    <div class="tree-trunk">
-                        <div class="tree-branch branch-1"></div>
-                        <div class="tree-branch branch-2"></div>
-                        <div class="tree-branch branch-3"></div>
-                    </div>
-                    <div class="tree-foliage" id="tree-foliage"></div>
-                    <div class="tree-lights" id="tree-lights"></div>
-                </div>
-                <div class="tree-prompt" id="tree-prompt">Tap the tree to nurture its magic...</div>
-            </div>
-
-            <!-- 4. Pseudo-3D Cake Celebration (V5 Addition: Built entirely in HTML/CSS) -->
-            <div class="cake-celebration-container" id="cake-celebration-container">
-                <div class="cake-assembly" id="cake-assembly">
-                    <div class="cake-plate"></div>
-                    <!-- Bottom Tier (Lavender Blush) -->
-                    <div class="cake-tier tier-bottom">
-                        <div class="tier-top"></div>
-                        <div class="tier-side">
-                            <div class="cake-drip drip-1"></div>
-                            <div class="cake-drip drip-2"></div>
-                            <div class="cake-drip drip-3"></div>
-                            <div class="cake-drip drip-4"></div>
-                        </div>
-                    </div>
-                    <!-- Top Tier (Cream Frosting) -->
-                    <div class="cake-tier tier-top-layer">
-                        <div class="tier-top">
-                            <div class="candle-holder-plate" id="candle-holder">
-                                <!-- Dynamic candles are appended here -->
-                            </div>
-                        </div>
-                        <div class="tier-side"></div>
-                    </div>
-                </div>
-                <div class="cake-wish-banner" id="cake-wish-banner">Make a wish ✨</div>
-                <div class="cake-instruction" id="cake-instruction">Light the candles to make your wish...</div>
-            </div>
-
-        </div> <!-- End landscape wrapper -->
-
-        <!-- Centralized Floating Speech Bubble Card -->
-        <div class="speech-bubble-card" id="central-bubble">
-            <button class="bubble-close-btn" id="bubble-close" aria-label="Close message">×</button>
-            <p class="bubble-text" id="bubble-text">Message goes here...</p>
-        </div>
-
-        <!-- Interactive Envelope Layer (Amethyst/Violet centered layout) -->
-        <div class="interactive-overlay-container" id="envelope-layer">
-            <div class="envelope-wrapper" id="envelope-wrapper">
-                <div class="envelope" id="interactive-envelope" role="button" tabindex="0" aria-label="Open the magical letter">
-                    <div class="envelope-inside"></div>
-                    <div class="envelope-letter-preview" id="letter-preview"></div>
-                    <div class="envelope-flap left-flap"></div>
-                    <div class="envelope-flap right-flap"></div>
-                    <div class="envelope-flap bottom-flap"></div>
-                    <div class="envelope-flap top-flap"></div>
-                    <div class="envelope-seal"></div>
-                </div>
-                <div class="envelope-prompt" id="envelope-prompt">Tap to open</div>
-            </div>
-        </div>
-
-        <!-- Letter Display Modal Overlay -->
-        <div class="letter-modal-overlay" id="letter-modal">
-            <div class="letter-paper">
-                <div class="letter-decorative-border"></div>
-                
-                <div class="letter-header-ornament">
-                    <span class="ornament-leaf"></span>
-                    <span class="ornament-heart">♥</span>
-                    <span class="ornament-leaf reverse"></span>
-                </div>
-
-                <div class="letter-scroll-content">
-                    <h1 class="letter-title">To a truly wonderful soul,</h1>
-                    
-                    <div class="letter-body">
-                        <p class="letter-para">Underneath this quiet, starlit canopy, the world slows down to celebrate you. Some moments are crafted by destiny, and this space was created simply to echo the beauty you bring into the lives of those around you.</p>
-                        
-                        <p class="letter-para">Just as the wild meadow flowers bend naturally to the breeze and the fireflies light up the dark, your <span class="glow-word">warmth</span> and gentle spirit illuminate every room you walk into.</p>
-                        
-                        <p class="letter-para">This night, and this garden, are simple reflections of the <span class="glow-word">magic</span> you carry within yourself daily. May this coming year bring as much joy, growth, and wonder as you freely give to others.</p>
-                        
-                        <p class="letter-para">Our journey together through this magical space has only just begun. When you are ready to venture further into the garden...</p>
-                    </div>
-                </div>
-
-                <div class="letter-footer">
-                    <button class="continue-btn" id="continue-btn" disabled aria-label="Continue">
-                        <span>Continue</span>
-                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Decorative Vignettes -->
-        <div class="ambient-vignette"></div>
-    </main>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
