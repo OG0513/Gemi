@@ -219,7 +219,17 @@ body {
   z-index: 4;
 }
 
-/* Fireflies Canvas (Version 2.5 Added: Translucent Insect Effects Layer) */
+/* Meadow Canvas (Version 2.6 Added: High-DPI Grass Layer) */
+.meadow-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
 .fireflies-canvas {
   position: absolute;
   top: 0;
