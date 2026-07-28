@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 2.6 Moonlit Meadow & Grass Blades)
+ * Cinematic Environment Engine (Version 2.7 Wildflower Garden)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -710,19 +710,17 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Meadow System (Version 2.6 Sub-System - Added)
-   * Procedurally seeds and renders thousands of waving, tapered grass blades.
-   * Seamlessly blends horizon boundaries and maps real-time moonlight exposure.
+   * Meadow & Flower Garden System (Version 2.7 Sub-System - Added Flowers)
+   * Procedurally generates, clusters, and depth-interleaves grass blades and wildflowers.
    */
   const MeadowSystem = {
     name: 'MeadowSystem',
     canvas: null,
     ctx: null,
-    blades: [],
+    renderList: [], // Unified list containing both grass blades and flowers for strict z-sorting
     
-    // Wind engine phase calculations
     windTime: 0,
-    windSpeed: 1.4, // Graceful wind current speed
+    windSpeed: 1.4,
 
     init(width, height, dpr) {
       this.canvas = document.getElementById('meadow-canvas');
@@ -739,80 +737,74 @@ const GardenEngine = (() => {
       this.canvas.height = height * dpr;
       this.ctx.scale(dpr, dpr);
 
-      this.generateMeadow(width, height);
+      this.generateGarden(width, height);
     },
 
     /**
-     * Seeds grass blades categorizing depth-perspectives.
-     * Maps proximity calculations relative to the moon horizontally to color blades with warm highlights.
+     * Seeds and interleaves grass blades and multiple wildflower varieties.
+     * Groups flowers into clustered constellations while preserving open clearings.
      */
-    generateMeadow(width, height) {
-      this.blades = [];
+    generateGarden(width, height) {
+      this.renderList = [];
       const utils = GardenEngine.getUtils();
-
-      // Responsive quantity sizing to maintain 60fps on low-end processors
-      const bladeCount = utils.clamp(Math.floor(width * 0.85), 350, 1000);
 
       const moonX = MoonSystem.centerX;
 
-      for (let i = 0; i < bladeCount; i++) {
+      // 1. Generate grass blades (Responsive quantity)
+      const grassCount = utils.clamp(Math.floor(width * 0.72), 300, 850);
+      for (let i = 0; i < grassCount; i++) {
         const baseX = utils.randomRange(0, width);
         const depthRandom = Math.random();
         
-        let depth = 1; // Middle Layer
-        let length = utils.randomRange(35, 55);
-        let baseWidth = utils.randomRange(1.6, 2.6);
-        let swayAmp = utils.randomRange(6, 12);
-        let baseY = height + utils.randomRange(-5, 15); // Anchor perfectly below viewport bottom
+        let depth = 1; 
+        let length = utils.randomRange(32, 52);
+        let baseWidth = utils.randomRange(1.5, 2.4);
+        let swayAmp = utils.randomRange(6, 11);
+        let baseY = height + utils.randomRange(-5, 15);
         let parallax = 0.012;
 
         if (depthRandom < 0.45) {
-          depth = 0; // Background (Shorter, softer, slower, dense base)
-          length = utils.randomRange(18, 32);
-          baseWidth = utils.randomRange(0.8, 1.5);
-          swayAmp = utils.randomRange(3, 6);
-          baseY = height - utils.randomRange(5, 20); // Creeps slightly higher to form depth gradient
+          depth = 0; // Background
+          length = utils.randomRange(16, 28);
+          baseWidth = utils.randomRange(0.8, 1.4);
+          swayAmp = utils.randomRange(3, 5);
+          baseY = height - utils.randomRange(5, 18);
           parallax = 0.004;
-        } else if (depthRandom > 0.85) {
-          depth = 2; // Foreground (Taller, wider, reactive)
-          length = utils.randomRange(60, 92);
-          baseWidth = utils.randomRange(2.8, 4.0);
-          swayAmp = utils.randomRange(14, 24);
-          baseY = height + utils.randomRange(10, 30);
-          parallax = 0.022; // Clear responsive parallax translation
+        } else if (depthRandom > 0.86) {
+          depth = 2; // Foreground
+          length = utils.randomRange(58, 88);
+          baseWidth = utils.randomRange(2.6, 3.8);
+          swayAmp = utils.randomRange(13, 22);
+          baseY = height + utils.randomRange(10, 28);
+          parallax = 0.022;
         }
 
-        // Left-leaning curves to align beautifully with typical ocean-meadow drift
-        const baseCurve = utils.randomRange(-0.08, 0.08);
+        const baseCurve = utils.randomRange(-0.06, 0.06);
 
-        // Moonlight Illumination Mapping: Grass closer to moon horizontal axis reflects gold hues
+        // Moonlight highlights influence
         const distToMoon = Math.abs(baseX - moonX);
         const lightInfluence = utils.clamp(1.0 - (distToMoon / (width * 0.55)), 0, 1.0);
 
-        // Core Palette (Sage Green, Olive Green, Soft Moss, Moonlit Blue)
         let hue, sat, light;
         if (Math.random() < 0.6) {
-          // Standard Meadow Sage-Moss base values
           hue = utils.randomRange(105, 125);
-          sat = utils.randomRange(14, 24);
-          light = utils.randomRange(18, 28) + (lightInfluence * 12);
+          sat = utils.randomRange(14, 22);
+          light = utils.randomRange(16, 26) + (lightInfluence * 12);
         } else {
-          // Shadow/Moonlit Blue twilight weeds
           hue = utils.randomRange(185, 210);
-          sat = utils.randomRange(10, 20);
-          light = utils.randomRange(15, 24) + (lightInfluence * 8);
+          sat = utils.randomRange(10, 18);
+          light = utils.randomRange(14, 22) + (lightInfluence * 8);
         }
 
-        // Apply a desaturated warm golden highlight tint to faces of blades aligned under the moon
         let colorString;
-        if (lightInfluence > 0.4 && Math.random() < lightInfluence) {
-          // Moonlight reflection highlights
-          colorString = `hsla(43, 30%, ${Math.floor(light * 1.15)}%, ${depth === 0 ? 0.75 : 1.0})`;
+        if (lightInfluence > 0.45 && Math.random() < lightInfluence * 0.8) {
+          colorString = `hsla(43, 25%, ${Math.floor(light * 1.15)}%, ${depth === 0 ? 0.7 : 1.0})`;
         } else {
-          colorString = `hsla(${hue}, ${sat}%, ${Math.floor(light)}%, ${depth === 0 ? 0.75 : 1.0})`;
+          colorString = `hsla(${hue}, ${sat}%, ${Math.floor(light)}%, ${depth === 0 ? 0.7 : 1.0})`;
         }
 
-        this.blades.push({
+        this.renderList.push({
+          isFlower: false,
           baseX: baseX,
           baseY: baseY,
           length: length,
@@ -821,27 +813,124 @@ const GardenEngine = (() => {
           color: colorString,
           depth: depth,
           parallax: parallax,
-          
-          // Wind sway calculations
           swayPhase: utils.randomRange(0, Math.PI * 2),
           swaySpeed: utils.randomRange(0.8, 1.6),
           swayAmp: swayAmp
         });
       }
 
-      // Sort coordinates array to draw back-to-front (respects depth layers)
-      this.blades.sort((a, b) => a.depth - b.depth);
+      // 2. Generate wildflowers (Clustered into natural biological constellations)
+      const flowerCount = utils.clamp(Math.floor(width / 36), 14, 42);
+      const clusterCenters = [width * 0.22, width * 0.48, width * 0.82]; // Organic groups locations
+
+      const flowerTypes = ['daisy', 'tulip', 'lavender'];
+      const flowerColors = [
+        'hsla(350, 45%, 88%, 1)',  /* Blush Pink */
+        'hsla(265, 35%, 84%, 1)',  /* Soft Lavender */
+        'hsla(205, 35%, 84%, 1)',  /* Baby Blue */
+        'hsla(38, 45%, 92%, 1)',   /* Cream */
+        'hsla(0, 0%, 94%, 1)'      /* Soft White */
+      ];
+
+      for (let i = 0; i < flowerCount; i++) {
+        let fx;
+        // 75% are grouped near clusters, 25% are isolated single wildflowers
+        if (Math.random() < 0.75) {
+          const center = clusterCenters[Math.floor(Math.random() * clusterCenters.length)];
+          fx = center + utils.randomRange(-width * 0.1, width * 0.1);
+        } else {
+          fx = utils.randomRange(width * 0.05, width * 0.95);
+        }
+
+        fx = utils.clamp(fx, 15, width - 15);
+
+        // Moonlight calculations to increase petal luminosity near horizontal center
+        const distToMoon = Math.abs(fx - moonX);
+        const lightInfluence = utils.clamp(1.0 - (distToMoon / (width * 0.55)), 0, 1.0);
+
+        const depthRandom = Math.random();
+        let depth = 1;
+        let length = utils.randomRange(48, 76);
+        let stemWidth = utils.randomRange(1.8, 2.4);
+        let swayAmp = utils.randomRange(8, 14);
+        let baseY = height + utils.randomRange(-2, 18);
+        let parallax = 0.012;
+
+        if (depthRandom < 0.35) {
+          depth = 0; // Background (smaller, softer, less detailed)
+          length = utils.randomRange(28, 45);
+          stemWidth = utils.randomRange(1.0, 1.5);
+          swayAmp = utils.randomRange(4, 7);
+          baseY = height - utils.randomRange(3, 14);
+          parallax = 0.004;
+        } else if (depthRandom > 0.88) {
+          depth = 2; // Foreground (larger, brighter, highly active)
+          length = utils.randomRange(80, 110);
+          stemWidth = utils.randomRange(2.8, 3.6);
+          swayAmp = utils.randomRange(16, 26);
+          baseY = height + utils.randomRange(12, 32);
+          parallax = 0.022;
+        }
+
+        const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+        const baseColor = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+
+        // Randomize leaf attachments
+        const leafCount = Math.floor(utils.randomRange(0, 3));
+        const leaves = [];
+        for (let l = 0; l < leafCount; l++) {
+          leaves.push({
+            side: Math.random() < 0.5 ? -1 : 1,
+            yOffset: utils.randomRange(0.25, 0.7), // Scale along stem length
+            length: utils.randomRange(8, 16) * (depth === 0 ? 0.6 : (depth === 2 ? 1.4 : 1.0)),
+            angle: utils.randomRange(0.2, 0.6)
+          });
+        }
+
+        // Slight natural lean offsets
+        const stemCurve = utils.randomRange(-0.06, 0.06);
+
+        this.renderList.push({
+          isFlower: true,
+          type: type,
+          baseX: fx,
+          baseY: baseY,
+          length: length,
+          stemWidth: stemWidth,
+          curve: stemCurve,
+          depth: depth,
+          parallax: parallax,
+          
+          // Color profiles
+          color: baseColor,
+          lightInfluence: lightInfluence,
+          
+          // Aesthetic variables
+          petalCount: Math.floor(utils.randomRange(8, 14)),
+          petalSize: utils.randomRange(4, 9) * (depth === 0 ? 0.6 : (depth === 2 ? 1.4 : 1.0)),
+          bloomAngle: utils.randomRange(-0.15, 0.15),
+          leaves: leaves,
+          
+          // Wind sway calculations
+          swayPhase: utils.randomRange(0, Math.PI * 2),
+          swaySpeed: utils.randomRange(0.7, 1.4),
+          swayAmp: swayAmp
+        });
+      }
+
+      // 3. Strict Depth Stacking Sort (Interleaves Grass and Flowers perfectly)
+      this.renderList.sort((a, b) => {
+        if (a.depth !== b.depth) return a.depth - b.depth;
+        return a.baseY - b.baseY; // Sort back-to-front within layer groups
+      });
     },
 
     update(dt) {
-      // Wind progress phase calculation
       this.windTime += this.windSpeed * dt;
 
-      for (let i = 0; i < this.blades.length; i++) {
-        const b = this.blades[i];
-        
-        // Individual frame-rate independent sway updates
-        b.swayPhase += b.swaySpeed * dt;
+      for (let i = 0; i < this.renderList.length; i++) {
+        const item = this.renderList[i];
+        item.swayPhase += item.swaySpeed * dt;
       }
     },
 
@@ -854,51 +943,195 @@ const GardenEngine = (() => {
 
       ctx.clearRect(0, 0, w, h);
 
-      // 1. Draw Ground Base: Blend sky background smoothly with deep grass-bed values
-      // This eliminates a harsh horizon transition and fills baseline empty gaps
+      // 1. Draw Ground Backdrop (Preserved)
       const groundGrad = ctx.createLinearGradient(0, h * 0.85, 0, h);
-      groundGrad.addColorStop(0, 'rgba(25, 20, 35, 0)'); // Seamless transparent sky blending
-      groundGrad.addColorStop(0.35, 'hsla(110, 15%, 15%, 0.4)'); /* Soft Sage Shadow backdrop */
-      groundGrad.addColorStop(1, 'hsla(260, 20%, 11%, 0.95)');  /* Muted twilight root ground */
+      groundGrad.addColorStop(0, 'rgba(25, 20, 35, 0)');
+      groundGrad.addColorStop(0.35, 'hsla(110, 15%, 15%, 0.4)');
+      groundGrad.addColorStop(1, 'hsla(260, 20%, 11%, 0.95)');
       ctx.fillStyle = groundGrad;
       ctx.fillRect(0, h * 0.82, w, h * 0.18);
 
-      // 2. Render each blade using dynamic quadratic bezier path shapes
-      for (let i = 0; i < this.blades.length; i++) {
-        const b = this.blades[i];
+      // 2. Depth Render loop (Interleaves Grass and Flower structures dynamically)
+      for (let i = 0; i < this.renderList.length; i++) {
+        const item = this.renderList[i];
 
-        // Apply mouse position parallax calculations relative to layer depth factor
-        const px = State.mouseX * w * b.parallax;
-        const py = State.mouseY * h * b.parallax;
+        // Apply mouse position parallax displacement relative to depth coefficients
+        const px = State.mouseX * w * item.parallax;
+        const py = State.mouseY * h * item.parallax;
 
-        const bx = b.baseX + px;
-        const by = b.baseY + py;
+        const bx = item.baseX + px;
+        const by = item.baseY + py;
 
-        // Wind Wave Calculation: Waves flow across baseX coords simulating continuous wind drafts
-        const windWave = Math.sin(this.windTime + (bx * 0.004) + b.swayPhase) * b.swayAmp;
+        // Wave Wind sway vector
+        const windWave = Math.sin(this.windTime + (bx * 0.004) + item.swayPhase) * item.swayAmp;
 
-        // Render blade endpoints
-        const tipX = bx + windWave + (b.curve * b.length);
-        const tipY = by - b.length;
-
-        // Quadratic control coordinates (curves from middle base to tip point)
-        const ctrlX = bx + (tipX - bx) * 0.55;
-        const ctrlY = by - b.length * 0.5;
-
-        // Draw double-sided quadratic paths (generates beautiful, organic tapered points)
-        ctx.beginPath();
-        ctx.moveTo(bx - b.width / 2, by);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, bx + b.width / 2, by);
-        ctx.fillStyle = b.color;
-        ctx.fill();
+        if (item.isFlower) {
+          this.drawFlower(ctx, item, bx, by, windWave);
+        } else {
+          this.drawGrass(ctx, item, bx, by, windWave);
+        }
       }
+    },
+
+    /**
+     * Renders a single tapered grass blade. (Preserved)
+     */
+    drawGrass(ctx, b, bx, by, windWave) {
+      const tipX = bx + windWave + (b.curve * b.length);
+      const tipY = by - b.length;
+
+      const ctrlX = bx + (tipX - bx) * 0.55;
+      const ctrlY = by - b.length * 0.5;
+
+      ctx.beginPath();
+      ctx.moveTo(bx - b.width / 2, by);
+      ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+      ctx.quadraticCurveTo(ctrlX, ctrlY, bx + b.width / 2, by);
+      ctx.fillStyle = b.color;
+      ctx.fill();
+    },
+
+    /**
+     * Renders a procedural wildflower (Daisy, Tulip, or Lavender tiered stem).
+     * Rotates flower head coordinates dynamically to match stem sway angles.
+     */
+    drawFlower(ctx, f, bx, by, windWave) {
+      const tipX = bx + windWave + (f.curve * f.length);
+      const tipY = by - f.length;
+
+      const ctrlX = bx + (tipX - bx) * 0.55;
+      const ctrlY = by - f.length * 0.5;
+
+      // 1. Draw Stem (Sage Green tone)
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+      
+      const isBackground = f.depth === 0;
+      ctx.strokeStyle = isBackground ? 'hsla(110, 10%, 25%, 0.7)' : 'hsla(110, 15%, 30%, 1)';
+      ctx.lineWidth = f.stemWidth;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // 2. Draw Stem Leaves (Curves pointing outwards)
+      f.leaves.forEach(leaf => {
+        // Find leaf anchor along quadratic stem path
+        const t = leaf.yOffset;
+        const leafY = by * (1 - t) * (1 - t) + ctrlY * 2 * (1 - t) * t + tipY * t * t;
+        const leafX = bx * (1 - t) * (1 - t) + ctrlX * 2 * (1 - t) * t + tipX * t * t;
+
+        const leafEnd = leafX + (leaf.length * leaf.side);
+        const leafControlY = leafY - leaf.length * 0.25;
+
+        ctx.beginPath();
+        ctx.moveTo(leafX, leafY);
+        ctx.quadraticCurveTo(leafX + (leaf.length * 0.5 * leaf.side), leafControlY, leafEnd, leafY);
+        ctx.quadraticCurveTo(leafX + (leaf.length * 0.5 * leaf.side), leafY + leaf.length * 0.15, leafX, leafY);
+        ctx.fillStyle = isBackground ? 'hsla(110, 10%, 22%, 0.6)' : 'hsla(110, 12%, 26%, 1)';
+        ctx.fill();
+      });
+
+      // 3. Draw flower head (Translated and rotated at the tip to align with wind curves)
+      ctx.save();
+      ctx.translate(tipX, tipY);
+      
+      // Compute rotational slope angle of stem tip
+      const dx = tipX - ctrlX;
+      const dy = tipY - ctrlY;
+      const angle = Math.atan2(dy, dx) - Math.PI / 2 + f.bloomAngle;
+      ctx.rotate(angle);
+
+      // Expose tip coordinates to external modules (e.g. consumed by fireflies for ecosystem landing checks)
+      f.headX = tipX;
+      f.headY = tipY;
+
+      // Volumetric light glow parameters
+      const pulseOpacity = 0.8 + (f.lightInfluence * 0.2);
+      ctx.globalAlpha = isBackground ? 0.65 : pulseOpacity;
+
+      if (f.type === 'daisy') {
+        // DRAW DAISY
+        const petalC = f.color;
+        const centerC = f.lightInfluence > 0.4 ? 'hsla(43, 60%, 75%, 1)' : 'hsla(43, 40%, 65%, 1)'; // Soft Gold center disk
+
+        // Loop petals around central disc
+        ctx.fillStyle = petalC;
+        for (let p = 0; p < f.petalCount; p++) {
+          ctx.rotate((Math.PI * 2) / f.petalCount);
+          ctx.beginPath();
+          // Draw ellipse petals pointing outward
+          ctx.ellipse(0, f.petalSize * 1.1, f.petalSize * 0.35, f.petalSize, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Center disk glow
+        ctx.beginPath();
+        ctx.arc(0, 0, f.petalSize * 0.55, 0, Math.PI * 2);
+        ctx.fillStyle = centerC;
+        ctx.fill();
+
+      } else if (f.type === 'tulip') {
+        // DRAW TULIP (Graceful cup shape)
+        const c = f.color;
+        ctx.fillStyle = c;
+
+        // Draw overlapping petal leaves
+        ctx.beginPath();
+        ctx.moveTo(-f.petalSize * 0.6, 0);
+        ctx.bezierCurveTo(-f.petalSize * 1.1, -f.petalSize * 1.5, -f.petalSize * 0.3, -f.petalSize * 1.8, 0, -f.petalSize * 0.8);
+        ctx.bezierCurveTo(f.petalSize * 0.3, -f.petalSize * 1.8, f.petalSize * 1.1, -f.petalSize * 1.5, f.petalSize * 0.6, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        // Overlay central petal fold to complete cup silhouette
+        ctx.fillStyle = `hsla(0, 0%, 100%, 0.12)`; // Delicate white shine highlight
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-f.petalSize * 0.4, -f.petalSize * 0.8, -f.petalSize * 0.2, -f.petalSize * 1.6, 0, -f.petalSize * 1.8);
+        ctx.bezierCurveTo(f.petalSize * 0.2, -f.petalSize * 1.6, f.petalSize * 0.4, -f.petalSize * 0.8, 0, 0);
+        ctx.closePath();
+        ctx.fill();
+
+      } else if (f.type === 'lavender') {
+        // DRAW LAVENDER (Vertical bell-tiered buds)
+        const c = f.color;
+        ctx.fillStyle = c;
+
+        // Draw small clustered bells stacked vertically up the stem
+        const tiers = isBackground ? 3 : 5;
+        const gap = f.petalSize * 1.15;
+
+        for (let t = 0; t < tiers; t++) {
+          const yPos = -t * gap;
+          const scale = 1.0 - (t * 0.15); // Taper buds towards top tip
+
+          // Left Bud
+          ctx.beginPath();
+          ctx.ellipse(-f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.3 * scale, f.petalSize * 0.4 * scale, -Math.PI / 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Right Bud
+          ctx.beginPath();
+          ctx.ellipse(f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.3 * scale, f.petalSize * 0.4 * scale, Math.PI / 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Center Crown Bud (at the very top)
+          if (t === tiers - 1) {
+            ctx.beginPath();
+            ctx.ellipse(0, yPos - gap * 0.8, f.petalSize * 0.25 * scale, f.petalSize * 0.45 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      ctx.restore();
     }
   };
 
   /**
-   * Firefly System (Version 2.5 Sub-System - Preserved)
-   * Renders realistic, insect-like fireflies utilizing dynamic path steering vectors.
+   * Firefly System (Version 2.5 Sub-System - Refined Hover Interactions)
+   * Renders realistic, insect-like fireflies utilizing dynamic path steering vectors,
+   * gravitational bounds, and newly added flower proximity hovering loops.
    */
   const FireflySystem = {
     name: 'FireflySystem',
@@ -976,7 +1209,11 @@ const GardenEngine = (() => {
           
           behaviorTimer: utils.randomRange(0.5, 2.5),
           isCircling: false,
-          circleSpeed: 0
+          circleSpeed: 0,
+          
+          // Ecosystem target anchors
+          hoverTarget: null,
+          hoverTimer: 0
         });
       }
     },
@@ -991,28 +1228,67 @@ const GardenEngine = (() => {
       const moonR = MoonSystem.radius;
       const avoidanceShield = moonR * 1.35;
 
+      // Extract procedurally generated wildflowers currently rendered in the meadow
+      const flowers = MeadowSystem.renderList.filter(item => item.isFlower);
+
       for (let i = 0; i < this.fireflies.length; i++) {
         const f = this.fireflies[i];
 
-        f.behaviorTimer -= dt;
-        if (f.behaviorTimer <= 0) {
-          f.behaviorTimer = utils.randomRange(1.0, 3.5);
+        // 1. Ecosystem flower interactions (Saves hover targets near flower heads)
+        if (f.hoverTarget) {
+          f.hoverTimer -= dt;
           
-          const roll = Math.random();
-          if (roll < 0.15) {
-            f.targetSpeed = 0;
-          } else if (roll >= 0.15 && roll < 0.35) {
-            f.isCircling = true;
-            f.circleSpeed = utils.randomRange(-3.5, 3.5);
-            f.targetSpeed = utils.randomRange(10, 22);
+          // Steer directly toward the target flower's head coordinate
+          const hdx = f.hoverTarget.headX - f.x;
+          const hdy = f.hoverTarget.headY - f.y;
+          const hdist = Math.sqrt(hdx * hdx + hdy * hdy);
+
+          if (hdist > 6) {
+            f.targetAngle = Math.atan2(hdy, hdx);
+            f.targetSpeed = utils.clamp(hdist * 0.8, 2, 10); // Slowly decelerate on approach
           } else {
-            f.isCircling = false;
-            f.targetSpeed = utils.randomRange(15, 32);
-            f.targetAngle = utils.randomRange(0, Math.PI * 2);
+            f.targetSpeed = 0; // Float gently at rest
+          }
+
+          if (f.hoverTimer <= 0) {
+            f.hoverTarget = null;
+            f.behaviorTimer = 0.5; // Trigger immediate behavior reassessment
+          }
+        } else {
+          // Standard behavioral steering state calculations
+          f.behaviorTimer -= dt;
+          if (f.behaviorTimer <= 0) {
+            f.behaviorTimer = utils.randomRange(1.0, 3.5);
+            
+            const roll = Math.random();
+            if (roll < 0.15) {
+              f.targetSpeed = 0;
+            } else if (roll >= 0.15 && roll < 0.35) {
+              f.isCircling = true;
+              f.circleSpeed = utils.randomRange(-3.5, 3.5);
+              f.targetSpeed = utils.randomRange(10, 22);
+            } else if (roll >= 0.35 && roll < 0.55 && flowers.length > 0) {
+              // Attempt to seek out a nearby wildflower head to orbit or hover
+              const randomFlower = flowers[Math.floor(Math.random() * flowers.length)];
+              const fdx = randomFlower.headX - f.x;
+              const fdy = randomFlower.headY - f.y;
+              const fdist = Math.sqrt(fdx * fdx + fdy * fdy);
+
+              if (fdist < 150) { // Seek threshold range
+                f.hoverTarget = randomFlower;
+                f.hoverTimer = utils.randomRange(1.5, 4.0);
+                f.isCircling = false;
+              }
+            } else {
+              f.isCircling = false;
+              f.targetSpeed = utils.randomRange(15, 32);
+              f.targetAngle = utils.randomRange(0, Math.PI * 2);
+            }
           }
         }
 
-        if (f.isCircling) {
+        // Apply velocities
+        if (f.isCircling && !f.hoverTarget) {
           f.targetAngle += f.circleSpeed * dt;
         }
 
@@ -1022,6 +1298,7 @@ const GardenEngine = (() => {
         let nextX = f.x + Math.cos(f.angle) * f.speed * dt;
         let nextY = f.y + Math.sin(f.angle) * f.speed * dt;
 
+        // 2. Avoid Moon Surface (reverses velocity vectors on approaching glare limits)
         if (moonR > 0) {
           const dx = nextX - moonX;
           const dy = nextY - moonY;
@@ -1031,14 +1308,17 @@ const GardenEngine = (() => {
             f.targetAngle = Math.atan2(dy, dx) + utils.randomRange(-0.4, 0.4);
             f.angle = f.targetAngle;
             f.isCircling = false;
+            f.hoverTarget = null;
             
             nextX = moonX + (dx / dist) * avoidanceShield;
             nextY = moonY + (dy / dist) * avoidanceShield;
           }
         }
 
+        // 3. Gravity boundary limits
         if (nextY < h * 0.42) {
           f.targetAngle = Math.PI / 2 + utils.randomRange(-0.5, 0.5);
+          f.hoverTarget = null;
         }
 
         f.x = nextX;
@@ -1047,8 +1327,9 @@ const GardenEngine = (() => {
         const padding = 20;
         if (f.x < -padding) f.x = w + padding;
         if (f.x > w + padding) f.x = -padding;
-        if (f.y > h + padding) f.y = f.y = h * 0.45;
+        if (f.y > h + padding) f.y = h * 0.45;
 
+        // Blinking phase
         f.pulsePhase += f.pulseSpeed * dt;
         const sineWave = Math.sin(f.pulsePhase);
         
@@ -1058,6 +1339,7 @@ const GardenEngine = (() => {
           activeOpacity = f.maxOpacity * ratio;
         }
 
+        // Dim near moon light glares
         if (moonR > 0) {
           const dx = f.x - moonX;
           const dy = f.y - moonY;
@@ -1299,8 +1581,8 @@ const GardenEngine = (() => {
       this.registerSystem(MoonSystem); 
       this.registerSystem(StarSystem); 
       this.registerSystem(CloudSystem); 
-      this.registerSystem(MeadowSystem); // Version 2.6 Active
-      this.registerSystem(FireflySystem);
+      this.registerSystem(MeadowSystem); 
+      this.registerSystem(FireflySystem); // Version 2.7 Active
       
       AnimationManager.start();
 
