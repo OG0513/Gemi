@@ -27,7 +27,7 @@
     <!-- 2. World Container (Contains all core visual layers) -->
     <div id="layer-world" class="layer layer-world">
       
-      <!-- Environment Layer (Version 2.4: Added Clouds Canvas Layer) -->
+      <!-- Environment Layer -->
       <div id="layer-environment" class="layer sub-layer">
         <canvas id="environment-canvas" class="environment-canvas"></canvas>
         <canvas id="stars-canvas" class="stars-canvas"></canvas>
@@ -38,8 +38,10 @@
       <!-- Foreground Layer (Reserved for meadow, grass, flowers) -->
       <div id="layer-foreground" class="layer sub-layer"></div>
 
-      <!-- Effects Layer (Reserved for fireflies, floating petals) -->
-      <div id="layer-effects" class="layer sub-layer"></div>
+      <!-- Effects Layer (Version 2.5: Added Dynamic Fireflies Layer) -->
+      <div id="layer-effects" class="layer sub-layer">
+        <canvas id="fireflies-canvas" class="fireflies-canvas"></canvas>
+      </div>
 
       <!-- UI Layer (Reserved for minimal narrative overlay, letter interface) -->
       <div id="layer-ui" class="layer sub-layer"></div>
