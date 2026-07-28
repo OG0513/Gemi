@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 2.5 Dynamic Insect Fireflies)
+ * Cinematic Environment Engine (Version 2.6 Moonlit Meadow & Grass Blades)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -710,9 +710,195 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Firefly System (Version 2.5 Sub-System - Added)
-   * Renders realistic, insect-like fireflies utilizing dynamic path steering vectors,
-   * gravitational bounds, and moon light glares avoidance parameters.
+   * Meadow System (Version 2.6 Sub-System - Added)
+   * Procedurally seeds and renders thousands of waving, tapered grass blades.
+   * Seamlessly blends horizon boundaries and maps real-time moonlight exposure.
+   */
+  const MeadowSystem = {
+    name: 'MeadowSystem',
+    canvas: null,
+    ctx: null,
+    blades: [],
+    
+    // Wind engine phase calculations
+    windTime: 0,
+    windSpeed: 1.4, // Graceful wind current speed
+
+    init(width, height, dpr) {
+      this.canvas = document.getElementById('meadow-canvas');
+      if (!this.canvas) return;
+
+      this.ctx = this.canvas.getContext('2d');
+      this.onResize(width, height, dpr);
+    },
+
+    onResize(width, height, dpr) {
+      if (!this.canvas) return;
+
+      this.canvas.width = width * dpr;
+      this.canvas.height = height * dpr;
+      this.ctx.scale(dpr, dpr);
+
+      this.generateMeadow(width, height);
+    },
+
+    /**
+     * Seeds grass blades categorizing depth-perspectives.
+     * Maps proximity calculations relative to the moon horizontally to color blades with warm highlights.
+     */
+    generateMeadow(width, height) {
+      this.blades = [];
+      const utils = GardenEngine.getUtils();
+
+      // Responsive quantity sizing to maintain 60fps on low-end processors
+      const bladeCount = utils.clamp(Math.floor(width * 0.85), 350, 1000);
+
+      const moonX = MoonSystem.centerX;
+
+      for (let i = 0; i < bladeCount; i++) {
+        const baseX = utils.randomRange(0, width);
+        const depthRandom = Math.random();
+        
+        let depth = 1; // Middle Layer
+        let length = utils.randomRange(35, 55);
+        let baseWidth = utils.randomRange(1.6, 2.6);
+        let swayAmp = utils.randomRange(6, 12);
+        let baseY = height + utils.randomRange(-5, 15); // Anchor perfectly below viewport bottom
+        let parallax = 0.012;
+
+        if (depthRandom < 0.45) {
+          depth = 0; // Background (Shorter, softer, slower, dense base)
+          length = utils.randomRange(18, 32);
+          baseWidth = utils.randomRange(0.8, 1.5);
+          swayAmp = utils.randomRange(3, 6);
+          baseY = height - utils.randomRange(5, 20); // Creeps slightly higher to form depth gradient
+          parallax = 0.004;
+        } else if (depthRandom > 0.85) {
+          depth = 2; // Foreground (Taller, wider, reactive)
+          length = utils.randomRange(60, 92);
+          baseWidth = utils.randomRange(2.8, 4.0);
+          swayAmp = utils.randomRange(14, 24);
+          baseY = height + utils.randomRange(10, 30);
+          parallax = 0.022; // Clear responsive parallax translation
+        }
+
+        // Left-leaning curves to align beautifully with typical ocean-meadow drift
+        const baseCurve = utils.randomRange(-0.08, 0.08);
+
+        // Moonlight Illumination Mapping: Grass closer to moon horizontal axis reflects gold hues
+        const distToMoon = Math.abs(baseX - moonX);
+        const lightInfluence = utils.clamp(1.0 - (distToMoon / (width * 0.55)), 0, 1.0);
+
+        // Core Palette (Sage Green, Olive Green, Soft Moss, Moonlit Blue)
+        let hue, sat, light;
+        if (Math.random() < 0.6) {
+          // Standard Meadow Sage-Moss base values
+          hue = utils.randomRange(105, 125);
+          sat = utils.randomRange(14, 24);
+          light = utils.randomRange(18, 28) + (lightInfluence * 12);
+        } else {
+          // Shadow/Moonlit Blue twilight weeds
+          hue = utils.randomRange(185, 210);
+          sat = utils.randomRange(10, 20);
+          light = utils.randomRange(15, 24) + (lightInfluence * 8);
+        }
+
+        // Apply a desaturated warm golden highlight tint to faces of blades aligned under the moon
+        let colorString;
+        if (lightInfluence > 0.4 && Math.random() < lightInfluence) {
+          // Moonlight reflection highlights
+          colorString = `hsla(43, 30%, ${Math.floor(light * 1.15)}%, ${depth === 0 ? 0.75 : 1.0})`;
+        } else {
+          colorString = `hsla(${hue}, ${sat}%, ${Math.floor(light)}%, ${depth === 0 ? 0.75 : 1.0})`;
+        }
+
+        this.blades.push({
+          baseX: baseX,
+          baseY: baseY,
+          length: length,
+          width: baseWidth,
+          curve: baseCurve,
+          color: colorString,
+          depth: depth,
+          parallax: parallax,
+          
+          // Wind sway calculations
+          swayPhase: utils.randomRange(0, Math.PI * 2),
+          swaySpeed: utils.randomRange(0.8, 1.6),
+          swayAmp: swayAmp
+        });
+      }
+
+      // Sort coordinates array to draw back-to-front (respects depth layers)
+      this.blades.sort((a, b) => a.depth - b.depth);
+    },
+
+    update(dt) {
+      // Wind progress phase calculation
+      this.windTime += this.windSpeed * dt;
+
+      for (let i = 0; i < this.blades.length; i++) {
+        const b = this.blades[i];
+        
+        // Individual frame-rate independent sway updates
+        b.swayPhase += b.swaySpeed * dt;
+      }
+    },
+
+    render() {
+      if (!this.ctx) return;
+
+      const ctx = this.ctx;
+      const w = State.width;
+      const h = State.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Draw Ground Base: Blend sky background smoothly with deep grass-bed values
+      // This eliminates a harsh horizon transition and fills baseline empty gaps
+      const groundGrad = ctx.createLinearGradient(0, h * 0.85, 0, h);
+      groundGrad.addColorStop(0, 'rgba(25, 20, 35, 0)'); // Seamless transparent sky blending
+      groundGrad.addColorStop(0.35, 'hsla(110, 15%, 15%, 0.4)'); /* Soft Sage Shadow backdrop */
+      groundGrad.addColorStop(1, 'hsla(260, 20%, 11%, 0.95)');  /* Muted twilight root ground */
+      ctx.fillStyle = groundGrad;
+      ctx.fillRect(0, h * 0.82, w, h * 0.18);
+
+      // 2. Render each blade using dynamic quadratic bezier path shapes
+      for (let i = 0; i < this.blades.length; i++) {
+        const b = this.blades[i];
+
+        // Apply mouse position parallax calculations relative to layer depth factor
+        const px = State.mouseX * w * b.parallax;
+        const py = State.mouseY * h * b.parallax;
+
+        const bx = b.baseX + px;
+        const by = b.baseY + py;
+
+        // Wind Wave Calculation: Waves flow across baseX coords simulating continuous wind drafts
+        const windWave = Math.sin(this.windTime + (bx * 0.004) + b.swayPhase) * b.swayAmp;
+
+        // Render blade endpoints
+        const tipX = bx + windWave + (b.curve * b.length);
+        const tipY = by - b.length;
+
+        // Quadratic control coordinates (curves from middle base to tip point)
+        const ctrlX = bx + (tipX - bx) * 0.55;
+        const ctrlY = by - b.length * 0.5;
+
+        // Draw double-sided quadratic paths (generates beautiful, organic tapered points)
+        ctx.beginPath();
+        ctx.moveTo(bx - b.width / 2, by);
+        ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+        ctx.quadraticCurveTo(ctrlX, ctrlY, bx + b.width / 2, by);
+        ctx.fillStyle = b.color;
+        ctx.fill();
+      }
+    }
+  };
+
+  /**
+   * Firefly System (Version 2.5 Sub-System - Preserved)
+   * Renders realistic, insect-like fireflies utilizing dynamic path steering vectors.
    */
   const FireflySystem = {
     name: 'FireflySystem',
@@ -738,42 +924,35 @@ const GardenEngine = (() => {
       this.generateFireflies(width, height);
     },
 
-    /**
-     * Builds fireflies scattered across the screen with a spatial bias
-     * toward the lower and middle portions of the viewport (the future meadow layer).
-     */
     generateFireflies(width, height) {
       this.fireflies = [];
       const utils = GardenEngine.getUtils();
 
-      // Responsive quantity calculations (caps rendering load on lower-res viewports)
       const area = width * height;
       const count = utils.clamp(Math.floor(area / 30000), 20, 55);
 
       for (let i = 0; i < count; i++) {
-        // Classify deep layering offsets
         const depthRandom = Math.random();
-        let depth = 1; // Middle range
+        let depth = 1;
         let size = utils.randomRange(1.0, 1.8);
         let maxOpacity = utils.randomRange(0.4, 0.7);
         let speedFactor = 1.0;
         let parallax = 0.012;
 
         if (depthRandom < 0.35) {
-          depth = 0; // Background (smaller, slower, more transparent)
+          depth = 0;
           size = utils.randomRange(0.5, 0.95);
           maxOpacity = utils.randomRange(0.2, 0.45);
           speedFactor = 0.6;
           parallax = 0.005;
         } else if (depthRandom > 0.88) {
-          depth = 2; // Foreground (larger, brighter)
+          depth = 2;
           size = utils.randomRange(2.0, 3.2);
           maxOpacity = utils.randomRange(0.7, 0.95);
           speedFactor = 1.4;
           parallax = 0.024;
         }
 
-        // Concentrates firefly bounds in the bottom 50% of the viewport height
         const startX = utils.randomRange(50, width - 50);
         const startY = utils.randomRange(height * 0.45, height * 0.92);
 
@@ -784,20 +963,17 @@ const GardenEngine = (() => {
           depth: depth,
           parallax: parallax,
           
-          // Speed vectors (allows insect-like velocity pauses)
           speed: 0,
           targetSpeed: utils.randomRange(15, 30) * speedFactor,
           angle: utils.randomRange(0, Math.PI * 2),
           targetAngle: utils.randomRange(0, Math.PI * 2),
           steeringForce: utils.randomRange(1.8, 3.5),
           
-          // Blinking metadata
           maxOpacity: maxOpacity,
           opacity: 0,
           pulsePhase: utils.randomRange(0, Math.PI * 2),
           pulseSpeed: utils.randomRange(0.8, 2.5),
           
-          // Event state cycles (Wandering, Pausing, Circling)
           behaviorTimer: utils.randomRange(0.5, 2.5),
           isCircling: false,
           circleSpeed: 0
@@ -810,95 +986,78 @@ const GardenEngine = (() => {
       const w = State.width;
       const h = State.height;
 
-      // Fetch public moon state details for avoidance checking
       const moonX = MoonSystem.centerX;
       const moonY = MoonSystem.centerY;
       const moonR = MoonSystem.radius;
-      const avoidanceShield = moonR * 1.35; // Invisible boundary around the moon
+      const avoidanceShield = moonR * 1.35;
 
       for (let i = 0; i < this.fireflies.length; i++) {
         const f = this.fireflies[i];
 
-        // 1. Behavior State Cycles (Pausing, Steering, or Circling)
         f.behaviorTimer -= dt;
         if (f.behaviorTimer <= 0) {
           f.behaviorTimer = utils.randomRange(1.0, 3.5);
           
           const roll = Math.random();
           if (roll < 0.15) {
-            // Freeze motion (simulate settling on grass blades)
             f.targetSpeed = 0;
           } else if (roll >= 0.15 && roll < 0.35) {
-            // Circle loop mode
             f.isCircling = true;
             f.circleSpeed = utils.randomRange(-3.5, 3.5);
             f.targetSpeed = utils.randomRange(10, 22);
           } else {
-            // General wandering steer
             f.isCircling = false;
             f.targetSpeed = utils.randomRange(15, 32);
             f.targetAngle = utils.randomRange(0, Math.PI * 2);
           }
         }
 
-        // Calculate steering angles
         if (f.isCircling) {
           f.targetAngle += f.circleSpeed * dt;
         }
 
-        // Interpolate current speeds and coordinates safely
         f.speed += (f.targetSpeed - f.speed) * (4.0 * dt);
         f.angle += (f.targetAngle - f.angle) * (f.steeringForce * dt);
 
-        // Vector translation coordinates
         let nextX = f.x + Math.cos(f.angle) * f.speed * dt;
         let nextY = f.y + Math.sin(f.angle) * f.speed * dt;
 
-        // 2. Avoid Moon Surface (reverses velocity vectors on approaching glare limits)
         if (moonR > 0) {
           const dx = nextX - moonX;
           const dy = nextY - moonY;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < avoidanceShield) {
-            // Instantly steer away from the moon's surface
             f.targetAngle = Math.atan2(dy, dx) + utils.randomRange(-0.4, 0.4);
             f.angle = f.targetAngle;
             f.isCircling = false;
             
-            // Push coordinates out to edge of the shield to prevent entry glitches
             nextX = moonX + (dx / dist) * avoidanceShield;
             nextY = moonY + (dy / dist) * avoidanceShield;
           }
         }
 
-        // 3. Gravity Boundaries (keeps fireflies down inside the lower half of the screen)
         if (nextY < h * 0.42) {
-          f.targetAngle = Math.PI / 2 + utils.randomRange(-0.5, 0.5); // Steer downwards
+          f.targetAngle = Math.PI / 2 + utils.randomRange(-0.5, 0.5);
         }
 
-        // Apply translated coordinates
         f.x = nextX;
         f.y = nextY;
 
-        // 4. Wrap viewport edges smoothly
         const padding = 20;
         if (f.x < -padding) f.x = w + padding;
         if (f.x > w + padding) f.x = -padding;
-        if (f.y > h + padding) f.y = h * 0.45; // Force spawn back above ground limit
+        if (f.y > h + padding) f.y = f.y = h * 0.45;
 
-        // 5. Breathing illumination cycles (clamped sine-waves produce dark periods)
         f.pulsePhase += f.pulseSpeed * dt;
         const sineWave = Math.sin(f.pulsePhase);
         
         let activeOpacity = 0;
         if (sineWave > -0.3) {
-          // Map opacity curve on positive sine ranges
           const ratio = (sineWave + 0.3) / 1.3;
           activeOpacity = f.maxOpacity * ratio;
         }
 
-        // 6. Proximity Glare Attenuation (dims glowing points near moon's light)
         if (moonR > 0) {
           const dx = f.x - moonX;
           const dy = f.y - moonY;
@@ -925,7 +1084,6 @@ const GardenEngine = (() => {
         const f = this.fireflies[i];
         if (f.opacity <= 0.01) continue;
 
-        // Apply mouse displacement calculations directly to rendering coords
         const px = State.mouseX * State.width * f.parallax;
         const py = State.mouseY * State.height * f.parallax;
 
@@ -935,12 +1093,10 @@ const GardenEngine = (() => {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
 
-        // Warm yellow-green color configurations
         const innerColor = `hsla(74, 90%, 65%, ${f.opacity})`;
         const midColor = `hsla(74, 80%, 60%, ${f.opacity * 0.35})`;
         const outerFade = 'rgba(150, 200, 50, 0)';
 
-        // Multi-tiered glowing composite circles (body, soft inner glow, outer haze)
         const glow = ctx.createRadialGradient(
           renderX, renderY, f.size * 0.2,
           renderX, renderY, f.size * 5.0
@@ -1143,7 +1299,8 @@ const GardenEngine = (() => {
       this.registerSystem(MoonSystem); 
       this.registerSystem(StarSystem); 
       this.registerSystem(CloudSystem); 
-      this.registerSystem(FireflySystem); // Version 2.5 Active
+      this.registerSystem(MeadowSystem); // Version 2.6 Active
+      this.registerSystem(FireflySystem);
       
       AnimationManager.start();
 
