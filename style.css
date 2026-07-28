@@ -219,7 +219,6 @@ body {
   z-index: 4;
 }
 
-/* Meadow Canvas (Version 2.6 Added: High-DPI Grass Layer) */
 .meadow-canvas {
   position: absolute;
   top: 0;
@@ -228,6 +227,7 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
+  z-index: 5;
 }
 
 .fireflies-canvas {
@@ -238,6 +238,7 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
+  z-index: 6;
 }
 
 .sub-layer {
