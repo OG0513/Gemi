@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 3.3 Letter Emergence & Narrative Reveal)
+ * Cinematic Environment Engine (Version 3.4 Continue Trigger & Letter Settle)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -961,7 +961,7 @@ const GardenEngine = (() => {
       const w = State.width;
       const h = State.height;
 
-      ctx.clearRect(0, 0, w, h);
+      ctx.clearRect(0, 0, State.width, State.height);
 
       const groundGrad = ctx.createLinearGradient(0, h * 0.85, 0, h);
       groundGrad.addColorStop(0, 'rgba(25, 20, 35, 0)');
@@ -1536,7 +1536,7 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Interactive Envelope & Letter Controller (Version 3.3 Upgraded)
+   * Interactive Envelope & Letter Controller (Version 3.4 Complete Experience)
    * Manages the procedural opening timeline, letter sheet folds, and written text revealing.
    */
   const EnvelopeSystem = {
@@ -1554,7 +1554,8 @@ const GardenEngine = (() => {
         sparkles: document.getElementById('envelope-sparkles'),
         nest: document.getElementById('meadow-nest-grass'),
         letter: document.getElementById('stationery-letter'),
-        paragraphs: document.querySelectorAll('.letter-paragraph')
+        paragraphs: document.querySelectorAll('.letter-paragraph'),
+        continueBtn: document.getElementById('letter-continue-trigger')
       };
 
       if (!this.dom.envelope) return;
@@ -1590,21 +1591,32 @@ const GardenEngine = (() => {
           this.triggerOpenSequence();
         }
       });
+
+      // 1. Continue button registration hook (Prepared for Version 4 integrations)
+      if (this.dom.continueBtn) {
+        this.dom.continueBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Avoid triggering envelope click events
+          this.playPaperSound('continue_action');
+          
+          // Triggers a custom console log indicating readiness for the next version transitions
+          console.log('Continue triggered. Environment ready to shift into Version 4 (Wish Tree).');
+          
+          // Exposed global event hook for external callback hookings
+          if (typeof State.onLetterContinueClick === 'function') {
+            State.onLetterContinueClick();
+          }
+        });
+      }
     },
 
-    /**
-     * Triggers the multi-stage, chronological opening and narrative unfold sequence.
-     */
     triggerOpenSequence() {
       if (State.isEnvelopeOpening || State.isEnvelopeOpened) return;
       
       State.isEnvelopeOpening = true;
       this.isHovered = true;
 
-      // AUDIO PREPARATION HOOK
       this.playPaperSound('lift_envelope');
 
-      // Stage 1: Lift Envelope & Grass deflection
       this.dom.wrapper.style.animation = 'none'; 
       this.dom.wrapper.classList.add('state-lifting');
 
@@ -1612,54 +1624,45 @@ const GardenEngine = (() => {
         this.dom.nest.classList.add('released');
       }
 
-      // Wind Current surge
       MeadowSystem.windSpeed = 3.8;
 
-      // Stage 2: Wax Seal Release (Delay 900ms)
       setTimeout(() => {
         this.playPaperSound('seal_unlocked');
-        this.sparkleDelay = 60; // Glistening spark burst
+        this.sparkleDelay = 60; 
       }, 900);
 
-      // Stage 3: Flap Unfolding (Delay 1500ms)
       setTimeout(() => {
         this.playPaperSound('unfold_flap');
         this.dom.wrapper.classList.add('state-opening');
       }, 1500);
 
-      // Stage 4: Letter Emergence (Delay 3100ms - Slides upward from pocket)
       setTimeout(() => {
         this.playPaperSound('letter_emerging');
         this.dom.wrapper.classList.add('state-emerging');
       }, 3100);
 
-      // Stage 5: Paper Unfolding (Delay 4400ms - Full sized stationery sheet expansion)
       setTimeout(() => {
         this.playPaperSound('stationery_unfolding');
         this.dom.wrapper.classList.add('state-unfolding');
         
-        // Expose letter semantic node to accessibility trees
         if (this.dom.letter) {
           this.dom.letter.setAttribute('aria-hidden', 'false');
         }
       }, 4400);
 
-      // Stage 6: Handwritten text reveal (Delay 5800ms - Sequenced paragraph fade-and-rise)
       setTimeout(() => {
         State.isEnvelopeOpened = true;
-        this.sparkleDelay = 140; // Decelerate sparkles to normal glistening rate
+        this.sparkleDelay = 140; 
         this.triggerTextSequence();
       }, 5800);
     },
 
-    /**
-     * Fades in paragraphs sequentially using smooth, timed CSS transitions.
-     */
     triggerTextSequence() {
       if (!this.dom.paragraphs.length) return;
 
+      const totalParas = this.dom.paragraphs.length;
+
       this.dom.paragraphs.forEach((p, index) => {
-        // Sequenced timing delay: Para 1 (0.2s), Para 2 (1.8s), Para 3 (4.0s), Para 4 (6.0s)
         let delay = 200;
         if (index === 1) delay = 1800;
         if (index === 2) delay = 4000;
@@ -1668,8 +1671,28 @@ const GardenEngine = (() => {
         setTimeout(() => {
           this.playPaperSound('text_appearing');
           p.classList.add('visible');
+
+          // 2. Reveal Continue trigger only after the final paragraph settles
+          if (index === totalParas - 1) {
+            this.revealContinueBtn();
+          }
         }, delay);
       });
+    },
+
+    /**
+     * Fades in the "Continue →" action button softly.
+     * Restores HTML semantic markers for screen-readers and tab indices.
+     */
+    revealContinueBtn() {
+      setTimeout(() => {
+        this.playPaperSound('button_revealed');
+        if (this.dom.continueBtn) {
+          this.dom.continueBtn.classList.add('visible');
+          this.dom.continueBtn.setAttribute('tabindex', '0');
+          this.dom.continueBtn.setAttribute('aria-hidden', 'false');
+        }
+      }, 2000); // Wait 2 seconds after the final paragraph has fully settled
     },
 
     playPaperSound(type) {
@@ -1914,7 +1937,7 @@ const GardenEngine = (() => {
       this.registerSystem(CloudSystem); 
       this.registerSystem(MeadowSystem); 
       this.registerSystem(EffectsSystem); 
-      this.registerSystem(EnvelopeSystem); // Version 3.3 Active
+      this.registerSystem(EnvelopeSystem); // Version 3.4 Active
       
       AnimationManager.start();
 
