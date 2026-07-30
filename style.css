@@ -242,31 +242,32 @@ body {
 }
 
 /* ==========================================================================
-   6. UI LAYER & BIRTHDAY ENVELOPE (Version 3.1 Added)
+   6. UI LAYER & BIRTHDAY ENVELOPE (Version 3.2 Enhanced)
    ========================================================================== */
 #layer-ui {
   z-index: var(--z-ui);
-  pointer-events: auto; /* Captures cursor hovering/clicks cleanly */
+  pointer-events: auto; 
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Envelope Container and Parallax Wrapper */
+/* Envelope Container & Perspective Base */
 .envelope-wrapper {
   position: relative;
-  width: clamp(140px, 20vw, 185px);
+  width: clamp(145px, 20vw, 185px);
   aspect-ratio: 1.6;
-  /* Centered slightly lower vertically to rest naturally in bottom-middle grass */
   transform: translateY(clamp(30px, 8vh, 65px));
-  /* Cinematic slow breathing floating */
-  animation: float-breathing 4.5s ease-in-out infinite;
   display: flex;
   justify-content: center;
   align-items: center;
+  perspective: 1000px; /* Allows smooth 3D flip folding animations */
+  
+  /* Retained gentle float on load; overrides programmatically on lift */
+  animation: float-breathing 4.5s ease-in-out infinite;
 }
 
-/* Outer Ambient Drop Shadow */
+/* Base Shadow beneath the envelope */
 .envelope-shadow {
   position: absolute;
   bottom: -22px;
@@ -275,12 +276,13 @@ body {
   background: radial-gradient(ellipse, rgba(8, 8, 14, 0.45) 0%, rgba(0, 0, 0, 0) 70%);
   border-radius: 50%;
   filter: blur(4px);
+  z-index: 0;
   transition: 
-    transform var(--transition-duration-normal) var(--transition-ease-slow),
-    opacity var(--transition-duration-normal) var(--transition-ease-slow);
+    transform var(--transition-duration-slow) var(--transition-ease-slow),
+    opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-/* Semantic Handcrafted Envelope Outer */
+/* The Envelope Container */
 .envelope {
   position: relative;
   width: 100%;
@@ -290,23 +292,22 @@ body {
   cursor: pointer;
   outline: none;
   pointer-events: auto;
+  transform-style: preserve-3d;
   
-  /* Soft natural paper thickness shadow */
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
     0 4px 12px rgba(10, 12, 20, 0.18);
   
-  /* Subtle CSS grain texture mimicking woven fiber paper */
   background-image: 
     repeating-linear-gradient(45deg, rgba(33, 25, 10, 0.015) 0px, rgba(33, 25, 10, 0.015) 1px, transparent 1px, transparent 6px),
     repeating-linear-gradient(-45deg, rgba(33, 25, 10, 0.015) 0px, rgba(33, 25, 10, 0.015) 1px, transparent 1px, transparent 6px);
   
   transition: 
-    transform var(--transition-duration-normal) var(--transition-ease-slow),
-    box-shadow var(--transition-duration-normal) var(--transition-ease-slow);
+    transform var(--transition-duration-slow) var(--transition-ease-slow),
+    box-shadow var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-/* Invisible moonlight specularity sheet overlay */
+/* Moonlight specularity sheet overlay */
 .moonlight-shine {
   position: absolute;
   top: 0;
@@ -314,41 +315,13 @@ body {
   width: 100%;
   height: 100%;
   border-radius: 3px;
-  /* Simulates moonlight arriving from top-right */
   background: linear-gradient(135deg, rgba(253, 246, 226, 0.08) 0%, rgba(0, 0, 0, 0) 60%);
   z-index: 5;
   pointer-events: none;
-  transition: opacity var(--transition-duration-normal) var(--transition-ease-slow);
+  transition: opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-/* Dynamic Interactive Transitions (Hover & Focus States) */
-.envelope-wrapper:hover .envelope,
-.envelope:focus {
-  transform: translateY(-8px) scale(1.03);
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 12px 28px rgba(10, 12, 20, 0.26);
-}
-
-.envelope-wrapper:hover .envelope-shadow,
-.envelope:focus-within ~ .envelope-shadow {
-  transform: scale(0.85);
-  opacity: 0.65;
-}
-
-.envelope-wrapper:hover .moonlight-shine,
-.envelope:focus .moonlight-shine {
-  opacity: 1.5; /* Brighten slightly under focus */
-}
-
-/* Accessibility keyboard focus indicator outer ring */
-.envelope:focus-visible {
-  box-shadow: 
-    0 0 0 3px var(--color-soft-gold),
-    0 12px 28px rgba(10, 12, 20, 0.3);
-}
-
-/* Envelope Interior Sheet Backing */
+/* Envelope Internal Sheet Backing */
 .envelope-back {
   position: absolute;
   width: 100%;
@@ -358,32 +331,45 @@ body {
   z-index: 1;
 }
 
-/* Lower folding pocket flap (uses modern clip-path geometry) */
+/* Pointed folding top flap group (rotates around folding line) */
+.envelope-flap-group {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  z-index: 4;
+  transition: transform 1.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* The visual flap polygon triangle */
+.envelope-flap {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(38, 35%, 90%, 1); 
+  clip-path: polygon(0% 0%, 100% 0%, 50% 53%);
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  filter: drop-shadow(0 2px 2px rgba(15, 12, 8, 0.12));
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+/* Folding Pocket flaps */
 .envelope-pocket {
   position: absolute;
   width: 100%;
   height: 100%;
   background-color: var(--color-cream);
   z-index: 3;
-  /* Overlapping left, right and bottom folding triangles */
   clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%, 50% 52%);
   box-shadow: inset 0 2px 8px rgba(15, 12, 8, 0.06);
 }
 
-/* Top pointed folding flap */
-.envelope-flap {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: hsla(38, 35%, 90%, 1); /* Slightly darker shade represents crease shadow */
-  z-index: 4;
-  clip-path: polygon(0% 0%, 100% 0%, 50% 53%);
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  filter: drop-shadow(0 2px 2px rgba(15, 12, 8, 0.12));
-}
-
-/* Elegant handcrafted wax seal emblem */
+/* Pointed wax seal emblem (sits inside flap group to swing open) */
 .wax-seal {
   position: absolute;
   left: 50%;
@@ -397,9 +383,10 @@ body {
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.3),
     0 1px 3px rgba(0, 0, 0, 0.15);
-  
-  /* Natural wax imperfections */
   background-image: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  transition: 
+    opacity 0.6s var(--transition-ease-slow),
+    box-shadow 0.6s var(--transition-ease-slow);
 }
 
 .wax-seal::after {
@@ -414,7 +401,33 @@ body {
   border: 1px dashed rgba(255, 255, 255, 0.25);
 }
 
-/* Local Sparkle Particles Wrapper */
+/* Hidden Letter Card Preview (Partially slides up on open) */
+.letter-preview {
+  position: absolute;
+  width: 90%;
+  height: 85%;
+  left: 5%;
+  bottom: 5px;
+  background-color: #fffcf8;
+  border-radius: 2px;
+  z-index: 2; /* Sits behind pocket flaps but in front of backboard */
+  box-shadow: 0 1px 4px rgba(10, 12, 20, 0.08);
+  transform: translateY(0);
+  transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
+}
+
+.letter-gold-rim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--color-soft-gold) 0%, var(--color-cream) 50%, var(--color-soft-gold) 100%);
+  box-shadow: 0 1px 2px rgba(190, 160, 100, 0.2);
+}
+
+/* Local Sparkle container */
 .sparkles-container {
   position: absolute;
   width: 180%;
@@ -426,7 +439,46 @@ body {
 }
 
 /* ==========================================================================
-   7. PROCEDURAL MEADOW NEST GRASS BLADES (Version 3.1 Added)
+   7. INTERACTIVE STYLES & TRANSITIONS (Hover / Active States)
+   ========================================================================== */
+
+/* Active Lift Sequence states */
+.state-lifting .envelope {
+  transform: translateY(clamp(-30px, -6vh, -15px)) rotateX(15deg);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 18px 36px rgba(10, 12, 20, 0.28);
+}
+
+.state-lifting .envelope-shadow {
+  transform: scale(0.68) translateY(20px);
+  opacity: 0.42;
+}
+
+/* Unfolding states */
+.state-opening .envelope-flap-group {
+  transform: rotateX(180deg);
+  z-index: 1; /* Pivot behind back card layer on fully opened rotation */
+}
+
+.state-opening .wax-seal {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  opacity: 0.85;
+}
+
+.state-opening .letter-preview {
+  transform: translateY(-12px); /* Pops card up slightly to indicate contents */
+}
+
+/* Accessibility Focus Marks */
+.envelope:focus-visible {
+  box-shadow: 
+    0 0 0 3px var(--color-soft-gold),
+    0 12px 28px rgba(10, 12, 20, 0.3);
+}
+
+/* ==========================================================================
+   8. PROCEDURAL MEADOW NEST GRASS BLADES (Preserved & Enhanced)
    ========================================================================== */
 .meadow-nest {
   position: absolute;
@@ -435,10 +487,9 @@ body {
   bottom: -18px;
   left: -10%;
   pointer-events: none;
-  z-index: 7; /* Draws overlapping blades in front of envelope base */
+  z-index: 7;
 }
 
-/* Tapered CSS grass blades swaying gently with wind offsets */
 .nest-blade {
   position: absolute;
   bottom: 0;
@@ -447,34 +498,29 @@ body {
   border-radius: 2px 2px 0 0;
   transform-origin: bottom center;
   opacity: 0.9;
+  transition: transform 1.5s var(--transition-ease-slow);
 }
 
-.nest-blade-1 { height: 28px; left: 18%; transform: rotate(-15deg); animation: nest-sway-1 4.5s ease-in-out infinite alternate; }
-.nest-blade-2 { height: 35px; left: 32%; transform: rotate(-8deg); animation: nest-sway-2 5.0s ease-in-out infinite alternate; }
-.nest-blade-3 { height: 22px; left: 52%; transform: rotate(10deg); animation: nest-sway-1 3.8s ease-in-out infinite alternate; }
-.nest-blade-4 { height: 32px; left: 70%; transform: rotate(5deg); animation: nest-sway-2 4.2s ease-in-out infinite alternate; }
-.nest-blade-5 { height: 26px; left: 82%; transform: rotate(18deg); animation: nest-sway-1 4.8s ease-in-out infinite alternate; }
+.nest-blade-1 { height: 28px; left: 18%; transform: rotate(-15deg); }
+.nest-blade-2 { height: 35px; left: 32%; transform: rotate(-8deg); }
+.nest-blade-3 { height: 22px; left: 52%; transform: rotate(10deg); }
+.nest-blade-4 { height: 32px; left: 70%; transform: rotate(5deg); }
+.nest-blade-5 { height: 26px; left: 82%; transform: rotate(18deg); }
 
-/* ==========================================================================
-   8. ENVELOPE FLOATING & GRASS SWAY TIMELINES
-   ========================================================================== */
+/* Released class applied to nest-grass on lift transition */
+.meadow-nest.released .nest-blade-1 { transform: rotate(-24deg) translateY(2px); }
+.meadow-nest.released .nest-blade-2 { transform: rotate(-16deg) translateY(1px); }
+.meadow-nest.released .nest-blade-3 { transform: rotate(18deg) translateY(2px); }
+.meadow-nest.released .nest-blade-4 { transform: rotate(12deg) translateY(1px); }
+.meadow-nest.released .nest-blade-5 { transform: rotate(26deg) translateY(2px); }
+
+/* Standard floating breath keys */
 @keyframes float-breathing {
   0% { transform: translateY(clamp(30px, 8vh, 65px)) rotate(0deg); }
   50% { transform: translateY(calc(clamp(30px, 8vh, 65px) - 3px)) rotate(0.4deg); }
   100% { transform: translateY(clamp(30px, 8vh, 65px)) rotate(0deg); }
 }
 
-@keyframes nest-sway-1 {
-  0% { transform: rotate(-12deg) skewX(-2deg); }
-  100% { transform: rotate(6deg) skewX(2deg); }
-}
-
-@keyframes nest-sway-2 {
-  0% { transform: rotate(-4deg) skewX(-1deg); }
-  100% { transform: rotate(14deg) skewX(3deg); }
-}
-
-/* Sparkle dynamic rendering keys */
 .envelope-sparkle {
   position: absolute;
   width: 3px;
