@@ -16,7 +16,7 @@
       <canvas id="loading-canvas" class="loading-canvas"></canvas>
       <div class="loading-container">
         <svg class="monogram-svg" viewBox="0 0 200 100" aria-label="Personalized initials">
-          <path class="draw-path path-left" d="M 45,25 C 35,25 30,35 30,45 C 30,65 50,75 65,75 C 75,75 80,70 80,60 C 80,50 70,45 60,50 C 50,55 55,65 65,65" />
+          <path class="draw-path path-left" d="M 45,25 C 35,25 30,35 30,45 C 30,65 50,75 65,75 C 75,75 80,60 80,60 C 80,50 70,45 60,50 C 50,55 55,65 65,65" />
           <path class="draw-path path-amp" d="M 103,63 C 97,57 93,51 98,45 C 102,40 106,44 102,50 C 96,57 91,61 106,65" />
           <path class="draw-path path-right" d="M 120,65 L 120,35 C 120,35 128,55 135,55 C 142,55 150,35 150,35 L 150,65 C 150,65 155,70 165,70" />
         </svg>
@@ -45,21 +45,46 @@
         <canvas id="effects-canvas" class="effects-canvas"></canvas>
       </div>
 
-      <!-- UI Layer (Version 3.2: Interactive Birthday Envelope Setup) -->
+      <!-- UI Layer (Version 3.3: Dynamic Stationery Letter Sheet Added) -->
       <div id="layer-ui" class="layer sub-layer">
         
         <div class="envelope-wrapper">
           <div class="envelope-shadow"></div>
 
-          <!-- Interactive Envelope Component -->
           <div class="envelope" id="interactive-envelope" tabindex="0" role="button" aria-label="Open Birthday Letter">
             <div class="moonlight-shine"></div>
 
             <div class="envelope-back"></div>
             
-            <!-- Hidden letter card containing a golden edge (partially revealed during unfold sequence) -->
-            <div class="letter-preview">
+            <!-- Stationery Letter (Version 3.3 Upgraded: Complete unfolds & text sheet structure) -->
+            <div class="letter-preview" id="stationery-letter" aria-hidden="true">
+              <!-- Premium golden outer rim highlight -->
               <div class="letter-gold-rim"></div>
+
+              <!-- Minimalist vector frame & corner decorations -->
+              <svg class="letter-frame" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <rect x="4" y="4" width="92" height="92" rx="2" fill="none" stroke="var(--color-soft-gold)" stroke-width="0.5" opacity="0.35" />
+                <path d="M 6,10 L 6,6 L 10,6 M 94,10 L 94,6 L 90,6 M 6,90 L 6,94 L 10,94 M 94,90 L 94,94 L 90,94" fill="none" stroke="var(--color-soft-gold)" stroke-width="0.8" opacity="0.5" />
+              </svg>
+
+              <!-- Crease lines to simulate physical folded paper folds -->
+              <div class="paper-crease crease-top"></div>
+              <div class="paper-crease crease-bottom"></div>
+
+              <!-- Handwritten Letter Content Interface -->
+              <div class="letter-content">
+                <!-- Soft floral header doodle -->
+                <div class="letter-header-doodle">
+                  <span class="doodle-heart">✿</span>
+                </div>
+
+                <div class="letter-text" id="letter-text-container">
+                  <p class="letter-paragraph">Dearest,</p>
+                  <p class="letter-paragraph">On this <span class="glow-word">magical night</span>, under the soft breathing glow of the full moon, I wanted to build a little world created especially for you.</p>
+                  <p class="letter-paragraph">May your day be filled with the same peaceful <span class="glow-word">wonder</span> and joy that you bring into my life every single day.</p>
+                  <p class="letter-paragraph">Happy Birthday. <span class="glow-word">✿</span></p>
+                </div>
+              </div>
             </div>
 
             <div class="sparkles-container" id="envelope-sparkles"></div>
@@ -67,10 +92,9 @@
             <!-- Overlapping pocket flaps -->
             <div class="envelope-pocket"></div>
             
-            <!-- 3.D Rotatable Folding flap container -->
+            <!-- 3D Rotatable Folding flap container -->
             <div class="envelope-flap-group">
               <div class="envelope-flap"></div>
-              <!-- Wax seal is nested here so it pivots realistically on flap rotation -->
               <div class="wax-seal"></div>
             </div>
           </div>
