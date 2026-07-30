@@ -40,13 +40,47 @@
         <canvas id="meadow-canvas" class="meadow-canvas"></canvas>
       </div>
 
-      <!-- Effects Layer (Version 2.8: Shared High-Performance Effects Layer) -->
+      <!-- Effects Layer -->
       <div id="layer-effects" class="layer sub-layer">
         <canvas id="effects-canvas" class="effects-canvas"></canvas>
       </div>
 
-      <!-- UI Layer (Reserved for minimal narrative overlay, letter interface) -->
-      <div id="layer-ui" class="layer sub-layer"></div>
+      <!-- UI Layer (Version 3.1: Added Handcrafted Birthday Envelope) -->
+      <div id="layer-ui" class="layer sub-layer">
+        
+        <div class="envelope-wrapper">
+          <!-- Ambient Faded Shadow behind the envelope -->
+          <div class="envelope-shadow"></div>
+
+          <!-- Interactive Semantic Envelope Component -->
+          <div class="envelope" id="interactive-envelope" tabindex="0" role="button" aria-label="Open Birthday Letter">
+            <!-- Specular moonlight shine highlights overlay -->
+            <div class="moonlight-shine"></div>
+
+            <div class="envelope-back"></div>
+            
+            <!-- Dynamic local sparkles container -->
+            <div class="sparkles-container" id="envelope-sparkles"></div>
+
+            <!-- Overlapping folded paper flaps (clip-path coordinates) -->
+            <div class="envelope-pocket"></div>
+            <div class="envelope-flap"></div>
+
+            <!-- Premium desaturated Blush Pink wax seal -->
+            <div class="wax-seal"></div>
+          </div>
+
+          <!-- Procedural CSS grass blades that wrap around the base to nestle it inside the meadow -->
+          <div class="meadow-nest">
+            <div class="nest-blade nest-blade-1"></div>
+            <div class="nest-blade nest-blade-2"></div>
+            <div class="nest-blade nest-blade-3"></div>
+            <div class="nest-blade nest-blade-4"></div>
+            <div class="nest-blade nest-blade-5"></div>
+          </div>
+        </div>
+
+      </div>
 
     </div>
 
