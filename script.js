@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 3.1 Handcrafted Birthday Envelope)
+ * Cinematic Environment Engine (Version 3.2 Envelope Click & Unfold Timeline)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -25,7 +25,11 @@ const GardenEngine = (() => {
     mouseY: 0,
     targetMouseX: 0,
     targetMouseY: 0,
-    parallaxSpeed: 0.05
+    parallaxSpeed: 0.05,
+    
+    // Master timeline block (prevents concurrent interactions during active transitions)
+    isEnvelopeOpening: false,
+    isEnvelopeOpened: false
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
@@ -941,6 +945,8 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
+      // Wind speed slowly decays back to its baseline calm index (1.4) if surged
+      this.windSpeed += (1.4 - this.windSpeed) * dt;
       this.windTime += this.windSpeed * dt;
 
       for (let i = 0; i < this.renderList.length; i++) {
@@ -1531,7 +1537,7 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Interactive Envelope Controller (Version 3.1 Sub-System - Added)
+   * Interactive Envelope Controller (Version 3.2 Click & Opening Timeline)
    * Manages semantic focus inputs, sparkle spawning loops, and mobile interactions.
    */
   const EnvelopeSystem = {
@@ -1539,14 +1545,15 @@ const GardenEngine = (() => {
     dom: {},
     sparkles: [],
     sparkleTimer: 0,
-    sparkleDelay: 420, // Milliseconds between idle sparkle spawns
+    sparkleDelay: 420,
     isHovered: false,
 
     init() {
       this.dom = {
         envelope: document.getElementById('interactive-envelope'),
         wrapper: document.querySelector('.envelope-wrapper'),
-        sparkles: document.getElementById('envelope-sparkles')
+        sparkles: document.getElementById('envelope-sparkles'),
+        nest: document.getElementById('meadow-nest-grass')
       };
 
       if (!this.dom.envelope) return;
@@ -1554,18 +1561,15 @@ const GardenEngine = (() => {
       this.bindEvents();
     },
 
-    bindInputs() {
-      // Prepared for future version click and trigger activations
-    },
-
     bindEvents() {
-      // 1. Mouse & Touch Interaction triggers
       const enter = () => {
+        if (State.isEnvelopeOpening) return;
         this.isHovered = true;
-        this.sparkleDelay = 180; // Speed up sparkles on hover
+        this.sparkleDelay = 180;
       };
 
       const leave = () => {
+        if (State.isEnvelopeOpening) return;
         this.isHovered = false;
         this.sparkleDelay = 420;
       };
@@ -1575,13 +1579,74 @@ const GardenEngine = (() => {
       this.dom.envelope.addEventListener('touchstart', enter, { passive: true });
       this.dom.envelope.addEventListener('touchend', leave, { passive: true });
 
-      // Keyboard focus transitions
       this.dom.envelope.addEventListener('focus', enter, { passive: true });
       this.dom.envelope.addEventListener('blur', leave, { passive: true });
+
+      // 1. Core Click / Activation Events
+      this.dom.envelope.addEventListener('click', this.triggerOpenSequence.bind(this));
+      
+      // Accessibility focus keys (Enter & Spacebar)
+      this.dom.envelope.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          // Block standard spacebar page scrolling
+          e.preventDefault();
+          this.triggerOpenSequence();
+        }
+      });
+    },
+
+    /**
+     * Triggers the multi-stage, cinematic envelope opening timeline sequence.
+     * Prevents overlapping clicks and handles environmental physics.
+     */
+    triggerOpenSequence() {
+      if (State.isEnvelopeOpening || State.isEnvelopeOpened) return;
+      
+      State.isEnvelopeOpening = true;
+      this.isHovered = true;
+
+      // AUDIO PREPARATION (Paper audio hooks ready for next version)
+      this.playPaperSound('lift');
+
+      // Stage 1: Lift Envelope from grass, trigger meadow grass weight release
+      this.dom.wrapper.style.animation = 'none'; // Disable idle floating to allow crisp transitions
+      this.dom.wrapper.classList.add('state-lifting');
+
+      if (this.dom.nest) {
+        this.dom.nest.classList.add('released');
+      }
+
+      // Environmental Physics surge (generate a soft wind wave surge on meadow grass)
+      MeadowSystem.windSpeed = 3.8;
+
+      // Stage 2: Seal Release & Unlock Flap (Delay 900ms)
+      setTimeout(() => {
+        this.playPaperSound('unlock');
+        this.sparkleDelay = 60; // Significant sparkle burst activation
+      }, 900);
+
+      // Stage 3: Flap Unfolding & Card Preview slide up (Delay 1500ms)
+      setTimeout(() => {
+        this.playPaperSound('unfold');
+        this.dom.wrapper.classList.add('state-opening');
+      }, 1500);
+
+      // Stage 4: Settle & Final opened state (Delay 3100ms)
+      setTimeout(() => {
+        State.isEnvelopeOpened = true;
+        this.sparkleDelay = 120; // Ambient open sparkle rate
+      }, 3100);
+    },
+
+    /**
+     * Placeholder hooks to easily insert paper sounds in later updates.
+     */
+    playPaperSound(type) {
+      // Future sound hooks console registry
+      console.log(`Audio Event Triggered: paper_${type}`);
     },
 
     update(dt) {
-      // Convert dt to milliseconds
       this.sparkleTimer += dt * 1000;
 
       if (this.sparkleTimer >= this.sparkleDelay) {
@@ -1590,10 +1655,6 @@ const GardenEngine = (() => {
       }
     },
 
-    /**
-     * Procedurally constructs a CSS-driven glow sparkle element.
-     * Triggers forward vectors and schedules safe DOM deletion post-animation.
-     */
     spawnSparkle() {
       if (document.hidden || !State.isActive) return;
 
@@ -1601,38 +1662,42 @@ const GardenEngine = (() => {
       const sparkle = document.createElement('div');
       sparkle.className = 'envelope-sparkle';
 
-      // Random placement offsets clustered around the envelope body
-      const x = utils.randomRange(10, 90); // Percentage boundaries
-      const y = utils.randomRange(10, 90);
+      const x = utils.randomRange(10, 90);
+      const y = utils.randomRange(15, 85);
       sparkle.style.left = `${x}%`;
       sparkle.style.top = `${y}%`;
 
-      // Drift vectors (pointing up and away)
       const dx = utils.randomRange(-35, 35);
       const dy = utils.randomRange(-30, -70);
       sparkle.style.setProperty('--dx', `${dx}px`);
       sparkle.style.setProperty('--dy', `${dy}px`);
 
-      // Randomized scale offsets
       const scale = utils.randomRange(0.6, 1.4);
       sparkle.style.transform = `scale(${scale})`;
 
       this.dom.sparkles.appendChild(sparkle);
 
-      // DOM Garbage Collector (Deletes node after CSS animation completes)
       setTimeout(() => {
         sparkle.remove();
-      }, 1400); // Syncs with sparkle-drift animation inside CSS
+      }, 1400);
     },
 
     render() {
       if (!this.dom.wrapper) return;
 
-      // Apply subtle landscape parallax to envelope container base
+      // Standard landscape parallax displacement calculations (unless programmatically locked)
       const px = State.mouseX * State.width * 0.024;
       const py = State.mouseY * State.height * 0.024;
+      
+      // We apply standard coordinates offset only (base state class manages lift translateY)
       this.dom.wrapper.style.left = `${px}px`;
-      this.dom.wrapper.style.top = `${py}px`;
+      
+      if (!State.isEnvelopeOpening) {
+        this.dom.wrapper.style.top = `${py}px`;
+      } else {
+        // Keeps slight horizontal parallax active during Opened state
+        this.dom.wrapper.style.top = `calc(0px + ${py}px)`;
+      }
     }
   };
 
@@ -1822,7 +1887,7 @@ const GardenEngine = (() => {
       this.registerSystem(CloudSystem); 
       this.registerSystem(MeadowSystem); 
       this.registerSystem(EffectsSystem); 
-      this.registerSystem(EnvelopeSystem); // Version 3.1 Active
+      this.registerSystem(EnvelopeSystem); // Version 3.2 Active
       
       AnimationManager.start();
 
