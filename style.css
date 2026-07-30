@@ -242,7 +242,7 @@ body {
 }
 
 /* ==========================================================================
-   6. UI LAYER & BIRTHDAY ENVELOPE (Version 3.2 Enhanced)
+   6. UI LAYER & BIRTHDAY ENVELOPE (Preserved & Enhanced)
    ========================================================================== */
 #layer-ui {
   z-index: var(--z-ui);
@@ -252,7 +252,6 @@ body {
   align-items: center;
 }
 
-/* Envelope Container & Perspective Base */
 .envelope-wrapper {
   position: relative;
   width: clamp(145px, 20vw, 185px);
@@ -261,13 +260,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1000px; /* Allows smooth 3D flip folding animations */
+  perspective: 1000px; 
   
-  /* Retained gentle float on load; overrides programmatically on lift */
   animation: float-breathing 4.5s ease-in-out infinite;
 }
 
-/* Base Shadow beneath the envelope */
 .envelope-shadow {
   position: absolute;
   bottom: -22px;
@@ -282,7 +279,6 @@ body {
     opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-/* The Envelope Container */
 .envelope {
   position: relative;
   width: 100%;
@@ -307,7 +303,6 @@ body {
     box-shadow var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-/* Moonlight specularity sheet overlay */
 .moonlight-shine {
   position: absolute;
   top: 0;
@@ -321,7 +316,6 @@ body {
   transition: opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-/* Envelope Internal Sheet Backing */
 .envelope-back {
   position: absolute;
   width: 100%;
@@ -331,7 +325,6 @@ body {
   z-index: 1;
 }
 
-/* Pointed folding top flap group (rotates around folding line) */
 .envelope-flap-group {
   position: absolute;
   top: 0;
@@ -344,7 +337,6 @@ body {
   transition: transform 1.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* The visual flap polygon triangle */
 .envelope-flap {
   position: absolute;
   width: 100%;
@@ -358,7 +350,6 @@ body {
   backface-visibility: visible;
 }
 
-/* Folding Pocket flaps */
 .envelope-pocket {
   position: absolute;
   width: 100%;
@@ -369,7 +360,6 @@ body {
   box-shadow: inset 0 2px 8px rgba(15, 12, 8, 0.06);
 }
 
-/* Pointed wax seal emblem (sits inside flap group to swing open) */
 .wax-seal {
   position: absolute;
   left: 50%;
@@ -401,48 +391,139 @@ body {
   border: 1px dashed rgba(255, 255, 255, 0.25);
 }
 
-/* Hidden Letter Card Preview (Partially slides up on open) */
+/* ==========================================================================
+   7. STATIONERY LETTER SHEET DESIGN (Version 3.3 Upgraded)
+   ========================================================================== */
 .letter-preview {
   position: absolute;
   width: 90%;
   height: 85%;
   left: 5%;
   bottom: 5px;
-  background-color: #fffcf8;
+  
+  /* Warm cream color blending into light off-white at the top to catch moonbeams */
+  background: radial-gradient(circle at 80% 20%, #fffdf8 0%, var(--color-cream) 100%);
   border-radius: 2px;
-  z-index: 2; /* Sits behind pocket flaps but in front of backboard */
-  box-shadow: 0 1px 4px rgba(10, 12, 20, 0.08);
+  z-index: 2; /* Sandwiched perfectly between backing board and pocket flap */
+  
+  /* Realistic paper thickness ambient shadow */
+  box-shadow: 
+    0 1px 3px rgba(10, 12, 20, 0.06),
+    0 2px 8px rgba(10, 12, 20, 0.04);
+  
   transform: translateY(0);
-  transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+  transform-origin: center bottom;
+  transition: 
+    transform 1.4s cubic-bezier(0.25, 1, 0.5, 1),
+    width 1.4s cubic-bezier(0.25, 1, 0.5, 1),
+    height 1.4s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 1.4s cubic-bezier(0.25, 1, 0.5, 1);
   overflow: hidden;
 }
 
-.letter-gold-rim {
+/* Elegant Vector frame overlays */
+.letter-frame {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
-  background: linear-gradient(to right, var(--color-soft-gold) 0%, var(--color-cream) 50%, var(--color-soft-gold) 100%);
-  box-shadow: 0 1px 2px rgba(190, 160, 100, 0.2);
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
 }
 
-/* Local Sparkle container */
-.sparkles-container {
+/* Crease lines simulating folded paper panels */
+.paper-crease {
   position: absolute;
-  width: 180%;
-  height: 180%;
-  left: -40%;
-  top: -40%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(35, 25, 15, 0.08) 50%, rgba(0, 0, 0, 0) 100%);
+  z-index: 3;
+  transition: opacity 1.2s var(--transition-ease-slow);
+}
+
+.crease-top { top: 33.3%; }
+.crease-bottom { top: 66.6%; }
+
+/* Hand-Drawn Floral header doodles */
+.letter-header-doodle {
+  margin: 1.25rem 0 0.8rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--color-soft-gold);
+  opacity: 0.45;
+  letter-spacing: 0.5em;
   pointer-events: none;
-  z-index: 6;
+}
+
+.letter-header-doodle::before,
+.letter-header-doodle::after {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background-color: var(--color-soft-gold);
+  margin: 0 8px;
+}
+
+/* Letter contents layout container */
+.letter-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+/* Calligraphy letter text (Optimized for desaturated, high-end feel) */
+.letter-text {
+  width: 100%;
+  max-width: 320px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  color: var(--color-sky-top);
+  
+  /* Fallback script cursive stacks */
+  font-family: 'Apple Chancery', 'Brush Script MT', 'Great Vibes', cursive, serif;
+  font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+  line-height: 1.6;
+}
+
+/* Paragraph structures pointing to sequentially timed JS reveals */
+.letter-paragraph {
+  margin: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: 
+    opacity 1.5s var(--transition-ease-slow),
+    transform 1.5s var(--transition-ease-slow);
+}
+
+/* Active typographic state overrides */
+.letter-paragraph.visible {
+  opacity: 0.85;
+  transform: translateY(0);
+}
+
+/* Subtle gold highlights for crucial focus words */
+.glow-word {
+  color: var(--color-soft-gold);
+  text-shadow: 0 0 6px hsla(43, 60%, 75%, 0.35);
+  font-weight: 500;
 }
 
 /* ==========================================================================
-   7. INTERACTIVE STYLES & TRANSITIONS (Hover / Active States)
+   8. ACTIVE TRANSITIONS & UNVOLD TIMELINES (Version 3.3 Upgraded)
    ========================================================================== */
 
-/* Active Lift Sequence states */
+/* Stage 1: Active Lift */
 .state-lifting .envelope {
   transform: translateY(clamp(-30px, -6vh, -15px)) rotateX(15deg);
   box-shadow: 
@@ -455,10 +536,10 @@ body {
   opacity: 0.42;
 }
 
-/* Unfolding states */
+/* Stage 2: Flap unfold */
 .state-opening .envelope-flap-group {
   transform: rotateX(180deg);
-  z-index: 1; /* Pivot behind back card layer on fully opened rotation */
+  z-index: 1; 
 }
 
 .state-opening .wax-seal {
@@ -466,19 +547,42 @@ body {
   opacity: 0.85;
 }
 
-.state-opening .letter-preview {
-  transform: translateY(-12px); /* Pops card up slightly to indicate contents */
+/* Stage 3: Letter Emergence (Slides upward gracefully from envelope pocket) */
+.state-emerging .letter-preview {
+  transform: translateY(-105%) scale(1.0);
 }
 
-/* Accessibility Focus Marks */
-.envelope:focus-visible {
+/* Stage 4: Paper Unfolding (Stationery flattens into full-sized reading sheet) */
+.state-unfolding .letter-preview {
+  width: 142%; /* Widens */
+  height: 255%; /* Lengthens */
+  /* Re-aligns slightly above the envelope body centered */
+  transform: translateY(-166%) scale(1.0);
   box-shadow: 
-    0 0 0 3px var(--color-soft-gold),
-    0 12px 28px rgba(10, 12, 20, 0.3);
+    0 8px 24px rgba(8, 8, 14, 0.16),
+    0 16px 40px rgba(8, 8, 14, 0.12);
+}
+
+/* Fades creases completely flat to complete paper unfolding illusion */
+.state-unfolding .paper-crease {
+  opacity: 0.05;
+}
+
+/* Responsive configurations ensuring the unfolded letter remains fully legible on smaller viewports */
+@media (max-width: 600px) {
+  .state-unfolding .letter-preview {
+    width: 182%;
+    height: 310%;
+    transform: translateY(-152%) scale(0.92);
+  }
+  .letter-text {
+    gap: 0.65rem;
+    line-height: 1.45;
+  }
 }
 
 /* ==========================================================================
-   8. PROCEDURAL MEADOW NEST GRASS BLADES (Preserved & Enhanced)
+   9. MEADOW NEST GRASS (Preserved)
    ========================================================================== */
 .meadow-nest {
   position: absolute;
@@ -507,14 +611,13 @@ body {
 .nest-blade-4 { height: 32px; left: 70%; transform: rotate(5deg); }
 .nest-blade-5 { height: 26px; left: 82%; transform: rotate(18deg); }
 
-/* Released class applied to nest-grass on lift transition */
 .meadow-nest.released .nest-blade-1 { transform: rotate(-24deg) translateY(2px); }
 .meadow-nest.released .nest-blade-2 { transform: rotate(-16deg) translateY(1px); }
 .meadow-nest.released .nest-blade-3 { transform: rotate(18deg) translateY(2px); }
 .meadow-nest.released .nest-blade-4 { transform: rotate(12deg) translateY(1px); }
 .meadow-nest.released .nest-blade-5 { transform: rotate(26deg) translateY(2px); }
 
-/* Standard floating breath keys */
+/* Float timelines (Preserved) */
 @keyframes float-breathing {
   0% { transform: translateY(clamp(30px, 8vh, 65px)) rotate(0deg); }
   50% { transform: translateY(calc(clamp(30px, 8vh, 65px) - 3px)) rotate(0.4deg); }
@@ -538,9 +641,6 @@ body {
   100% { transform: translate(var(--dx), var(--dy)) scale(1.2); opacity: 0; }
 }
 
-/* ==========================================================================
-   9. GLOBAL OVERLAY (Preserved)
-   ========================================================================== */
 .layer-overlay {
   z-index: var(--z-overlay);
   background: radial-gradient(
