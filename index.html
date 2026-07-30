@@ -45,33 +45,38 @@
         <canvas id="effects-canvas" class="effects-canvas"></canvas>
       </div>
 
-      <!-- UI Layer (Version 3.1: Added Handcrafted Birthday Envelope) -->
+      <!-- UI Layer (Version 3.2: Interactive Birthday Envelope Setup) -->
       <div id="layer-ui" class="layer sub-layer">
         
         <div class="envelope-wrapper">
-          <!-- Ambient Faded Shadow behind the envelope -->
           <div class="envelope-shadow"></div>
 
-          <!-- Interactive Semantic Envelope Component -->
+          <!-- Interactive Envelope Component -->
           <div class="envelope" id="interactive-envelope" tabindex="0" role="button" aria-label="Open Birthday Letter">
-            <!-- Specular moonlight shine highlights overlay -->
             <div class="moonlight-shine"></div>
 
             <div class="envelope-back"></div>
             
-            <!-- Dynamic local sparkles container -->
+            <!-- Hidden letter card containing a golden edge (partially revealed during unfold sequence) -->
+            <div class="letter-preview">
+              <div class="letter-gold-rim"></div>
+            </div>
+
             <div class="sparkles-container" id="envelope-sparkles"></div>
 
-            <!-- Overlapping folded paper flaps (clip-path coordinates) -->
+            <!-- Overlapping pocket flaps -->
             <div class="envelope-pocket"></div>
-            <div class="envelope-flap"></div>
-
-            <!-- Premium desaturated Blush Pink wax seal -->
-            <div class="wax-seal"></div>
+            
+            <!-- 3.D Rotatable Folding flap container -->
+            <div class="envelope-flap-group">
+              <div class="envelope-flap"></div>
+              <!-- Wax seal is nested here so it pivots realistically on flap rotation -->
+              <div class="wax-seal"></div>
+            </div>
           </div>
 
-          <!-- Procedural CSS grass blades that wrap around the base to nestle it inside the meadow -->
-          <div class="meadow-nest">
+          <!-- Procedural grass blades nestling the envelope -->
+          <div class="meadow-nest" id="meadow-nest-grass">
             <div class="nest-blade nest-blade-1"></div>
             <div class="nest-blade nest-blade-2"></div>
             <div class="nest-blade nest-blade-3"></div>
