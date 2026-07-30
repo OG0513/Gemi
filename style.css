@@ -242,7 +242,7 @@ body {
 }
 
 /* ==========================================================================
-   6. UI LAYER & BIRTHDAY ENVELOPE (Preserved & Enhanced)
+   6. UI LAYER & BIRTHDAY ENVELOPE (Preserved)
    ========================================================================== */
 #layer-ui {
   z-index: var(--z-ui);
@@ -392,7 +392,7 @@ body {
 }
 
 /* ==========================================================================
-   7. STATIONERY LETTER SHEET DESIGN (Version 3.3 Upgraded)
+   7. STATIONERY LETTER SHEET DESIGN (Preserved & Enhanced)
    ========================================================================== */
 .letter-preview {
   position: absolute;
@@ -401,12 +401,10 @@ body {
   left: 5%;
   bottom: 5px;
   
-  /* Warm cream color blending into light off-white at the top to catch moonbeams */
   background: radial-gradient(circle at 80% 20%, #fffdf8 0%, var(--color-cream) 100%);
   border-radius: 2px;
-  z-index: 2; /* Sandwiched perfectly between backing board and pocket flap */
+  z-index: 2; 
   
-  /* Realistic paper thickness ambient shadow */
   box-shadow: 
     0 1px 3px rgba(10, 12, 20, 0.06),
     0 2px 8px rgba(10, 12, 20, 0.04);
@@ -421,7 +419,6 @@ body {
   overflow: hidden;
 }
 
-/* Elegant Vector frame overlays */
 .letter-frame {
   position: absolute;
   top: 0;
@@ -432,7 +429,6 @@ body {
   z-index: 2;
 }
 
-/* Crease lines simulating folded paper panels */
 .paper-crease {
   position: absolute;
   left: 0;
@@ -446,7 +442,6 @@ body {
 .crease-top { top: 33.3%; }
 .crease-bottom { top: 66.6%; }
 
-/* Hand-Drawn Floral header doodles */
 .letter-header-doodle {
   margin: 1.25rem 0 0.8rem 0;
   display: flex;
@@ -457,6 +452,7 @@ body {
   opacity: 0.45;
   letter-spacing: 0.5em;
   pointer-events: none;
+  transition: margin 1.4s var(--transition-ease-slow);
 }
 
 .letter-header-doodle::before,
@@ -468,7 +464,6 @@ body {
   margin: 0 8px;
 }
 
-/* Letter contents layout container */
 .letter-content {
   position: relative;
   width: 100%;
@@ -480,7 +475,6 @@ body {
   z-index: 1;
 }
 
-/* Calligraphy letter text (Optimized for desaturated, high-end feel) */
 .letter-text {
   width: 100%;
   max-width: 320px;
@@ -490,13 +484,11 @@ body {
   gap: 0.85rem;
   color: var(--color-sky-top);
   
-  /* Fallback script cursive stacks */
   font-family: 'Apple Chancery', 'Brush Script MT', 'Great Vibes', cursive, serif;
   font-size: clamp(0.75rem, 1.8vw, 0.95rem);
   line-height: 1.6;
 }
 
-/* Paragraph structures pointing to sequentially timed JS reveals */
 .letter-paragraph {
   margin: 0;
   opacity: 0;
@@ -506,13 +498,11 @@ body {
     transform 1.5s var(--transition-ease-slow);
 }
 
-/* Active typographic state overrides */
 .letter-paragraph.visible {
   opacity: 0.85;
   transform: translateY(0);
 }
 
-/* Subtle gold highlights for crucial focus words */
 .glow-word {
   color: var(--color-soft-gold);
   text-shadow: 0 0 6px hsla(43, 60%, 75%, 0.35);
@@ -520,7 +510,59 @@ body {
 }
 
 /* ==========================================================================
-   8. ACTIVE TRANSITIONS & UNVOLD TIMELINES (Version 3.3 Upgraded)
+   8. ELEGANT CONTINUE TRIGGER BUTTON (Version 3.4 Added)
+   ========================================================================== */
+.letter-continue-btn {
+  opacity: 0;
+  transform: translateY(12px);
+  align-self: center;
+  
+  margin: 1.6rem 0 0 0;
+  padding: 0 0 2px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-soft-gold);
+  
+  color: var(--color-sky-top);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.78rem, 1.8vw, 0.88rem);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  outline: none;
+  pointer-events: none; /* Block interactions until fully visible */
+
+  transition: 
+    opacity 1.5s var(--transition-ease-slow),
+    transform 1.5s var(--transition-ease-slow),
+    color var(--transition-duration-normal) var(--transition-ease-slow),
+    border-bottom-color var(--transition-duration-normal) var(--transition-ease-slow),
+    text-shadow var(--transition-duration-normal) var(--transition-ease-slow);
+}
+
+/* Focused & Active states mapping */
+.letter-continue-btn.visible {
+  opacity: 0.72;
+  transform: translateY(0);
+  pointer-events: auto; /* Enable inputs once text animations settle */
+}
+
+.letter-continue-btn:hover,
+.letter-continue-btn:focus {
+  opacity: 1.0;
+  color: var(--color-soft-gold);
+  border-bottom-color: var(--color-cream);
+  text-shadow: 0 0 5px hsla(43, 60%, 75%, 0.45);
+}
+
+/* Focused outline marker */
+.letter-continue-btn:focus-visible {
+  outline: 1px dashed var(--color-soft-gold);
+  outline-offset: 4px;
+}
+
+/* ==========================================================================
+   9. ACTIVE TRANSITIONS & UNFOLD TIMELINES (Preserved & Calibrated)
    ========================================================================== */
 
 /* Stage 1: Active Lift */
@@ -547,28 +589,31 @@ body {
   opacity: 0.85;
 }
 
-/* Stage 3: Letter Emergence (Slides upward gracefully from envelope pocket) */
+/* Stage 3: Letter Emergence */
 .state-emerging .letter-preview {
   transform: translateY(-105%) scale(1.0);
 }
 
-/* Stage 4: Paper Unfolding (Stationery flattens into full-sized reading sheet) */
+/* Stage 4: Paper Unfolding (Stationery stretches fully to comfortable readable frame) */
 .state-unfolding .letter-preview {
-  width: 142%; /* Widens */
-  height: 255%; /* Lengthens */
-  /* Re-aligns slightly above the envelope body centered */
+  width: 142%; 
+  height: 255%; 
   transform: translateY(-166%) scale(1.0);
   box-shadow: 
     0 8px 24px rgba(8, 8, 14, 0.16),
     0 16px 40px rgba(8, 8, 14, 0.12);
 }
 
-/* Fades creases completely flat to complete paper unfolding illusion */
 .state-unfolding .paper-crease {
   opacity: 0.05;
 }
 
-/* Responsive configurations ensuring the unfolded letter remains fully legible on smaller viewports */
+/* Letter settles completely flat (Disables floating animation only on open) */
+.state-unfolding.envelope-wrapper {
+  animation: none;
+}
+
+/* Responsive configurations (Calibrated for short/tall mobile viewports) */
 @media (max-width: 600px) {
   .state-unfolding .letter-preview {
     width: 182%;
@@ -579,10 +624,16 @@ body {
     gap: 0.65rem;
     line-height: 1.45;
   }
+  .letter-header-doodle {
+    margin: 0.65rem 0 0.5rem 0;
+  }
+  .letter-continue-btn {
+    margin: 0.85rem 0 0 0;
+  }
 }
 
 /* ==========================================================================
-   9. MEADOW NEST GRASS (Preserved)
+   10. MEADOW NEST GRASS (Preserved)
    ========================================================================== */
 .meadow-nest {
   position: absolute;
