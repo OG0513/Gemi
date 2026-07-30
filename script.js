@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 3.2 Envelope Click & Unfold Timeline)
+ * Cinematic Environment Engine (Version 3.3 Letter Emergence & Narrative Reveal)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -27,7 +27,7 @@ const GardenEngine = (() => {
     targetMouseY: 0,
     parallaxSpeed: 0.05,
     
-    // Master timeline block (prevents concurrent interactions during active transitions)
+    // Master timeline block variables
     isEnvelopeOpening: false,
     isEnvelopeOpened: false
   };
@@ -945,7 +945,6 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
-      // Wind speed slowly decays back to its baseline calm index (1.4) if surged
       this.windSpeed += (1.4 - this.windSpeed) * dt;
       this.windTime += this.windSpeed * dt;
 
@@ -1537,8 +1536,8 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Interactive Envelope Controller (Version 3.2 Click & Opening Timeline)
-   * Manages semantic focus inputs, sparkle spawning loops, and mobile interactions.
+   * Interactive Envelope & Letter Controller (Version 3.3 Upgraded)
+   * Manages the procedural opening timeline, letter sheet folds, and written text revealing.
    */
   const EnvelopeSystem = {
     name: 'EnvelopeSystem',
@@ -1553,7 +1552,9 @@ const GardenEngine = (() => {
         envelope: document.getElementById('interactive-envelope'),
         wrapper: document.querySelector('.envelope-wrapper'),
         sparkles: document.getElementById('envelope-sparkles'),
-        nest: document.getElementById('meadow-nest-grass')
+        nest: document.getElementById('meadow-nest-grass'),
+        letter: document.getElementById('stationery-letter'),
+        paragraphs: document.querySelectorAll('.letter-paragraph')
       };
 
       if (!this.dom.envelope) return;
@@ -1582,13 +1583,9 @@ const GardenEngine = (() => {
       this.dom.envelope.addEventListener('focus', enter, { passive: true });
       this.dom.envelope.addEventListener('blur', leave, { passive: true });
 
-      // 1. Core Click / Activation Events
       this.dom.envelope.addEventListener('click', this.triggerOpenSequence.bind(this));
-      
-      // Accessibility focus keys (Enter & Spacebar)
       this.dom.envelope.addEventListener('keydown', (e) => {
         if (e.key === ' ' || e.key === 'Enter') {
-          // Block standard spacebar page scrolling
           e.preventDefault();
           this.triggerOpenSequence();
         }
@@ -1596,8 +1593,7 @@ const GardenEngine = (() => {
     },
 
     /**
-     * Triggers the multi-stage, cinematic envelope opening timeline sequence.
-     * Prevents overlapping clicks and handles environmental physics.
+     * Triggers the multi-stage, chronological opening and narrative unfold sequence.
      */
     triggerOpenSequence() {
       if (State.isEnvelopeOpening || State.isEnvelopeOpened) return;
@@ -1605,44 +1601,78 @@ const GardenEngine = (() => {
       State.isEnvelopeOpening = true;
       this.isHovered = true;
 
-      // AUDIO PREPARATION (Paper audio hooks ready for next version)
-      this.playPaperSound('lift');
+      // AUDIO PREPARATION HOOK
+      this.playPaperSound('lift_envelope');
 
-      // Stage 1: Lift Envelope from grass, trigger meadow grass weight release
-      this.dom.wrapper.style.animation = 'none'; // Disable idle floating to allow crisp transitions
+      // Stage 1: Lift Envelope & Grass deflection
+      this.dom.wrapper.style.animation = 'none'; 
       this.dom.wrapper.classList.add('state-lifting');
 
       if (this.dom.nest) {
         this.dom.nest.classList.add('released');
       }
 
-      // Environmental Physics surge (generate a soft wind wave surge on meadow grass)
+      // Wind Current surge
       MeadowSystem.windSpeed = 3.8;
 
-      // Stage 2: Seal Release & Unlock Flap (Delay 900ms)
+      // Stage 2: Wax Seal Release (Delay 900ms)
       setTimeout(() => {
-        this.playPaperSound('unlock');
-        this.sparkleDelay = 60; // Significant sparkle burst activation
+        this.playPaperSound('seal_unlocked');
+        this.sparkleDelay = 60; // Glistening spark burst
       }, 900);
 
-      // Stage 3: Flap Unfolding & Card Preview slide up (Delay 1500ms)
+      // Stage 3: Flap Unfolding (Delay 1500ms)
       setTimeout(() => {
-        this.playPaperSound('unfold');
+        this.playPaperSound('unfold_flap');
         this.dom.wrapper.classList.add('state-opening');
       }, 1500);
 
-      // Stage 4: Settle & Final opened state (Delay 3100ms)
+      // Stage 4: Letter Emergence (Delay 3100ms - Slides upward from pocket)
+      setTimeout(() => {
+        this.playPaperSound('letter_emerging');
+        this.dom.wrapper.classList.add('state-emerging');
+      }, 3100);
+
+      // Stage 5: Paper Unfolding (Delay 4400ms - Full sized stationery sheet expansion)
+      setTimeout(() => {
+        this.playPaperSound('stationery_unfolding');
+        this.dom.wrapper.classList.add('state-unfolding');
+        
+        // Expose letter semantic node to accessibility trees
+        if (this.dom.letter) {
+          this.dom.letter.setAttribute('aria-hidden', 'false');
+        }
+      }, 4400);
+
+      // Stage 6: Handwritten text reveal (Delay 5800ms - Sequenced paragraph fade-and-rise)
       setTimeout(() => {
         State.isEnvelopeOpened = true;
-        this.sparkleDelay = 120; // Ambient open sparkle rate
-      }, 3100);
+        this.sparkleDelay = 140; // Decelerate sparkles to normal glistening rate
+        this.triggerTextSequence();
+      }, 5800);
     },
 
     /**
-     * Placeholder hooks to easily insert paper sounds in later updates.
+     * Fades in paragraphs sequentially using smooth, timed CSS transitions.
      */
+    triggerTextSequence() {
+      if (!this.dom.paragraphs.length) return;
+
+      this.dom.paragraphs.forEach((p, index) => {
+        // Sequenced timing delay: Para 1 (0.2s), Para 2 (1.8s), Para 3 (4.0s), Para 4 (6.0s)
+        let delay = 200;
+        if (index === 1) delay = 1800;
+        if (index === 2) delay = 4000;
+        if (index === 3) delay = 6200;
+
+        setTimeout(() => {
+          this.playPaperSound('text_appearing');
+          p.classList.add('visible');
+        }, delay);
+      });
+    },
+
     playPaperSound(type) {
-      // Future sound hooks console registry
       console.log(`Audio Event Triggered: paper_${type}`);
     },
 
@@ -1685,17 +1715,14 @@ const GardenEngine = (() => {
     render() {
       if (!this.dom.wrapper) return;
 
-      // Standard landscape parallax displacement calculations (unless programmatically locked)
       const px = State.mouseX * State.width * 0.024;
       const py = State.mouseY * State.height * 0.024;
       
-      // We apply standard coordinates offset only (base state class manages lift translateY)
       this.dom.wrapper.style.left = `${px}px`;
       
       if (!State.isEnvelopeOpening) {
         this.dom.wrapper.style.top = `${py}px`;
       } else {
-        // Keeps slight horizontal parallax active during Opened state
         this.dom.wrapper.style.top = `calc(0px + ${py}px)`;
       }
     }
@@ -1887,7 +1914,7 @@ const GardenEngine = (() => {
       this.registerSystem(CloudSystem); 
       this.registerSystem(MeadowSystem); 
       this.registerSystem(EffectsSystem); 
-      this.registerSystem(EnvelopeSystem); // Version 3.2 Active
+      this.registerSystem(EnvelopeSystem); // Version 3.3 Active
       
       AnimationManager.start();
 
