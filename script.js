@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 2.8 Final Environment Polish)
+ * Cinematic Environment Engine (Version 3.1 Handcrafted Birthday Envelope)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -20,7 +20,7 @@ const GardenEngine = (() => {
     isInitialized: false,
     isActive: true,
     
-    // Parallax displacement metrics
+    // Parallax displacements
     mouseX: 0,
     mouseY: 0,
     targetMouseX: 0,
@@ -56,13 +56,11 @@ const GardenEngine = (() => {
       window.addEventListener('mousemove', trackMove, { passive: true });
       window.addEventListener('touchmove', trackMove, { passive: true });
 
-      // Gyroscope tracking for mobile browsers
       if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', (e) => {
           if (!e.gamma || !e.beta) return;
-          // Clamp and map tilt angles comfortably into parallax limits (-0.5 to 0.5)
-          const tiltX = e.gamma / 45; // Left/Right tilt
-          const tiltY = (e.beta - 45) / 45; // Front/Back tilt
+          const tiltX = e.gamma / 45; 
+          const tiltY = (e.beta - 45) / 45; 
 
           State.targetMouseX = GardenEngine.getUtils().clamp(tiltX, -0.5, 0.5);
           State.targetMouseY = GardenEngine.getUtils().clamp(tiltY, -0.5, 0.5);
@@ -104,7 +102,6 @@ const GardenEngine = (() => {
     },
 
     bindVisibilityTracker() {
-      // Shuts down drawing threads on hidden tabs to preserve battery
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
           State.isActive = false;
@@ -125,7 +122,6 @@ const GardenEngine = (() => {
       State.deltaTime = (currentTime - State.lastFrameTime) / 1000;
       State.lastFrameTime = currentTime;
 
-      // Smoothly interpolate cursor/gyro coordinates
       State.mouseX += (State.targetMouseX - State.mouseX) * State.parallaxSpeed;
       State.mouseY += (State.targetMouseY - State.mouseY) * State.parallaxSpeed;
 
@@ -180,7 +176,6 @@ const GardenEngine = (() => {
 
       ctx.clearRect(0, 0, w, h);
 
-      // Subtle horizontal offset based on parallax depth (keeps sky continuous)
       const px = State.mouseX * w * 0.003;
       const py = State.mouseY * h * 0.003;
 
@@ -194,7 +189,6 @@ const GardenEngine = (() => {
       const driftX = Math.sin(this.ambientTime) * (w * 0.15) + px;
       const driftY = Math.cos(this.ambientTime * 0.8) * (h * 0.08) + py;
 
-      // Golden horizon glow
       const horizonGlow = ctx.createRadialGradient(
         w * 0.5 + driftX,
         h * 0.85 + driftY,
@@ -209,7 +203,6 @@ const GardenEngine = (() => {
       ctx.fillStyle = horizonGlow;
       ctx.fillRect(0, 0, w, h);
 
-      // Upper sky glow
       const upperAtmosphereGlow = ctx.createRadialGradient(
         w * 0.35 - driftX * 0.5,
         h * 0.2 + driftY * 0.5,
@@ -224,10 +217,9 @@ const GardenEngine = (() => {
       ctx.fillStyle = upperAtmosphereGlow;
       ctx.fillRect(0, 0, w, h);
 
-      // Horizon atmospheric haze
       const horizonHaze = ctx.createLinearGradient(0, h * 0.7, 0, h);
       horizonHaze.addColorStop(0, 'rgba(230, 220, 240, 0)');
-      horizonHaze.addColorStop(1, 'hsla(260, 20%, 20%, 0.3)'); // Blends sky base with grass values
+      horizonHaze.addColorStop(1, 'hsla(260, 20%, 20%, 0.3)'); 
       ctx.fillStyle = horizonHaze;
       ctx.fillRect(0, h * 0.65, w, h * 0.35);
     }
@@ -383,7 +375,6 @@ const GardenEngine = (() => {
 
       ctx.clearRect(0, 0, State.width, State.height);
 
-      // Parallax offset applied directly
       const px = State.mouseX * State.width * 0.007;
       const py = State.mouseY * State.height * 0.007;
 
@@ -523,7 +514,6 @@ const GardenEngine = (() => {
     update(dt) {
       const utils = GardenEngine.getUtils();
 
-      // Retrieve public moon coordinates with its respective active parallax offsets
       const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
       const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
       const moonR = MoonSystem.radius;
@@ -558,7 +548,6 @@ const GardenEngine = (() => {
       const ctx = this.ctx;
       ctx.clearRect(0, 0, State.width, State.height);
 
-      // Stars layer parallax
       const px = State.mouseX * State.width * 0.004;
       const py = State.mouseY * State.height * 0.004;
 
@@ -698,7 +687,6 @@ const GardenEngine = (() => {
       const ctx = this.ctx;
       ctx.clearRect(0, 0, State.width, State.height);
 
-      // Retrieve public moon coordinates with its respective active parallax offsets
       const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
       const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
 
@@ -787,7 +775,6 @@ const GardenEngine = (() => {
       this.renderList = [];
       const utils = GardenEngine.getUtils();
 
-      // Ensure stable coordinates on resize, retrieving public moon coordinates
       const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
 
       const grassCount = utils.clamp(Math.floor(width * 0.72), 300, 850);
@@ -942,8 +929,6 @@ const GardenEngine = (() => {
           swayPhase: utils.randomRange(0, Math.PI * 2),
           swaySpeed: utils.randomRange(0.7, 1.4),
           swayAmp: swayAmp,
-          
-          // Render tracking values (cleared each frame loop)
           headX: 0,
           headY: 0
         });
@@ -1021,7 +1006,6 @@ const GardenEngine = (() => {
       const ctrlX = bx + (tipX - bx) * 0.55;
       const ctrlY = by - f.length * 0.5;
 
-      // Expose current head coords for external module queries
       f.headX = tipX;
       f.headY = tipY;
 
@@ -1137,8 +1121,6 @@ const GardenEngine = (() => {
     name: 'EffectsSystem',
     canvas: null,
     ctx: null,
-    
-    // Core arrays
     fireflies: [],
     petals: [],
     dust: [],
@@ -1165,7 +1147,7 @@ const GardenEngine = (() => {
       const utils = GardenEngine.getUtils();
       const area = width * height;
 
-      // 1. Generate Fireflies (Preserved & Responsive)
+      // 1. Generate Fireflies (Preserved)
       this.fireflies = [];
       const ffCount = utils.clamp(Math.floor(area / 30000), 20, 55);
       for (let i = 0; i < ffCount; i++) {
@@ -1201,14 +1183,14 @@ const GardenEngine = (() => {
         });
       }
 
-      // 2. Generate Floating Petals (Version 2.8 Added)
+      // 2. Generate Floating Petals
       this.petals = [];
       const petalCount = utils.clamp(Math.floor(width / 75), 10, 25);
       for (let i = 0; i < petalCount; i++) {
-        this.petals.push(this.createPetal(width, height, true)); // Spawn scattered initially
+        this.petals.push(this.createPetal(width, height, true));
       }
 
-      // 3. Generate Atmospheric Dust (Version 2.8 Added: Tiny Glistening Points)
+      // 3. Generate Ambient Dust
       this.dust = [];
       const dustCount = utils.clamp(Math.floor(area / 15000), 25, 75);
       for (let i = 0; i < dustCount; i++) {
@@ -1220,7 +1202,7 @@ const GardenEngine = (() => {
           baseOpacity: utils.randomRange(0.08, 0.28),
           pulsePhase: utils.randomRange(0, Math.PI * 2),
           pulseSpeed: utils.randomRange(0.4, 1.8),
-          vy: utils.randomRange(-3, -8), // Drifts slowly upward
+          vy: utils.randomRange(-3, -8),
           vx: utils.randomRange(-2, 2),
           parallax: utils.randomRange(0.003, 0.01)
         });
@@ -1239,7 +1221,6 @@ const GardenEngine = (() => {
       }
 
       return {
-        // Originate naturally inside the meadow bounds
         x: utils.randomRange(-50, width),
         y: randomY ? utils.randomRange(height * 0.6, height * 0.92) : height + 20,
         width: utils.randomRange(5, 9) * scale,
@@ -1248,21 +1229,14 @@ const GardenEngine = (() => {
         parallax: parallax,
         maxOpacity: maxOpacity,
         opacity: 0,
-        
-        // Drifting velocities (drift sideways and up, caught in the wind)
         vx: utils.randomRange(8, 22) * scale,
         vy: utils.randomRange(-12, -26) * scale,
-        
-        // Gentle rotational physics
         rotation: utils.randomRange(0, Math.PI * 2),
         rotSpeed: utils.randomRange(-0.8, 1.8),
-        
-        // Flight dips (allows petal to catch the wind dynamically)
         dipPhase: utils.randomRange(0, Math.PI * 2),
         dipSpeed: utils.randomRange(1.5, 3.5),
         dipAmp: utils.randomRange(3, 8),
-        
-        life: utils.randomRange(6.0, 11.0), // Active life timer
+        life: utils.randomRange(6.0, 11.0),
         maxLife: 10.0
       };
     },
@@ -1279,7 +1253,7 @@ const GardenEngine = (() => {
 
       const flowers = MeadowSystem.renderList.filter(item => item.isFlower);
 
-      // 1. Update Fireflies (Preserved & Enhanced)
+      // 1. Update Fireflies
       for (let i = 0; i < this.fireflies.length; i++) {
         const f = this.fireflies[i];
 
@@ -1389,45 +1363,37 @@ const GardenEngine = (() => {
         f.opacity = activeOpacity;
       }
 
-      // 2. Update Floating Petals (Version 2.8 Added)
+      // 2. Update Floating Petals
       for (let i = 0; i < this.petals.length; i++) {
         const p = this.petals[i];
 
         p.life -= dt;
         if (p.life <= 0) {
-          // Recycle dead petals at the base meadow bounds
           this.petals[i] = this.createPetal(w, h, false);
           continue;
         }
 
-        // Apply slow drift movements
         p.rotation += p.rotSpeed * dt;
         p.dipPhase += p.dipSpeed * dt;
 
-        // Sideways drift affected by wind phase dynamics
         const windDrift = Math.sin(p.dipPhase) * p.dipAmp;
 
         p.x += (p.vx + windDrift) * dt;
         p.y += p.vy * dt;
 
-        // Boundaries wrap check
         if (p.x > w + 50 || p.y < -50) {
           this.petals[i] = this.createPetal(w, h, false);
           continue;
         }
 
-        // Opacity fade curves
         const lifeRatio = p.life / p.maxLife;
         let activeOpacity = p.maxOpacity;
         if (lifeRatio < 0.25) {
-          // Fade naturally before disappearing
           activeOpacity = p.maxOpacity * (lifeRatio / 0.25);
         } else if (lifeRatio > 0.85) {
-          // Fade in gently upon spawning
           activeOpacity = p.maxOpacity * ((1.0 - lifeRatio) / 0.15);
         }
 
-        // Moonlight proximity damping
         if (moonR > 0) {
           const dx = p.x - moonX;
           const dy = p.y - moonY;
@@ -1443,7 +1409,7 @@ const GardenEngine = (() => {
         p.opacity = utils.clamp(activeOpacity, 0, 1.0);
       }
 
-      // 3. Update Ambient Dust (Version 2.8 Added)
+      // 3. Update Ambient Dust
       for (let i = 0; i < this.dust.length; i++) {
         const d = this.dust[i];
 
@@ -1460,7 +1426,6 @@ const GardenEngine = (() => {
         
         let opacity = d.baseOpacity * flicker;
 
-        // Dim slightly near moon glare boundaries
         if (moonR > 0) {
           const dx = d.x - moonX;
           const dy = d.y - moonY;
@@ -1485,7 +1450,7 @@ const GardenEngine = (() => {
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
 
-      // 1. Draw Ambient Dust (Tiny glistening points)
+      // 1. Draw Ambient Dust
       for (let i = 0; i < this.dust.length; i++) {
         const d = this.dust[i];
         if (d.opacity <= 0.01) continue;
@@ -1499,7 +1464,7 @@ const GardenEngine = (() => {
         ctx.fill();
       }
 
-      // 2. Draw Fireflies (Preserved)
+      // 2. Draw Fireflies
       for (let i = 0; i < this.fireflies.length; i++) {
         const f = this.fireflies[i];
         if (f.opacity <= 0.01) continue;
@@ -1528,8 +1493,8 @@ const GardenEngine = (() => {
         ctx.fill();
       }
 
-      // 3. Draw Floating Petals (Elegant desaturated pink curves)
-      ctx.globalCompositeOperation = 'source-over'; // Restore blend mode for standard petals painting
+      // 3. Draw Floating Petals
+      ctx.globalCompositeOperation = 'source-over';
       
       for (let i = 0; i < this.petals.length; i++) {
         const p = this.petals[i];
@@ -1545,17 +1510,15 @@ const GardenEngine = (() => {
         ctx.translate(rx, ry);
         ctx.rotate(p.rotation);
 
-        // Draw organic petal silhouette (Two opposing quadratic curves)
         ctx.beginPath();
         ctx.moveTo(-p.width / 2, 0);
         ctx.quadraticCurveTo(0, -p.height / 2, p.width / 2, 0);
         ctx.quadraticCurveTo(0, p.height / 2, -p.width / 2, 0);
         ctx.closePath();
 
-        // Moonlight backlighting highlight gradients
         const petalGrad = ctx.createLinearGradient(0, -p.height / 2, 0, p.height / 2);
-        petalGrad.addColorStop(0, `hsla(350, 55%, 90%, ${p.opacity})`); // Moonlit Blush Pink Tip
-        petalGrad.addColorStop(1, `hsla(265, 30%, 82%, ${p.opacity * 0.85})`); // Soft Lavender Base shadow
+        petalGrad.addColorStop(0, `hsla(350, 55%, 90%, ${p.opacity})`);
+        petalGrad.addColorStop(1, `hsla(265, 30%, 82%, ${p.opacity * 0.85})`);
 
         ctx.fillStyle = petalGrad;
         ctx.fill();
@@ -1564,6 +1527,112 @@ const GardenEngine = (() => {
       }
 
       ctx.restore();
+    }
+  };
+
+  /**
+   * Interactive Envelope Controller (Version 3.1 Sub-System - Added)
+   * Manages semantic focus inputs, sparkle spawning loops, and mobile interactions.
+   */
+  const EnvelopeSystem = {
+    name: 'EnvelopeSystem',
+    dom: {},
+    sparkles: [],
+    sparkleTimer: 0,
+    sparkleDelay: 420, // Milliseconds between idle sparkle spawns
+    isHovered: false,
+
+    init() {
+      this.dom = {
+        envelope: document.getElementById('interactive-envelope'),
+        wrapper: document.querySelector('.envelope-wrapper'),
+        sparkles: document.getElementById('envelope-sparkles')
+      };
+
+      if (!this.dom.envelope) return;
+
+      this.bindEvents();
+    },
+
+    bindInputs() {
+      // Prepared for future version click and trigger activations
+    },
+
+    bindEvents() {
+      // 1. Mouse & Touch Interaction triggers
+      const enter = () => {
+        this.isHovered = true;
+        this.sparkleDelay = 180; // Speed up sparkles on hover
+      };
+
+      const leave = () => {
+        this.isHovered = false;
+        this.sparkleDelay = 420;
+      };
+
+      this.dom.envelope.addEventListener('mouseenter', enter, { passive: true });
+      this.dom.envelope.addEventListener('mouseleave', leave, { passive: true });
+      this.dom.envelope.addEventListener('touchstart', enter, { passive: true });
+      this.dom.envelope.addEventListener('touchend', leave, { passive: true });
+
+      // Keyboard focus transitions
+      this.dom.envelope.addEventListener('focus', enter, { passive: true });
+      this.dom.envelope.addEventListener('blur', leave, { passive: true });
+    },
+
+    update(dt) {
+      // Convert dt to milliseconds
+      this.sparkleTimer += dt * 1000;
+
+      if (this.sparkleTimer >= this.sparkleDelay) {
+        this.sparkleTimer = 0;
+        this.spawnSparkle();
+      }
+    },
+
+    /**
+     * Procedurally constructs a CSS-driven glow sparkle element.
+     * Triggers forward vectors and schedules safe DOM deletion post-animation.
+     */
+    spawnSparkle() {
+      if (document.hidden || !State.isActive) return;
+
+      const utils = GardenEngine.getUtils();
+      const sparkle = document.createElement('div');
+      sparkle.className = 'envelope-sparkle';
+
+      // Random placement offsets clustered around the envelope body
+      const x = utils.randomRange(10, 90); // Percentage boundaries
+      const y = utils.randomRange(10, 90);
+      sparkle.style.left = `${x}%`;
+      sparkle.style.top = `${y}%`;
+
+      // Drift vectors (pointing up and away)
+      const dx = utils.randomRange(-35, 35);
+      const dy = utils.randomRange(-30, -70);
+      sparkle.style.setProperty('--dx', `${dx}px`);
+      sparkle.style.setProperty('--dy', `${dy}px`);
+
+      // Randomized scale offsets
+      const scale = utils.randomRange(0.6, 1.4);
+      sparkle.style.transform = `scale(${scale})`;
+
+      this.dom.sparkles.appendChild(sparkle);
+
+      // DOM Garbage Collector (Deletes node after CSS animation completes)
+      setTimeout(() => {
+        sparkle.remove();
+      }, 1400); // Syncs with sparkle-drift animation inside CSS
+    },
+
+    render() {
+      if (!this.dom.wrapper) return;
+
+      // Apply subtle landscape parallax to envelope container base
+      const px = State.mouseX * State.width * 0.024;
+      const py = State.mouseY * State.height * 0.024;
+      this.dom.wrapper.style.left = `${px}px`;
+      this.dom.wrapper.style.top = `${py}px`;
     }
   };
 
@@ -1752,7 +1821,8 @@ const GardenEngine = (() => {
       this.registerSystem(StarSystem); 
       this.registerSystem(CloudSystem); 
       this.registerSystem(MeadowSystem); 
-      this.registerSystem(EffectsSystem); // Version 2.8 Consolidator Active
+      this.registerSystem(EffectsSystem); 
+      this.registerSystem(EnvelopeSystem); // Version 3.1 Active
       
       AnimationManager.start();
 
