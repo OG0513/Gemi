@@ -45,20 +45,20 @@
         <canvas id="effects-canvas" class="effects-canvas"></canvas>
       </div>
 
-      <!-- UI Layer (Version 3.3: Dynamic Stationery Letter Sheet Added) -->
+      <!-- UI Layer -->
       <div id="layer-ui" class="layer sub-layer">
         
         <div class="envelope-wrapper">
           <div class="envelope-shadow"></div>
 
+          <!-- Interactive Envelope Component -->
           <div class="envelope" id="interactive-envelope" tabindex="0" role="button" aria-label="Open Birthday Letter">
             <div class="moonlight-shine"></div>
 
             <div class="envelope-back"></div>
             
-            <!-- Stationery Letter (Version 3.3 Upgraded: Complete unfolds & text sheet structure) -->
+            <!-- Stationery Letter -->
             <div class="letter-preview" id="stationery-letter" aria-hidden="true">
-              <!-- Premium golden outer rim highlight -->
               <div class="letter-gold-rim"></div>
 
               <!-- Minimalist vector frame & corner decorations -->
@@ -67,13 +67,12 @@
                 <path d="M 6,10 L 6,6 L 10,6 M 94,10 L 94,6 L 90,6 M 6,90 L 6,94 L 10,94 M 94,90 L 94,94 L 90,94" fill="none" stroke="var(--color-soft-gold)" stroke-width="0.8" opacity="0.5" />
               </svg>
 
-              <!-- Crease lines to simulate physical folded paper folds -->
+              <!-- Crease lines simulating folded paper panels -->
               <div class="paper-crease crease-top"></div>
               <div class="paper-crease crease-bottom"></div>
 
               <!-- Handwritten Letter Content Interface -->
               <div class="letter-content">
-                <!-- Soft floral header doodle -->
                 <div class="letter-header-doodle">
                   <span class="doodle-heart">✿</span>
                 </div>
@@ -83,6 +82,11 @@
                   <p class="letter-paragraph">On this <span class="glow-word">magical night</span>, under the soft breathing glow of the full moon, I wanted to build a little world created especially for you.</p>
                   <p class="letter-paragraph">May your day be filled with the same peaceful <span class="glow-word">wonder</span> and joy that you bring into my life every single day.</p>
                   <p class="letter-paragraph">Happy Birthday. <span class="glow-word">✿</span></p>
+                  
+                  <!-- Version 3.4 Added: Elegant, desaturated Continue Trigger button -->
+                  <button class="letter-continue-btn" id="letter-continue-trigger" tabindex="-1" aria-hidden="true">
+                    Continue <span class="arrow">→</span>
+                  </button>
                 </div>
               </div>
             </div>
