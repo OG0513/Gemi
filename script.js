@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 3.4 Continue Trigger & Letter Settle)
+ * Cinematic Environment Engine (Version 4.1 Handcrafted Memory Stack)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -27,9 +27,9 @@ const GardenEngine = (() => {
     targetMouseY: 0,
     parallaxSpeed: 0.05,
     
-    // Master timeline block variables
     isEnvelopeOpening: false,
-    isEnvelopeOpened: false
+    isEnvelopeOpened: false,
+    isGalleryActive: false // Flag tracks active gallery layers
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
@@ -1536,7 +1536,7 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Interactive Envelope & Letter Controller (Version 3.4 Complete Experience)
+   * Interactive Envelope & Letter Controller (Version 3.4 - Preserved)
    * Manages the procedural opening timeline, letter sheet folds, and written text revealing.
    */
   const EnvelopeSystem = {
@@ -1592,21 +1592,40 @@ const GardenEngine = (() => {
         }
       });
 
-      // 1. Continue button registration hook (Prepared for Version 4 integrations)
       if (this.dom.continueBtn) {
         this.dom.continueBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); // Avoid triggering envelope click events
+          e.stopPropagation(); 
           this.playPaperSound('continue_action');
           
-          // Triggers a custom console log indicating readiness for the next version transitions
-          console.log('Continue triggered. Environment ready to shift into Version 4 (Wish Tree).');
-          
-          // Exposed global event hook for external callback hookings
-          if (typeof State.onLetterContinueClick === 'function') {
-            State.onLetterContinueClick();
-          }
+          // Trigger Transition Sequence: Hides letter/envelope and opens stack gallery
+          this.triggerLetterTransition();
         });
       }
+    },
+
+    /**
+     * Slide down the active envelope and stationery gracefully,
+     * and blur the background garden coordinates using CSS transitions.
+     */
+    triggerLetterTransition() {
+      if (!this.dom.wrapper) return;
+
+      // 1. Smoothly lower and scale down the envelope sheet wrappers out of sight
+      this.dom.wrapper.style.transition = 'opacity 1.5s var(--transition-ease-slow), transform 1.5s var(--transition-ease-slow)';
+      this.dom.wrapper.style.opacity = '0';
+      this.dom.wrapper.style.transform = 'translateY(180px) scale(0.85)';
+      this.dom.wrapper.style.pointerEvents = 'none';
+
+      // 2. Soften the environment layout using the cinematic background blur
+      const worldLayer = document.getElementById('layer-world');
+      if (worldLayer) {
+        worldLayer.classList.add('state-blur-garden');
+      }
+
+      // 3. Mount the dynamic Memory Gallery System after short timing delays
+      setTimeout(() => {
+        GallerySystem.activate();
+      }, 700);
     },
 
     triggerOpenSequence() {
@@ -1672,7 +1691,6 @@ const GardenEngine = (() => {
           this.playPaperSound('text_appearing');
           p.classList.add('visible');
 
-          // 2. Reveal Continue trigger only after the final paragraph settles
           if (index === totalParas - 1) {
             this.revealContinueBtn();
           }
@@ -1680,10 +1698,6 @@ const GardenEngine = (() => {
       });
     },
 
-    /**
-     * Fades in the "Continue →" action button softly.
-     * Restores HTML semantic markers for screen-readers and tab indices.
-     */
     revealContinueBtn() {
       setTimeout(() => {
         this.playPaperSound('button_revealed');
@@ -1692,7 +1706,7 @@ const GardenEngine = (() => {
           this.dom.continueBtn.setAttribute('tabindex', '0');
           this.dom.continueBtn.setAttribute('aria-hidden', 'false');
         }
-      }, 2000); // Wait 2 seconds after the final paragraph has fully settled
+      }, 2000); 
     },
 
     playPaperSound(type) {
@@ -1748,6 +1762,195 @@ const GardenEngine = (() => {
       } else {
         this.dom.wrapper.style.top = `calc(0px + ${py}px)`;
       }
+    }
+  };
+
+  /**
+   * Memory Gallery System (Version 4.1 Sub-System - Added)
+   * Manages stacked instant film Polaroids containing procedurally drawn landscapes,
+   * card swipe rotation steps, and physical layout offsets.
+   */
+  const GallerySystem = {
+    name: 'GallerySystem',
+    dom: {},
+    
+    // Core memories meta arrays (No stock images, all shapes built with procedural css gradients)
+    memories: [
+      {
+        id: 'memory-1',
+        title: 'Starlit Walk',
+        date: 'October 14th, 2024',
+        desc: 'Under the same moon where everything began...',
+        sceneClass: 'scene-gradient-starry',
+        hasMoon: true,
+        hasMountain: true
+      },
+      {
+        id: 'memory-2',
+        title: 'Twilight Lake',
+        date: 'November 22nd, 2024',
+        desc: 'Watching silent ripple reflections in the cold...',
+        sceneClass: 'scene-gradient-sunset',
+        hasFlower: true,
+        hasMountain: true
+      },
+      {
+        id: 'memory-3',
+        title: 'Warm Twilight',
+        date: 'December 25th, 2024',
+        desc: 'Cozy, quiet moments wrapping up the year...',
+        sceneClass: 'scene-gradient-aurora',
+        hasStars: true,
+        hasMountain: true
+      }
+    ],
+
+    init() {
+      this.dom = {
+        wrapper: document.getElementById('memory-gallery'),
+        stack: document.getElementById('gallery-stack-container')
+      };
+
+      if (!this.dom.wrapper) return;
+
+      this.buildPolaroidDOM();
+    },
+
+    /**
+     * Constructs HTML semantic polaroid frames dynamically to avoid duplicating nodes.
+     * Incorporates desaturated scenic borders and handwritten margins.
+     */
+    buildPolaroidDOM() {
+      this.dom.stack.innerHTML = '';
+
+      this.memories.forEach((mem, index) => {
+        const card = document.createElement('div');
+        card.className = `polaroid polaroid-depth-${index}`;
+        card.setAttribute('tabindex', index === 0 ? '0' : '-1');
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `Memory Card: ${mem.title}. Click to swap stack.`);
+        card.id = mem.id;
+
+        // Apply physical stack rotation offsets on build (index 0 is active on top)
+        this.applyCardPositionStyles(card, index);
+
+        // Core instant film photo slot structure
+        let internalSceneHTML = `<div class="procedural-scene ${mem.sceneClass}">`;
+        if (mem.hasStars) internalSceneHTML += `<div class="procedural-stars"></div>`;
+        if (mem.hasMoon) internalSceneHTML += `<div class="procedural-moon"></div>`;
+        if (mem.hasMountain) internalSceneHTML += `<div class="procedural-mountain"></div>`;
+        if (mem.hasFlower) internalSceneHTML += `<div class="procedural-flower-silhouette"></div>`;
+        internalSceneHTML += `</div>`;
+
+        card.innerHTML = `
+          <div class="photo-slot">
+            ${internalSceneHTML}
+          </div>
+          <div class="polaroid-caption">
+            <h3 class="caption-title">${mem.title}</h3>
+            <span class="caption-date">${mem.date}</span>
+          </div>
+        `;
+
+        // Bind interactive swipe cycle events (mouse clicks / touch taps / enter keys)
+        card.addEventListener('click', () => this.swapTopCard());
+        card.addEventListener('keydown', (e) => {
+          if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            this.swapTopCard();
+          }
+        });
+
+        this.dom.stack.appendChild(card);
+      });
+    },
+
+    /**
+     * Programmatically shifts relative polaroid rotations and depths.
+     */
+    applyCardPositionStyles(card, index) {
+      // Top card (0) sits straight, lower ones (1, 2) peek out at angles with slight offsets
+      if (index === 0) {
+        card.style.transform = 'translateY(0) rotate(0deg) scale(1.0)';
+        card.style.zIndex = '3';
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'auto';
+        card.setAttribute('tabindex', '0');
+      } else if (index === 1) {
+        card.style.transform = 'translateY(4px) rotate(4deg) scale(0.96)';
+        card.style.zIndex = '2';
+        card.style.opacity = '0.92';
+        card.style.pointerEvents = 'none';
+        card.setAttribute('tabindex', '-1');
+      } else {
+        card.style.transform = 'translateY(8px) rotate(-5deg) scale(0.92)';
+        card.style.zIndex = '1';
+        card.style.opacity = '0.82';
+        card.style.pointerEvents = 'none';
+        card.setAttribute('tabindex', '-1');
+      }
+    },
+
+    /**
+     * Performs a physical "card swap" slide-off animation.
+     * Slides active card horizontally with rotation before slipping it cleanly onto stack bottom.
+     */
+    swapTopCard() {
+      if (!State.isGalleryActive) return;
+
+      const cardsList = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
+      if (cardsList.length <= 1) return;
+
+      const activeCard = cardsList.find(c => c.style.zIndex === '3');
+      if (!activeCard) return;
+
+      // 1. Play throw slide-off animation
+      activeCard.classList.add('throw-action');
+
+      // 2. Perform depth swaps inside array after throw completes
+      setTimeout(() => {
+        // Move active card element to the very bottom of the DOM wrapper parent
+        this.dom.stack.appendChild(activeCard);
+        activeCard.classList.remove('throw-action');
+
+        // Re-calculate stack styles (top cards scale up; old top settles on bottom)
+        const reorderedCards = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
+        reorderedCards.forEach((card, index) => {
+          this.applyCardPositionStyles(card, index);
+        });
+
+        // Set focus cleanly onto the new active card
+        const newActive = reorderedCards[0];
+        if (newActive) newActive.focus();
+
+      }, 420); // Syncs with throw transition speeds in style.css
+    },
+
+    activate() {
+      if (State.isGalleryActive) return;
+
+      State.isGalleryActive = true;
+      if (this.dom.wrapper) {
+        this.dom.wrapper.classList.add('active');
+        this.dom.wrapper.setAttribute('aria-hidden', 'false');
+      }
+
+      // Play enter transition sounds
+      EnvelopeSystem.playPaperSound('gallery_unveiled');
+    },
+
+    update(dt) {
+      // Space reserved for future particle-hover checks near cards
+    },
+
+    render() {
+      if (!this.dom.wrapper || !State.isGalleryActive) return;
+
+      // Subtle landscape parallax displacement applied on stack coordinates
+      const px = State.mouseX * State.width * 0.024;
+      const py = State.mouseY * State.height * 0.024;
+      this.dom.stack.style.left = `${px}px`;
+      this.dom.stack.style.top = `${py}px`;
     }
   };
 
@@ -1844,7 +2047,7 @@ const GardenEngine = (() => {
     triggerMonogramTimeline() {
       const paths = document.querySelectorAll('.draw-path');
       const monogramSvg = document.querySelector('.monogram-svg');
-      const message = document.querySelector('.loading-message');
+      const message = document.querySelectorAll('.loading-message');
 
       paths.forEach(path => {
         const length = path.getTotalLength();
@@ -1863,7 +2066,7 @@ const GardenEngine = (() => {
       }, 2100);
 
       setTimeout(() => {
-        if (message) message.classList.add('visible');
+        message.forEach(m => m.classList.add('visible'));
       }, 3000);
 
       setTimeout(() => {
@@ -1937,7 +2140,8 @@ const GardenEngine = (() => {
       this.registerSystem(CloudSystem); 
       this.registerSystem(MeadowSystem); 
       this.registerSystem(EffectsSystem); 
-      this.registerSystem(EnvelopeSystem); // Version 3.4 Active
+      this.registerSystem(EnvelopeSystem); 
+      this.registerSystem(GallerySystem); // Version 4.1 Active
       
       AnimationManager.start();
 
