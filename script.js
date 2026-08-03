@@ -1,8 +1,3 @@
-/**
- * Cinematic Environment Engine (Version 4.1 Handcrafted Memory Stack)
- * Namespace structure to manage lifecycle, states, and render threads.
- */
-
 const GardenEngine = (() => {
   'use strict';
 
@@ -27,9 +22,11 @@ const GardenEngine = (() => {
     targetMouseY: 0,
     parallaxSpeed: 0.05,
     
+    // Master timeline block variables
     isEnvelopeOpening: false,
     isEnvelopeOpened: false,
-    isGalleryActive: false // Flag tracks active gallery layers
+    isGalleryActive: false,
+    isCardCycling: false // Flag locks inputs during stack swaps
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
@@ -94,7 +91,6 @@ const GardenEngine = (() => {
 
   /**
    * Centralized Animation Loop Manager.
-   * Shuts down update thread completely when tab is hidden to conserve energy.
    */
   const AnimationManager = {
     frameId: null,
@@ -201,7 +197,7 @@ const GardenEngine = (() => {
         h * 0.85 + driftY,
         w * 0.6
       );
-      horizonGlow.addColorStop(0, 'hsla(43, 40%, 75%, 0.15)');
+      horizonGlow.addColorStop(0, 'hsla(43, 50%, 75%, 0.15)');
       horizonGlow.addColorStop(0.5, 'hsla(350, 40%, 88%, 0.08)');
       horizonGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = horizonGlow;
@@ -299,10 +295,10 @@ const GardenEngine = (() => {
         center,
         r
       );
-      baseGrad.addColorStop(0, 'hsla(38, 55%, 94%, 1)');
-      baseGrad.addColorStop(0.45, 'hsla(35, 45%, 88%, 1)');
-      baseGrad.addColorStop(0.82, 'hsla(43, 50%, 82%, 1)');
-      baseGrad.addColorStop(1, 'hsla(30, 10%, 65%, 1)');
+      baseGrad.addColorStop(0, 'hsla(38, 65%, 94%, 1)');       
+      baseGrad.addColorStop(0.45, 'hsla(35, 55%, 88%, 1)');    
+      baseGrad.addColorStop(0.82, 'hsla(43, 60%, 82%, 1)');    
+      baseGrad.addColorStop(1, 'hsla(30, 10%, 65%, 1)');       
       octx.fillStyle = baseGrad;
       octx.beginPath();
       octx.arc(center, center, r, 0, Math.PI * 2);
@@ -399,8 +395,8 @@ const GardenEngine = (() => {
       ctx.fill();
 
       const ambientGlow = ctx.createRadialGradient(x, y, r * 0.5, x, y, r * 3.0);
-      ambientGlow.addColorStop(0, `hsla(43, 60%, 75%, ${0.09 * breath})`);
-      ambientGlow.addColorStop(0.5, `hsla(38, 50%, 94%, ${0.03 * breath})`);
+      ambientGlow.addColorStop(0, `hsla(43, 65%, 78%, ${0.09 * breath})`);
+      ambientGlow.addColorStop(0.5, `hsla(38, 55%, 94%, ${0.03 * breath})`);
       ambientGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = ambientGlow;
       ctx.beginPath();
@@ -408,8 +404,8 @@ const GardenEngine = (() => {
       ctx.fill();
 
       const coreGlow = ctx.createRadialGradient(x, y, r * 0.2, x, y, r * 1.5);
-      coreGlow.addColorStop(0, `hsla(38, 50%, 94%, ${0.18 * breath})`);
-      coreGlow.addColorStop(0.6, `hsla(43, 55%, 75%, ${0.06 * breath})`);
+      coreGlow.addColorStop(0, `hsla(38, 55%, 94%, ${0.18 * breath})`);
+      coreGlow.addColorStop(0.6, `hsla(43, 65%, 78%, ${0.06 * breath})`);
       coreGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = coreGlow;
       ctx.beginPath();
@@ -745,7 +741,7 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Meadow & Flower Garden System (Version 2.7 Sub-System - Preserved)
+   * Meadow & Flower Garden System (Version 4.2 - Preserved)
    * Procedurally generates, clusters, and depth-interleaves grass blades and wildflowers.
    */
   const MeadowSystem = {
@@ -844,7 +840,9 @@ const GardenEngine = (() => {
           parallax: parallax,
           swayPhase: utils.randomRange(0, Math.PI * 2),
           swaySpeed: utils.randomRange(0.8, 1.6),
-          swayAmp: swayAmp
+          swayAmp: swayAmp,
+          lightInfluence: lightInfluence,
+          lightValue: light
         });
       }
 
@@ -996,11 +994,16 @@ const GardenEngine = (() => {
       const ctrlX = bx + (tipX - bx) * 0.55;
       const ctrlY = by - b.length * 0.5;
 
+      let bladeGrad = ctx.createLinearGradient(bx, by, tipX, tipY);
+      bladeGrad.addColorStop(0, b.color);
+      bladeGrad.addColorStop(0.82, b.color);
+      bladeGrad.addColorStop(1, `hsla(43, 65%, ${Math.floor(b.lightValue * 1.35)}%, ${b.depth === 0 ? 0.7 : 1.0})`);
+
       ctx.beginPath();
       ctx.moveTo(bx - b.width / 2, by);
       ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
       ctx.quadraticCurveTo(ctrlX, ctrlY, bx + b.width / 2, by);
-      ctx.fillStyle = b.color;
+      ctx.fillStyle = bladeGrad;
       ctx.fill();
     },
 
@@ -1068,6 +1071,13 @@ const GardenEngine = (() => {
         ctx.fillStyle = centerC;
         ctx.fill();
 
+        if (f.lightInfluence > 0.4 && !isBackground) {
+          ctx.beginPath();
+          ctx.ellipse(0, f.petalSize * 0.5, f.petalSize * 0.25, f.petalSize * 0.5, 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(253, 246, 226, 0.18)';
+          ctx.fill();
+        }
+
       } else if (f.type === 'tulip') {
         const c = f.color;
         ctx.fillStyle = c;
@@ -1079,7 +1089,8 @@ const GardenEngine = (() => {
         ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = `hsla(0, 0%, 100%, 0.12)`;
+        const highlightColor = f.lightInfluence > 0.4 ? 'rgba(253, 246, 226, 0.25)' : 'rgba(255, 255, 255, 0.12)';
+        ctx.fillStyle = highlightColor;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.bezierCurveTo(-f.petalSize * 0.4, -f.petalSize * 0.8, -f.petalSize * 0.2, -f.petalSize * 1.6, 0, -f.petalSize * 1.8);
@@ -1098,10 +1109,13 @@ const GardenEngine = (() => {
           const yPos = -t * gap;
           const scale = 1.0 - (t * 0.15);
 
+          ctx.fillStyle = (f.lightInfluence > 0.4 && t % 2 === 0) ? 'hsla(43, 60%, 82%, 0.9)' : c;
+
           ctx.beginPath();
           ctx.ellipse(-f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.3 * scale, f.petalSize * 0.4 * scale, -Math.PI / 4, 0, Math.PI * 2);
           ctx.fill();
 
+          ctx.fillStyle = c;
           ctx.beginPath();
           ctx.ellipse(f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.3 * scale, f.petalSize * 0.4 * scale, Math.PI / 4, 0, Math.PI * 2);
           ctx.fill();
@@ -1536,8 +1550,8 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Interactive Envelope & Letter Controller (Version 3.4 - Preserved)
-   * Manages the procedural opening timeline, letter sheet folds, and written text revealing.
+   * Interactive Envelope & Letter Controller (Version 4.3 Enhanced: Continuous Reverse Transitions)
+   * Manages opening foldings and descending return transitions on press continue.
    */
   const EnvelopeSystem = {
     name: 'EnvelopeSystem',
@@ -1596,36 +1610,74 @@ const GardenEngine = (() => {
         this.dom.continueBtn.addEventListener('click', (e) => {
           e.stopPropagation(); 
           this.playPaperSound('continue_action');
-          
-          // Trigger Transition Sequence: Hides letter/envelope and opens stack gallery
           this.triggerLetterTransition();
         });
       }
     },
 
     /**
-     * Slide down the active envelope and stationery gracefully,
-     * and blur the background garden coordinates using CSS transitions.
+     * Rebuilds continuous reverse folding and ground descent animations (Version 4.3 Added).
+     * Letter folds -> pocket slides -> flap closes -> descends, wobbling grass.
      */
     triggerLetterTransition() {
       if (!this.dom.wrapper) return;
 
-      // 1. Smoothly lower and scale down the envelope sheet wrappers out of sight
-      this.dom.wrapper.style.transition = 'opacity 1.5s var(--transition-ease-slow), transform 1.5s var(--transition-ease-slow)';
-      this.dom.wrapper.style.opacity = '0';
-      this.dom.wrapper.style.transform = 'translateY(180px) scale(0.85)';
-      this.dom.wrapper.style.pointerEvents = 'none';
+      // 1. Stage 1: Fold Stationery Sheet Back (0ms - takes 1.4s)
+      this.playPaperSound('stationery_folding_back');
+      this.dom.wrapper.classList.remove('state-unfolding');
 
-      // 2. Soften the environment layout using the cinematic background blur
-      const worldLayer = document.getElementById('layer-world');
-      if (worldLayer) {
-        worldLayer.classList.add('state-blur-garden');
-      }
+      // 2. Stage 2: Slide Letter inside the pocket (1400ms - takes 1.4s)
+      setTimeout(() => {
+        this.playPaperSound('letter_sliding_inside');
+        this.dom.wrapper.classList.remove('state-emerging');
+      }, 1400);
 
-      // 3. Mount the dynamic Memory Gallery System after short timing delays
+      // 3. Stage 3: Close Envelope Flap (2800ms - takes 1.4s)
+      setTimeout(() => {
+        this.playPaperSound('closing_flap');
+        this.dom.wrapper.classList.remove('state-opening');
+      }, 2800);
+
+      // 4. Stage 4: Gently descend envelope toward the grass (4200ms - takes 1.2s)
+      setTimeout(() => {
+        this.playPaperSound('envelope_descending');
+        this.dom.wrapper.classList.remove('state-lifting');
+        
+        // Restore standard slow float anim (ensures natural settling)
+        this.dom.wrapper.style.animation = 'float-breathing 4.5s ease-in-out infinite';
+      }, 4200);
+
+      // 5. Stage 5: Envelope touches ground, grass nest wobbles slightly (5000ms)
+      setTimeout(() => {
+        if (this.dom.nest) {
+          this.dom.nest.classList.remove('released');
+          this.dom.nest.classList.add('touch-ground'); // Shakes nest grass slightly
+          
+          // Re-decay wind velocity momentarily
+          MeadowSystem.windSpeed = 2.8;
+          
+          setTimeout(() => {
+            this.dom.nest.classList.remove('touch-ground');
+          }, 1500);
+        }
+      }, 5000);
+
+      // 6. Stage 6: Fade out envelope softly & trigger Zoom Camera (5400ms - takes 1.5s)
+      setTimeout(() => {
+        this.dom.wrapper.classList.add('fade-out');
+
+        // Apply cinematic scale camera zoom on world layer
+        const worldLayer = document.getElementById('layer-world');
+        if (worldLayer) {
+          worldLayer.classList.add('state-camera-zoom');
+          worldLayer.classList.add('state-blur-garden');
+        }
+      }, 5400);
+
+      // 7. Stage 7: Activate Stack Memory Gallery (6900ms)
       setTimeout(() => {
         GallerySystem.activate();
-      }, 700);
+      }, 6900);
     },
 
     triggerOpenSequence() {
@@ -1766,21 +1818,22 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Memory Gallery System (Version 4.1 Sub-System - Added)
-   * Manages stacked instant film Polaroids containing procedurally drawn landscapes,
-   * card swipe rotation steps, and physical layout offsets.
+   * Memory Gallery System (Version 4.3 Enhanced: Stacking Physics & Touch Gestures)
+   * Manages stacked instant film Polaroids.
    */
   const GallerySystem = {
     name: 'GallerySystem',
     dom: {},
     
-    // Core memories meta arrays (No stock images, all shapes built with procedural css gradients)
+    // Touch coordinates trackers
+    touchStartX: 0,
+    touchStartY: 0,
+
     memories: [
       {
         id: 'memory-1',
         title: 'Starlit Walk',
         date: 'October 14th, 2024',
-        desc: 'Under the same moon where everything began...',
         sceneClass: 'scene-gradient-starry',
         hasMoon: true,
         hasMountain: true
@@ -1814,12 +1867,9 @@ const GardenEngine = (() => {
       if (!this.dom.wrapper) return;
 
       this.buildPolaroidDOM();
+      this.bindTouchGestures();
     },
 
-    /**
-     * Constructs HTML semantic polaroid frames dynamically to avoid duplicating nodes.
-     * Incorporates desaturated scenic borders and handwritten margins.
-     */
     buildPolaroidDOM() {
       this.dom.stack.innerHTML = '';
 
@@ -1831,10 +1881,8 @@ const GardenEngine = (() => {
         card.setAttribute('aria-label', `Memory Card: ${mem.title}. Click to swap stack.`);
         card.id = mem.id;
 
-        // Apply physical stack rotation offsets on build (index 0 is active on top)
         this.applyCardPositionStyles(card, index);
 
-        // Core instant film photo slot structure
         let internalSceneHTML = `<div class="procedural-scene ${mem.sceneClass}">`;
         if (mem.hasStars) internalSceneHTML += `<div class="procedural-stars"></div>`;
         if (mem.hasMoon) internalSceneHTML += `<div class="procedural-moon"></div>`;
@@ -1852,7 +1900,6 @@ const GardenEngine = (() => {
           </div>
         `;
 
-        // Bind interactive swipe cycle events (mouse clicks / touch taps / enter keys)
         card.addEventListener('click', () => this.swapTopCard());
         card.addEventListener('keydown', (e) => {
           if (e.key === ' ' || e.key === 'Enter') {
@@ -1866,37 +1913,63 @@ const GardenEngine = (() => {
     },
 
     /**
-     * Programmatically shifts relative polaroid rotations and depths.
+     * Binds swipe gestural events for touch viewports (Version 4.3 Added).
+     * Prevents accidental multiple flips by checking the active transition state.
      */
+    bindTouchGestures() {
+      const handleStart = (e) => {
+        if (!State.isGalleryActive || State.isCardCycling) return;
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+      };
+
+      const handleEnd = (e) => {
+        if (!State.isGalleryActive || State.isCardCycling) return;
+        const diffX = e.changedTouches[0].clientX - this.touchStartX;
+        const diffY = e.changedTouches[0].clientY - this.touchStartY;
+
+        // Triggers card cycle swap if horizontal touch-drag offset passes comfortable limit (60px)
+        if (Math.abs(diffX) > 60 && Math.abs(diffY) < 100) {
+          this.swapTopCard();
+        }
+      };
+
+      this.dom.stack.addEventListener('touchstart', handleStart, { passive: true });
+      this.dom.stack.addEventListener('touchend', handleEnd, { passive: true });
+    },
+
     applyCardPositionStyles(card, index) {
-      // Top card (0) sits straight, lower ones (1, 2) peek out at angles with slight offsets
       if (index === 0) {
-        card.style.transform = 'translateY(0) rotate(0deg) scale(1.0)';
+        card.style.transform = 'translate3d(0, 0, 15px) rotate(0deg) scale(1.0)';
         card.style.zIndex = '3';
         card.style.opacity = '1';
         card.style.pointerEvents = 'auto';
         card.setAttribute('tabindex', '0');
+        card.classList.add('polaroid-active');
       } else if (index === 1) {
-        card.style.transform = 'translateY(4px) rotate(4deg) scale(0.96)';
+        card.style.transform = 'translate3d(4px, 4px, 5px) rotate(4deg) scale(0.96)';
         card.style.zIndex = '2';
         card.style.opacity = '0.92';
         card.style.pointerEvents = 'none';
         card.setAttribute('tabindex', '-1');
+        card.classList.remove('polaroid-active');
       } else {
-        card.style.transform = 'translateY(8px) rotate(-5deg) scale(0.92)';
+        card.style.transform = 'translate3d(-5px, 8px, 0px) rotate(-5deg) scale(0.92)';
         card.style.zIndex = '1';
         card.style.opacity = '0.82';
         card.style.pointerEvents = 'none';
         card.setAttribute('tabindex', '-1');
+        card.classList.remove('polaroid-active');
       }
     },
 
     /**
-     * Performs a physical "card swap" slide-off animation.
-     * Slides active card horizontally with rotation before slipping it cleanly onto stack bottom.
+     * Performs a physical "card flip-back" sweep animation.
+     * Slides active card back-left, alters z-depth, and nests it behind the bottom stacks.
      */
     swapTopCard() {
-      if (!State.isGalleryActive) return;
+      if (!State.isGalleryActive || State.isCardCycling) return;
+      State.isCardCycling = true; // Lock inputs to prevent speed clipping
 
       const cardsList = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
       if (cardsList.length <= 1) return;
@@ -1904,26 +1977,34 @@ const GardenEngine = (() => {
       const activeCard = cardsList.find(c => c.style.zIndex === '3');
       if (!activeCard) return;
 
-      // 1. Play throw slide-off animation
+      // Swipe lift sound
+      EnvelopeSystem.playPaperSound('polaroid_flip');
+
+      // 1. Play throw-back slide lift trajectory
       activeCard.classList.add('throw-action');
 
-      // 2. Perform depth swaps inside array after throw completes
+      // 2. Perform layered depth swap at peak height delay (400ms)
       setTimeout(() => {
-        // Move active card element to the very bottom of the DOM wrapper parent
+        // Nest old active card on the very bottom of the stack list
         this.dom.stack.appendChild(activeCard);
         activeCard.classList.remove('throw-action');
 
-        // Re-calculate stack styles (top cards scale up; old top settles on bottom)
+        // Apply progressive transitions
         const reorderedCards = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
         reorderedCards.forEach((card, index) => {
           this.applyCardPositionStyles(card, index);
         });
 
-        // Set focus cleanly onto the new active card
+        // Focus onto the newly revealed active card on top
         const newActive = reorderedCards[0];
         if (newActive) newActive.focus();
 
-      }, 420); // Syncs with throw transition speeds in style.css
+        // Release input lock once card settled
+        setTimeout(() => {
+          State.isCardCycling = false;
+        }, 400); // Wait 400ms for final settle translation to complete
+
+      }, 400); 
     },
 
     activate() {
@@ -1935,18 +2016,15 @@ const GardenEngine = (() => {
         this.dom.wrapper.setAttribute('aria-hidden', 'false');
       }
 
-      // Play enter transition sounds
       EnvelopeSystem.playPaperSound('gallery_unveiled');
     },
 
     update(dt) {
-      // Space reserved for future particle-hover checks near cards
     },
 
     render() {
       if (!this.dom.wrapper || !State.isGalleryActive) return;
 
-      // Subtle landscape parallax displacement applied on stack coordinates
       const px = State.mouseX * State.width * 0.024;
       const py = State.mouseY * State.height * 0.024;
       this.dom.stack.style.left = `${px}px`;
@@ -2141,7 +2219,7 @@ const GardenEngine = (() => {
       this.registerSystem(MeadowSystem); 
       this.registerSystem(EffectsSystem); 
       this.registerSystem(EnvelopeSystem); 
-      this.registerSystem(GallerySystem); // Version 4.1 Active
+      this.registerSystem(GallerySystem); 
       
       AnimationManager.start();
 
