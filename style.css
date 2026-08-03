@@ -166,7 +166,7 @@ body {
 }
 
 /* ==========================================================================
-   5. ENVIRONMENT CANVASES (Preserved)
+   5. ENVIRONMENT CANVASES (Enhanced with Cinematic Blur Filter)
    ========================================================================== */
 .layer-world {
   z-index: var(--z-world);
@@ -174,19 +174,17 @@ body {
   transition: opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-.environment-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  image-rendering: auto;
-  pointer-events: none;
-  z-index: 1;
+/* Cinematic Depth-of-Field Blur transition (applied when Gallery opens) */
+.state-blur-garden .environment-canvas,
+.state-blur-garden .stars-canvas,
+.state-blur-garden .moon-canvas,
+.state-blur-garden .clouds-canvas,
+.state-blur-garden .meadow-canvas,
+.state-blur-garden .effects-canvas {
+  filter: blur(4px);
 }
 
-.stars-canvas {
+.environment-canvas, .stars-canvas, .moon-canvas, .clouds-canvas, .meadow-canvas, .effects-canvas {
   position: absolute;
   top: 0;
   left: 0;
@@ -194,64 +192,42 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
-  z-index: 2;
+  transition: filter 1.6s var(--transition-ease-slow);
 }
 
-.moon-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+.environment-canvas { z-index: 1; image-rendering: auto; }
+.stars-canvas { z-index: 2; }
+.moon-canvas { z-index: 3; }
+.clouds-canvas { z-index: 4; }
+.meadow-canvas { z-index: 5; }
+.effects-canvas { z-index: 6; }
+
+.sub-layer {
   width: 100%;
   height: 100%;
-  display: block;
-  pointer-events: none;
-  z-index: 3;
 }
 
-.clouds-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-  z-index: 4;
+#layer-environment { z-index: var(--z-env); }
+#layer-foreground { z-index: var(--z-foreground); }
+#layer-effects { z-index: var(--z-effects); }
+
+#layer-ui {
+  z-index: var(--z-ui);
+  pointer-events: auto;
 }
 
-.meadow-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.effects-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-  z-index: 6;
+.layer-overlay {
+  z-index: var(--z-overlay);
+  background: radial-gradient(
+    circle,
+    transparent 30%,
+    rgba(14, 15, 24, 0.45) 100%
+  );
 }
 
 /* ==========================================================================
    6. UI LAYER & BIRTHDAY ENVELOPE (Preserved)
    ========================================================================== */
-#layer-ui {
-  z-index: var(--z-ui);
-  pointer-events: auto; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .envelope-wrapper {
   position: relative;
   width: clamp(145px, 20vw, 185px);
@@ -261,7 +237,6 @@ body {
   justify-content: center;
   align-items: center;
   perspective: 1000px; 
-  
   animation: float-breathing 4.5s ease-in-out infinite;
 }
 
@@ -289,15 +264,12 @@ body {
   outline: none;
   pointer-events: auto;
   transform-style: preserve-3d;
-  
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
     0 4px 12px rgba(10, 12, 20, 0.18);
-  
   background-image: 
     repeating-linear-gradient(45deg, rgba(33, 25, 10, 0.015) 0px, rgba(33, 25, 10, 0.015) 1px, transparent 1px, transparent 6px),
     repeating-linear-gradient(-45deg, rgba(33, 25, 10, 0.015) 0px, rgba(33, 25, 10, 0.015) 1px, transparent 1px, transparent 6px);
-  
   transition: 
     transform var(--transition-duration-slow) var(--transition-ease-slow),
     box-shadow var(--transition-duration-slow) var(--transition-ease-slow);
@@ -392,7 +364,7 @@ body {
 }
 
 /* ==========================================================================
-   7. STATIONERY LETTER SHEET DESIGN (Preserved & Enhanced)
+   7. STATIONERY LETTER SHEET DESIGN (Preserved)
    ========================================================================== */
 .letter-preview {
   position: absolute;
@@ -400,15 +372,12 @@ body {
   height: 85%;
   left: 5%;
   bottom: 5px;
-  
   background: radial-gradient(circle at 80% 20%, #fffdf8 0%, var(--color-cream) 100%);
   border-radius: 2px;
   z-index: 2; 
-  
   box-shadow: 
     0 1px 3px rgba(10, 12, 20, 0.06),
     0 2px 8px rgba(10, 12, 20, 0.04);
-  
   transform: translateY(0);
   transform-origin: center bottom;
   transition: 
@@ -483,7 +452,6 @@ body {
   flex-direction: column;
   gap: 0.85rem;
   color: var(--color-sky-top);
-  
   font-family: 'Apple Chancery', 'Brush Script MT', 'Great Vibes', cursive, serif;
   font-size: clamp(0.75rem, 1.8vw, 0.95rem);
   line-height: 1.6;
@@ -509,20 +477,15 @@ body {
   font-weight: 500;
 }
 
-/* ==========================================================================
-   8. ELEGANT CONTINUE TRIGGER BUTTON (Version 3.4 Added)
-   ========================================================================== */
 .letter-continue-btn {
   opacity: 0;
   transform: translateY(12px);
   align-self: center;
-  
   margin: 1.6rem 0 0 0;
   padding: 0 0 2px 0;
   background: none;
   border: none;
   border-bottom: 1px solid var(--color-soft-gold);
-  
   color: var(--color-sky-top);
   font-family: Georgia, serif;
   font-style: italic;
@@ -530,8 +493,7 @@ body {
   letter-spacing: 0.12em;
   cursor: pointer;
   outline: none;
-  pointer-events: none; /* Block interactions until fully visible */
-
+  pointer-events: none; 
   transition: 
     opacity 1.5s var(--transition-ease-slow),
     transform 1.5s var(--transition-ease-slow),
@@ -540,11 +502,10 @@ body {
     text-shadow var(--transition-duration-normal) var(--transition-ease-slow);
 }
 
-/* Focused & Active states mapping */
 .letter-continue-btn.visible {
   opacity: 0.72;
   transform: translateY(0);
-  pointer-events: auto; /* Enable inputs once text animations settle */
+  pointer-events: auto; 
 }
 
 .letter-continue-btn:hover,
@@ -555,85 +516,202 @@ body {
   text-shadow: 0 0 5px hsla(43, 60%, 75%, 0.45);
 }
 
-/* Focused outline marker */
-.letter-continue-btn:focus-visible {
-  outline: 1px dashed var(--color-soft-gold);
-  outline-offset: 4px;
-}
-
 /* ==========================================================================
-   9. ACTIVE TRANSITIONS & UNFOLD TIMELINES (Preserved & Calibrated)
+   8. MEMORY GALLERY OVERLAY DESIGN (Version 4.1 Added: Handcrafted Instant Films)
    ========================================================================== */
+.gallery-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: var(--z-ui);
+  transition: opacity 1.5s var(--transition-ease-slow);
+}
 
-/* Stage 1: Active Lift */
-.state-lifting .envelope {
-  transform: translateY(clamp(-30px, -6vh, -15px)) rotateX(15deg);
+.gallery-wrapper.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Rigid stack base holding cards securely */
+.gallery-stack {
+  position: relative;
+  width: clamp(230px, 32vw, 300px);
+  aspect-ratio: 0.82;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Polaroid Matte Film Frame Architecture */
+.polaroid {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #f6f5f0; /* Premium matte paper off-white */
+  border-radius: 4px;
+  padding: clamp(10px, 1.5vw, 15px) clamp(10px, 1.5vw, 15px) clamp(35px, 5.5vw, 55px) clamp(10px, 1.5vw, 15px); /* Thick bottom margin */
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  
+  /* Double box-shadow creates physical stacked depths */
   box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-    0 18px 36px rgba(10, 12, 20, 0.28);
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 4px 10px rgba(8, 8, 14, 0.12),
+    0 12px 30px rgba(8, 8, 14, 0.08);
+
+  /* Subtle paper grain texture overlay */
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(30, 20, 10, 0.01) 0px, rgba(30, 20, 10, 0.01) 1px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(-45deg, rgba(30, 20, 10, 0.01) 0px, rgba(30, 20, 10, 0.01) 1px, transparent 1px, transparent 5px);
+
+  /* Smooth GPU-driven swaps */
+  transition: 
+    transform 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.8s var(--transition-ease-slow),
+    opacity 0.85s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.state-lifting .envelope-shadow {
-  transform: scale(0.68) translateY(20px);
-  opacity: 0.42;
+/* Local moonlight reflection overlaying top edge of polaroids */
+.polaroid::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(253, 246, 226, 0.14) 0%, rgba(0, 0, 0, 0) 45%);
+  pointer-events: none;
 }
 
-/* Stage 2: Flap unfold */
-.state-opening .envelope-flap-group {
-  transform: rotateX(180deg);
-  z-index: 1; 
-}
-
-.state-opening .wax-seal {
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  opacity: 0.85;
-}
-
-/* Stage 3: Letter Emergence */
-.state-emerging .letter-preview {
-  transform: translateY(-105%) scale(1.0);
-}
-
-/* Stage 4: Paper Unfolding (Stationery stretches fully to comfortable readable frame) */
-.state-unfolding .letter-preview {
-  width: 142%; 
-  height: 255%; 
-  transform: translateY(-166%) scale(1.0);
+/* Focused glow feedback */
+.polaroid:focus-visible {
   box-shadow: 
-    0 8px 24px rgba(8, 8, 14, 0.16),
-    0 16px 40px rgba(8, 8, 14, 0.12);
+    0 0 0 3px var(--color-soft-gold),
+    0 18px 45px rgba(8, 8, 14, 0.22);
 }
 
-.state-unfolding .paper-crease {
-  opacity: 0.05;
+/* Crisp internal photo boundary */
+.photo-slot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.35);
+  background-color: #0b0c14;
 }
 
-/* Letter settles completely flat (Disables floating animation only on open) */
-.state-unfolding.envelope-wrapper {
-  animation: none;
+/* Ambient Color-Correction Filter (Blends procedural sceneries into night light) */
+.procedural-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: hard-light; /* Softens color limits */
+  opacity: 0.9;
 }
 
-/* Responsive configurations (Calibrated for short/tall mobile viewports) */
-@media (max-width: 600px) {
-  .state-unfolding .letter-preview {
-    width: 182%;
-    height: 310%;
-    transform: translateY(-152%) scale(0.92);
-  }
-  .letter-text {
-    gap: 0.65rem;
-    line-height: 1.45;
-  }
-  .letter-header-doodle {
-    margin: 0.65rem 0 0.5rem 0;
-  }
-  .letter-continue-btn {
-    margin: 0.85rem 0 0 0;
-  }
+/* High-contrast paper caption areas */
+.polaroid-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0 clamp(10px, 1.5vw, 15px) clamp(8px, 1.2vw, 12px) clamp(10px, 1.5vw, 15px);
+  text-align: center;
+  color: var(--color-sky-top);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.caption-title {
+  margin: 0;
+  font-family: 'Apple Chancery', 'Brush Script MT', 'Great Vibes', cursive, serif;
+  font-size: clamp(0.95rem, 3vw, 1.2rem);
+  line-height: 1.2;
+}
+
+.caption-date {
+  font-family: Georgia, serif;
+  font-size: clamp(0.55rem, 1.5vw, 0.65rem);
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+/* Procedural Scenery Vector Shapes (Version 4.1 Added: Handpainted vector landscapes) */
+.scene-gradient-starry {
+  background: linear-gradient(to bottom, #111424 0%, #1e1b30 60%, #30263f 100%);
+}
+.scene-gradient-sunset {
+  background: linear-gradient(to bottom, #2b1f35 0%, #4a2d4b 45%, #6e4650 100%);
+}
+.scene-gradient-aurora {
+  background: linear-gradient(to bottom, #0d1722 0%, #172a2b 55%, #183e29 100%);
+}
+
+/* Soft glowing procedurals (Crescent moon vectors, silhouettes) */
+.procedural-moon {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: -6px 6px 0 0 hsla(38, 50%, 94%, 0.85); /* Crescent shadow trick */
+  left: 25%;
+  top: 25%;
+}
+
+.procedural-stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle, #fff 10%, transparent 15%),
+    radial-gradient(circle, #fff 8%, transparent 12%);
+  background-size: 40px 40px, 50px 50px;
+  background-position: 0 0, 20px 25px;
+  opacity: 0.12;
+}
+
+.procedural-mountain {
+  position: absolute;
+  bottom: 0;
+  left: -20%;
+  width: 140%;
+  height: 25%;
+  background-color: #0b0c14;
+  clip-path: polygon(0% 100%, 35% 20%, 60% 60%, 80% 15%, 100% 100%);
+  opacity: 0.75;
+}
+
+.procedural-flower-silhouette {
+  position: absolute;
+  bottom: -2px;
+  left: 45%;
+  width: 15px;
+  height: 35px;
+  background-color: #05060a;
+  clip-path: polygon(45% 100%, 55% 100%, 55% 20%, 85% 0%, 50% 15%, 15% 0%, 45% 20%);
+  opacity: 0.9;
+}
+
+/* Interactive card swaps (throwing and sliding timelines) */
+.polaroid.throw-action {
+  transform: translate(320px, -20px) rotate(22deg) scale(0.9) !important;
+  opacity: 0;
 }
 
 /* ==========================================================================
-   10. MEADOW NEST GRASS (Preserved)
+   9. MEADOW NEST GRASS (Preserved)
    ========================================================================== */
 .meadow-nest {
   position: absolute;
