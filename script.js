@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 4.5.2 Meticulous Hotfixes)
+ * Cinematic Environment Engine (Version 4.5.4 Flawless Startup Sequences)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -34,7 +34,8 @@ const GardenEngine = (() => {
     
     isScrollOpening: false,
     isScrollOpened: false,
-    isGalleryActive: false
+    isGalleryActive: false,
+    isLoaded: false // Safe master flag blocks duplicate revealWorld calls
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
@@ -71,8 +72,8 @@ const GardenEngine = (() => {
           const tiltX = e.gamma / 45; 
           const tiltY = (e.beta - 45) / 45; 
 
-          State.targetMouseX = GardenEngine.getUtils().clamp(tiltX, -0.5, 0.5);
-          State.targetMouseY = GardenEngine.getUtils().clamp(tiltY, -0.5, 0.5);
+          State.targetMouseX = Utils.clamp(tiltX, -0.5, 0.5);
+          State.targetMouseY = Utils.clamp(tiltY, -0.5, 0.5);
         }, { passive: true });
       }
     },
@@ -461,7 +462,7 @@ const GardenEngine = (() => {
 
     generateStarfield(width, height) {
       this.stars = [];
-      const utils = Utils; // Fixed Early-execution local scope reference
+      const utils = Utils; 
 
       const area = width * height;
       const starCount = utils.clamp(Math.floor(area / 3200), 120, 500);
@@ -1605,14 +1606,13 @@ const GardenEngine = (() => {
         lines: document.querySelectorAll('.scroll-line')
       };
 
-      if (!this.dom.scroll) return;
+      if (!this.dom.scroll) {
+        this.dom = { scroll: null };
+        return;
+      }
 
       this.lines = Array.from(this.dom.lines);
       this.bindEvents();
-
-      setTimeout(() => {
-        this.triggerScrollLanding();
-      }, 1000);
     },
 
     bindEvents() {
@@ -1782,13 +1782,17 @@ const GardenEngine = (() => {
         board: document.getElementById('gallery-board-container')
       };
 
-      if (!this.dom.wrapper) return;
+      if (!this.dom.wrapper) {
+        this.dom = { wrapper: null, board: null };
+        return;
+      }
 
       this.buildScrapbookBoard();
       this.bindTouchGestures();
     },
 
     buildScrapbookBoard() {
+      if (!this.dom.board) return;
       this.dom.board.innerHTML = '';
 
       this.scraps.forEach(s => {
@@ -1849,6 +1853,7 @@ const GardenEngine = (() => {
     },
 
     bindTouchGestures() {
+      if (!this.dom.board) return;
       const handleStart = (e) => {
         if (!State.isGalleryActive) return;
         this.touchStartX = e.touches[0].clientX;
@@ -1874,6 +1879,7 @@ const GardenEngine = (() => {
         this.dom.wrapper.setAttribute('aria-hidden', 'false');
       }
 
+      if (!this.dom.board) return;
       const scrapNodes = Array.from(this.dom.board.children);
       
       scrapNodes.forEach((node, idx) => {
@@ -1898,7 +1904,7 @@ const GardenEngine = (() => {
       const baseHeight = 540;
       
       const scale = Math.min(width / baseWidth, height / baseHeight);
-      const targetScale = Utils.clamp(scale, 0.44, 1.0); // Fixed early lookup scope reference
+      const targetScale = Utils.clamp(scale, 0.44, 1.0); 
       
       this.dom.board.style.transform = `scale(${targetScale})`;
     },
@@ -1906,7 +1912,7 @@ const GardenEngine = (() => {
     update(dt) {},
 
     render() {
-      if (!this.dom.wrapper || !State.isGalleryActive) return;
+      if (!this.dom.wrapper || !State.isGalleryActive || !this.dom.board) return;
 
       const px = State.mouseX * State.width * 0.024;
       const py = State.mouseY * State.height * 0.024;
@@ -1917,7 +1923,7 @@ const GardenEngine = (() => {
 
   /**
    * Scene Manager to handle initialization lifecycle steps,
-   * mount scene layers, and control transition states. (Preserved)
+   * mount scene layers, and control transition states. (Preserved & Enhanced)
    */
   const SceneManager = {
     dom: {},
@@ -1930,6 +1936,9 @@ const GardenEngine = (() => {
     },
 
     revealWorld() {
+      if (State.isLoaded) return; // Prevent duplicate revealWorld execution
+      State.isLoaded = true;
+
       if (this.dom.loading) {
         this.dom.loading.style.opacity = '0';
         this.dom.loading.style.pointerEvents = 'none';
@@ -1938,6 +1947,13 @@ const GardenEngine = (() => {
           this.dom.loading.style.display = 'none';
           LoadingSystem.destroy();
           GardenEngine.unregisterSystem(LoadingSystem);
+          
+          // Step 4 & 5: Wait about 900 ms after loading has faded out, then slide Scroll into center
+          setTimeout(() => {
+            if (ScrollSystem && typeof ScrollSystem.triggerScrollLanding === 'function') {
+              ScrollSystem.triggerScrollLanding();
+            }
+          }, 900);
         }, 1200);
       }
     }
@@ -1977,6 +1993,14 @@ const GardenEngine = (() => {
       
       AnimationManager.start();
 
+      // Meticulous Fail-Safe Fallback: Guarantees revealWorld runs in 5 seconds even if loader blocks
+      setTimeout(() => {
+        if (!State.isLoaded) {
+          console.warn('Bootstrapping fall-safe fallback triggered.');
+          SceneManager.revealWorld();
+        }
+      }, 5000);
+
       State.isInitialized = true;
       console.log('Garden Engine initialized.');
     },
@@ -2001,7 +2025,11 @@ const GardenEngine = (() => {
   };
 })();
 
-// Boot engine once DOM loads completely
-document.addEventListener('DOMContentLoaded', () => {
+// Dual-State Initialization: safely bypasses DOMContentLoaded readyState triggers
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    GardenEngine.init();
+  });
+} else {
   GardenEngine.init();
-});
+}
