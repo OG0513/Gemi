@@ -26,7 +26,10 @@ const GardenEngine = (() => {
     isEnvelopeOpening: false,
     isEnvelopeOpened: false,
     isGalleryActive: false,
-    isCardCycling: false // Flag locks inputs during stack swaps
+    isCardCycling: false,
+    
+    // Version 5.1 Added: Finale Scene active flags
+    isFinaleActive: false
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
@@ -91,6 +94,7 @@ const GardenEngine = (() => {
 
   /**
    * Centralized Animation Loop Manager.
+   * Shuts down update thread completely when tab is hidden to conserve energy.
    */
   const AnimationManager = {
     frameId: null,
@@ -189,6 +193,7 @@ const GardenEngine = (() => {
       const driftX = Math.sin(this.ambientTime) * (w * 0.15) + px;
       const driftY = Math.cos(this.ambientTime * 0.8) * (h * 0.08) + py;
 
+      // Golden horizon glow 
       const horizonGlow = ctx.createRadialGradient(
         w * 0.5 + driftX,
         h * 0.85 + driftY,
@@ -219,7 +224,10 @@ const GardenEngine = (() => {
 
       const horizonHaze = ctx.createLinearGradient(0, h * 0.7, 0, h);
       horizonHaze.addColorStop(0, 'rgba(230, 220, 240, 0)');
-      horizonHaze.addColorStop(1, 'hsla(260, 20%, 20%, 0.3)'); 
+      
+      // Version 5.1 Atmospheric Haze improvement: Richer, soft depth haze on finale transition
+      const hazeColor = State.isFinaleActive ? 'hsla(260, 20%, 22%, 0.45)' : 'hsla(260, 20%, 20%, 0.3)';
+      horizonHaze.addColorStop(1, hazeColor); 
       ctx.fillStyle = horizonHaze;
       ctx.fillRect(0, h * 0.65, w, h * 0.35);
     }
@@ -381,7 +389,8 @@ const GardenEngine = (() => {
       const x = this.centerX + px;
       const y = this.centerY + py;
 
-      const breath = 1.0 + Math.sin(this.glowTime) * 0.15;
+      // Version 5.1 Moonlight intensity refinement: soft glow increase on finale scene active
+      const breath = (1.0 + Math.sin(this.glowTime) * 0.15) * (State.isFinaleActive ? 1.22 : 1.0);
 
       ctx.globalCompositeOperation = 'screen';
       
@@ -823,7 +832,9 @@ const GardenEngine = (() => {
 
         let colorString;
         if (lightInfluence > 0.45 && Math.random() < lightInfluence * 0.8) {
-          colorString = `hsla(43, 25%, ${Math.floor(light * 1.15)}%, ${depth === 0 ? 0.7 : 1.0})`;
+          // Version 5.1 Meadow Lighting refinement: softer, warmer light colors on active finale scene
+          const multiplier = State.isFinaleActive ? 1.25 : 1.15;
+          colorString = `hsla(43, 25%, ${Math.floor(light * multiplier)}%, ${depth === 0 ? 0.7 : 1.0})`;
         } else {
           colorString = `hsla(${hue}, ${sat}%, ${Math.floor(light)}%, ${depth === 0 ? 0.7 : 1.0})`;
         }
@@ -959,7 +970,7 @@ const GardenEngine = (() => {
       const w = State.width;
       const h = State.height;
 
-      ctx.clearRect(0, 0, State.width, State.height);
+      ctx.clearRect(0, 0, w, h);
 
       const groundGrad = ctx.createLinearGradient(0, h * 0.85, 0, h);
       groundGrad.addColorStop(0, 'rgba(25, 20, 35, 0)');
@@ -997,7 +1008,7 @@ const GardenEngine = (() => {
       let bladeGrad = ctx.createLinearGradient(bx, by, tipX, tipY);
       bladeGrad.addColorStop(0, b.color);
       bladeGrad.addColorStop(0.82, b.color);
-      bladeGrad.addColorStop(1, `hsla(43, 65%, ${Math.floor(b.lightValue * 1.35)}%, ${b.depth === 0 ? 0.7 : 1.0})`);
+      bladeGrad.addColorStop(1, `hsla(43, 65%, ${Math.floor(b.lightValue * (State.isFinaleActive ? 1.45 : 1.35))}%, ${b.depth === 0 ? 0.7 : 1.0})`);
 
       ctx.beginPath();
       ctx.moveTo(bx - b.width / 2, by);
@@ -1051,8 +1062,9 @@ const GardenEngine = (() => {
       const angle = Math.atan2(dy, dx) - Math.PI / 2 + f.bloomAngle;
       ctx.rotate(angle);
 
-      const pulseOpacity = 0.8 + (f.lightInfluence * 0.2);
-      ctx.globalAlpha = isBackground ? 0.65 : pulseOpacity;
+      // Version 5.1 Flower moonlight intensity polish
+      const pulseOpacity = (0.8 + (f.lightInfluence * 0.2)) * (State.isFinaleActive ? 1.15 : 1.0);
+      ctx.globalAlpha = isBackground ? 0.65 : utils.clamp(pulseOpacity, 0, 1.0);
 
       if (f.type === 'daisy') {
         const petalC = f.color;
@@ -1228,6 +1240,41 @@ const GardenEngine = (() => {
       }
     },
 
+    /**
+     * Version 5.1 Added: Triggers dynamic firefly spawns upon exit of Gallery
+     * Spawns 20 highly active, central gathering fireflies.
+     */
+    awakenFinaleFireflies() {
+      const utils = GardenEngine.getUtils();
+      const w = State.width;
+      const h = State.height;
+
+      for (let i = 0; i < 20; i++) {
+        this.fireflies.push({
+          // Spawns clustered toward the center of the garden
+          x: utils.randomRange(w * 0.25, w * 0.75),
+          y: utils.randomRange(h * 0.5, h * 0.88),
+          size: utils.randomRange(1.6, 2.8),
+          depth: 2, // Foreground layer
+          parallax: 0.024,
+          speed: 0,
+          targetSpeed: utils.randomRange(18, 38),
+          angle: utils.randomRange(0, Math.PI * 2),
+          targetAngle: utils.randomRange(0, Math.PI * 2),
+          steeringForce: utils.randomRange(2.5, 4.0),
+          maxOpacity: utils.randomRange(0.65, 0.9),
+          opacity: 0,
+          pulsePhase: utils.randomRange(0, Math.PI * 2),
+          pulseSpeed: utils.randomRange(1.2, 2.8),
+          behaviorTimer: utils.randomRange(0.4, 2.0),
+          isCircling: false,
+          circleSpeed: 0,
+          hoverTarget: null,
+          hoverTimer: 0
+        });
+      }
+    },
+
     createPetal(width, height, randomY = false) {
       const utils = GardenEngine.getUtils();
       const depthRandom = Math.random();
@@ -1265,8 +1312,10 @@ const GardenEngine = (() => {
       const w = State.width;
       const h = State.height;
 
-      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
-      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
+      // Adjust moon bounding coordinates dynamic to active zooms
+      const moonScale = State.isFinaleActive ? 1.0 : 1.007;
+      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007 * moonScale);
+      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007 * moonScale);
       const moonR = MoonSystem.radius;
       const avoidanceShield = moonR * 1.35;
 
@@ -1550,7 +1599,7 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Interactive Envelope & Letter Controller (Version 4.3 Enhanced: Continuous Reverse Transitions)
+   * Interactive Envelope & Letter Controller (Version 3.4 - Preserved)
    * Manages opening foldings and descending return transitions on press continue.
    */
   const EnvelopeSystem = {
@@ -1615,45 +1664,39 @@ const GardenEngine = (() => {
       }
     },
 
-    /**
-     * Rebuilds continuous reverse folding and ground descent animations (Version 4.3 Added).
-     * Letter folds -> pocket slides -> flap closes -> descends, wobbling grass.
-     */
     triggerLetterTransition() {
       if (!this.dom.wrapper) return;
 
-      // 1. Stage 1: Fold Stationery Sheet Back (0ms - takes 1.4s)
+      // 1. Fold Stationery Sheet Back (0ms - takes 1.4s)
       this.playPaperSound('stationery_folding_back');
       this.dom.wrapper.classList.remove('state-unfolding');
 
-      // 2. Stage 2: Slide Letter inside the pocket (1400ms - takes 1.4s)
+      // 2. Slide Letter inside the pocket (1400ms - takes 1.4s)
       setTimeout(() => {
         this.playPaperSound('letter_sliding_inside');
         this.dom.wrapper.classList.remove('state-emerging');
       }, 1400);
 
-      // 3. Stage 3: Close Envelope Flap (2800ms - takes 1.4s)
+      // 3. Close Envelope Flap (2800ms - takes 1.4s)
       setTimeout(() => {
         this.playPaperSound('closing_flap');
         this.dom.wrapper.classList.remove('state-opening');
       }, 2800);
 
-      // 4. Stage 4: Gently descend envelope toward the grass (4200ms - takes 1.2s)
+      // 4. Gently descend envelope toward the grass (4200ms - takes 1.2s)
       setTimeout(() => {
         this.playPaperSound('envelope_descending');
         this.dom.wrapper.classList.remove('state-lifting');
         
-        // Restore standard slow float anim (ensures natural settling)
         this.dom.wrapper.style.animation = 'float-breathing 4.5s ease-in-out infinite';
       }, 4200);
 
-      // 5. Stage 5: Envelope touches ground, grass nest wobbles slightly (5000ms)
+      // 5. Envelope touches ground, grass nest wobbles slightly (5000ms)
       setTimeout(() => {
         if (this.dom.nest) {
           this.dom.nest.classList.remove('released');
-          this.dom.nest.classList.add('touch-ground'); // Shakes nest grass slightly
+          this.dom.nest.classList.add('touch-ground'); 
           
-          // Re-decay wind velocity momentarily
           MeadowSystem.windSpeed = 2.8;
           
           setTimeout(() => {
@@ -1662,11 +1705,10 @@ const GardenEngine = (() => {
         }
       }, 5000);
 
-      // 6. Stage 6: Fade out envelope softly & trigger Zoom Camera (5400ms - takes 1.5s)
+      // 6. Fade out envelope softly & trigger Zoom Camera (5400ms - takes 1.5s)
       setTimeout(() => {
         this.dom.wrapper.classList.add('fade-out');
 
-        // Apply cinematic scale camera zoom on world layer
         const worldLayer = document.getElementById('layer-world');
         if (worldLayer) {
           worldLayer.classList.add('state-camera-zoom');
@@ -1674,7 +1716,7 @@ const GardenEngine = (() => {
         }
       }, 5400);
 
-      // 7. Stage 7: Activate Stack Memory Gallery (6900ms)
+      // 7. Activate Stack Memory Gallery (6900ms)
       setTimeout(() => {
         GallerySystem.activate();
       }, 6900);
@@ -1818,16 +1860,17 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Memory Gallery System (Version 4.3 Enhanced: Stacking Physics & Touch Gestures)
+   * Memory Gallery System (Version 5.1 Enhanced: Dynamic Stack Cycling & Final Continue Button)
    * Manages stacked instant film Polaroids.
    */
   const GallerySystem = {
     name: 'GallerySystem',
     dom: {},
-    
-    // Touch coordinates trackers
     touchStartX: 0,
     touchStartY: 0,
+    
+    // Counter tracks active swipes to reveal final button
+    flipCount: 0,
 
     memories: [
       {
@@ -1861,7 +1904,8 @@ const GardenEngine = (() => {
     init() {
       this.dom = {
         wrapper: document.getElementById('memory-gallery'),
-        stack: document.getElementById('gallery-stack-container')
+        stack: document.getElementById('gallery-stack-container'),
+        finalBtn: document.getElementById('gallery-continue-trigger')
       };
 
       if (!this.dom.wrapper) return;
@@ -1910,12 +1954,15 @@ const GardenEngine = (() => {
 
         this.dom.stack.appendChild(card);
       });
+
+      // Bind dynamic Final Continue click (Launches exit camera pullbacks)
+      if (this.dom.finalBtn) {
+        this.dom.finalBtn.addEventListener('click', () => {
+          this.triggerGalleryExit();
+        });
+      }
     },
 
-    /**
-     * Binds swipe gestural events for touch viewports (Version 4.3 Added).
-     * Prevents accidental multiple flips by checking the active transition state.
-     */
     bindTouchGestures() {
       const handleStart = (e) => {
         if (!State.isGalleryActive || State.isCardCycling) return;
@@ -1928,7 +1975,6 @@ const GardenEngine = (() => {
         const diffX = e.changedTouches[0].clientX - this.touchStartX;
         const diffY = e.changedTouches[0].clientY - this.touchStartY;
 
-        // Triggers card cycle swap if horizontal touch-drag offset passes comfortable limit (60px)
         if (Math.abs(diffX) > 60 && Math.abs(diffY) < 100) {
           this.swapTopCard();
         }
@@ -1963,13 +2009,9 @@ const GardenEngine = (() => {
       }
     },
 
-    /**
-     * Performs a physical "card flip-back" sweep animation.
-     * Slides active card back-left, alters z-depth, and nests it behind the bottom stacks.
-     */
     swapTopCard() {
       if (!State.isGalleryActive || State.isCardCycling) return;
-      State.isCardCycling = true; // Lock inputs to prevent speed clipping
+      State.isCardCycling = true; 
 
       const cardsList = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
       if (cardsList.length <= 1) return;
@@ -1977,34 +2019,96 @@ const GardenEngine = (() => {
       const activeCard = cardsList.find(c => c.style.zIndex === '3');
       if (!activeCard) return;
 
-      // Swipe lift sound
       EnvelopeSystem.playPaperSound('polaroid_flip');
 
-      // 1. Play throw-back slide lift trajectory
       activeCard.classList.add('throw-action');
 
-      // 2. Perform layered depth swap at peak height delay (400ms)
       setTimeout(() => {
-        // Nest old active card on the very bottom of the stack list
         this.dom.stack.appendChild(activeCard);
         activeCard.classList.remove('throw-action');
 
-        // Apply progressive transitions
         const reorderedCards = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
         reorderedCards.forEach((card, index) => {
           this.applyCardPositionStyles(card, index);
         });
 
-        // Focus onto the newly revealed active card on top
         const newActive = reorderedCards[0];
         if (newActive) newActive.focus();
 
-        // Release input lock once card settled
+        // 1. Increment Flip counter to track completed stack cycle (Version 5.1 Added)
+        this.flipCount++;
+        if (this.flipCount >= this.memories.length - 1) {
+          this.revealFinalContinueBtn();
+        }
+
         setTimeout(() => {
           State.isCardCycling = false;
-        }, 400); // Wait 400ms for final settle translation to complete
+        }, 400); 
 
       }, 400); 
+    },
+
+    /**
+     * Softly reveals the Final "Gather the Stars" Action Button.
+     */
+    revealFinalContinueBtn() {
+      if (!this.dom.finalBtn || this.dom.finalBtn.classList.contains('visible')) return;
+      
+      setTimeout(() => {
+        EnvelopeSystem.playPaperSound('button_revealed');
+        this.dom.finalBtn.classList.add('visible');
+        this.dom.finalBtn.setAttribute('tabindex', '0');
+        this.dom.finalBtn.setAttribute('aria-hidden', 'false');
+      }, 1000); // 1.0s delay after last polaroid settles
+    },
+
+    /**
+     * Triggers the continuous reverse Camera pullback transition (Version 5.1 Added).
+     * Cards sink -> gallery fades -> camera zooms out -> garden unblurs and illuminates warmly.
+     */
+    triggerGalleryExit() {
+      if (!State.isGalleryActive || State.isCardCycling) return;
+      
+      State.isGalleryActive = false;
+      State.isCardCycling = true;
+
+      EnvelopeSystem.playPaperSound('gallery_exit');
+
+      // 1. Fade out the Gallery Wrapper and lower Polaroid stack
+      if (this.dom.wrapper) {
+        this.dom.wrapper.classList.remove('active');
+        this.dom.wrapper.setAttribute('aria-hidden', 'true');
+        
+        if (this.dom.finalBtn) {
+          this.dom.finalBtn.setAttribute('tabindex', '-1');
+          this.dom.finalBtn.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      // 2. Clear Garden depth Blur and Pull camera back slowly over 3.0s
+      const worldLayer = document.getElementById('layer-world');
+      if (worldLayer) {
+        worldLayer.classList.remove('state-camera-zoom');
+        worldLayer.classList.remove('state-blur-garden');
+      }
+
+      // 3. Set global Finale Active state flags (awaken extra warm lighting & fireflies)
+      setTimeout(() => {
+        State.isFinaleActive = true;
+        
+        // Dynamically spawn 20 highly active, warm final fireflies weaving around flowers
+        EffectsSystem.awakenFinaleFireflies();
+        
+        // Redraw garden textures with warm finale light allocations
+        MeadowSystem.generateGarden(State.width, State.height);
+        
+        console.log('Finale Atmosphere established. Ready for Version 5.2 (Happy Birthday Messages).');
+        
+        // Exposed global finale hook
+        if (typeof State.onFinaleActive === 'function') {
+          State.onFinaleActive();
+        }
+      }, 1600); // Delayed to sync perfectly with center of camera zoom-outs
     },
 
     activate() {
