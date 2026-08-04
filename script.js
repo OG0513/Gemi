@@ -1,9 +1,9 @@
 /**
- * Cinematic Environment Engine (Version 4.5.4 Flawless Startup Sequences)
+ * Cinematic Environment Engine (Version 4.6 Procedural Scraps & Dissolves)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
-// Global high-performance paper audio triggers (Immunizes calls from unmounted states)
+// Global high-performance paper audio triggers
 const playPaperSound = (type) => {
   console.log(`Audio Event Triggered: paper_${type}`);
 };
@@ -35,7 +35,7 @@ const GardenEngine = (() => {
     isScrollOpening: false,
     isScrollOpened: false,
     isGalleryActive: false,
-    isLoaded: false // Safe master flag blocks duplicate revealWorld calls
+    isLoaded: false
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
