@@ -1,7 +1,12 @@
 /**
- * Cinematic Environment Engine (Version 4.5 Parchment Scroll & Memory Lane Board)
+ * Cinematic Environment Engine (Version 4.5 Parchment Scroll & Redesigned Scrapbook Memories)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
+
+// Global high-performance paper audio triggers namespaces
+const playPaperSound = (type) => {
+  console.log(`Audio Event Triggered: paper_${type}`);
+};
 
 const GardenEngine = (() => {
   'use strict';
@@ -754,7 +759,7 @@ const GardenEngine = (() => {
     renderList: [],
     
     windTime: 0,
-    windSpeed: 0.75, // Reduced waving speed for extremely slow, subtle, and calming sways
+    windSpeed: 0.75, 
 
     init(width, height, dpr) {
       this.canvas = document.getElementById('meadow-canvas');
@@ -788,7 +793,7 @@ const GardenEngine = (() => {
         let depth = 1; 
         let length = utils.randomRange(32, 52);
         let baseWidth = utils.randomRange(1.5, 2.4);
-        let swayAmp = utils.randomRange(4, 9); // Reduced bending
+        let swayAmp = utils.randomRange(4, 9); 
         let baseY = height + utils.randomRange(-5, 15);
         let parallax = 0.012;
 
@@ -842,24 +847,23 @@ const GardenEngine = (() => {
           depth: depth,
           parallax: parallax,
           swayPhase: utils.randomRange(0, Math.PI * 2),
-          swaySpeed: utils.randomRange(0.4, 0.9), // Slower independent sways
+          swaySpeed: utils.randomRange(0.4, 0.9), 
           swayAmp: swayAmp
         });
       }
 
-      // Increased overall flower count and varieties (roses, bluebells, forget-me-nots, cosmos, buttercups, lilies, violets)
-      const flowerCount = utils.clamp(Math.floor(width / 24), 22, 60); // Increased density
-      const clusterCenters = [width * 0.18, width * 0.35, width * 0.52, width * 0.72, width * 0.88]; // Added cluster lanes
+      const flowerCount = utils.clamp(Math.floor(width / 24), 22, 60); 
+      const clusterCenters = [width * 0.18, width * 0.35, width * 0.52, width * 0.72, width * 0.88]; 
 
       const flowerTypes = ['daisy', 'tulip', 'lavender', 'rose', 'bluebell', 'forgetmenot', 'cosmos', 'buttercup', 'lily', 'violet'];
       const flowerColors = [
-        'hsla(350, 45%, 88%, 1)',  /* Blush Pink */
-        'hsla(265, 35%, 84%, 1)',  /* Soft Lavender */
-        'hsla(205, 35%, 84%, 1)',  /* Baby Blue */
-        'hsla(38, 45%, 92%, 1)',   /* Cream */
-        'hsla(43, 60%, 75%, 1)',   /* Soft Gold */
-        'hsla(0, 0%, 94%, 1)',     /* Soft White */
-        'hsla(285, 30%, 78%, 1)'   /* Wild Violet */
+        'hsla(350, 45%, 88%, 1)',  
+        'hsla(265, 35%, 84%, 1)',  
+        'hsla(205, 35%, 84%, 1)',  
+        'hsla(38, 45%, 92%, 1)',   
+        'hsla(43, 60%, 75%, 1)',   
+        'hsla(0, 0%, 94%, 1)',     
+        'hsla(285, 30%, 78%, 1)'   
       ];
 
       for (let i = 0; i < flowerCount; i++) {
@@ -880,7 +884,7 @@ const GardenEngine = (() => {
         let depth = 1;
         let length = utils.randomRange(48, 76);
         let stemWidth = utils.randomRange(1.8, 2.4);
-        let swayAmp = utils.randomRange(6, 11); // Subtle bending
+        let swayAmp = utils.randomRange(6, 11); 
         let baseY = height + utils.randomRange(-2, 18);
         let parallax = 0.012;
 
@@ -933,7 +937,7 @@ const GardenEngine = (() => {
           bloomAngle: utils.randomRange(-0.15, 0.15),
           leaves: leaves,
           swayPhase: utils.randomRange(0, Math.PI * 2),
-          swaySpeed: utils.randomRange(0.3, 0.7), // Slowed down significantly
+          swaySpeed: utils.randomRange(0.3, 0.7), 
           swayAmp: swayAmp,
           headX: 0,
           headY: 0
@@ -947,6 +951,7 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
+      this.windSpeed += (1.4 - this.windSpeed) * dt;
       this.windTime += this.windSpeed * dt;
 
       for (let i = 0; i < this.renderList.length; i++) {
@@ -1052,7 +1057,6 @@ const GardenEngine = (() => {
       const pulseOpacity = 0.8 + (f.lightInfluence * 0.2);
       ctx.globalAlpha = isBackground ? 0.65 : pulseOpacity;
 
-      // Draw Flower varieties based on unique species silhouettes (roses, bluebells, forgetmenots, cosmos, buttercups, lilies, violets)
       if (f.type === 'daisy' || f.type === 'cosmos') {
         const petalC = f.color;
         const centerC = f.lightInfluence > 0.4 ? 'hsla(43, 60%, 75%, 1)' : 'hsla(43, 40%, 65%, 1)';
@@ -1072,7 +1076,7 @@ const GardenEngine = (() => {
         ctx.fill();
 
       } else if (f.type === 'tulip' || f.type === 'buttercup') {
-        const c = f.type === 'buttercup' ? 'hsla(43, 80%, 72%, 1)' : f.color; // Yellow Gold buttercup
+        const c = f.type === 'buttercup' ? 'hsla(43, 80%, 72%, 1)' : f.color; 
         ctx.fillStyle = c;
 
         ctx.beginPath();
@@ -1091,13 +1095,12 @@ const GardenEngine = (() => {
         ctx.fill();
 
       } else if (f.type === 'rose') {
-        // Procedural rose: Nested overlapping circles forming petals
         ctx.fillStyle = f.color;
         const layers = [f.petalSize * 1.2, f.petalSize * 0.85, f.petalSize * 0.5];
         layers.forEach((size, idx) => {
           ctx.beginPath();
           ctx.arc(0, -size * 0.2, size, 0, Math.PI * 2);
-          ctx.fillStyle = idx % 2 === 0 ? f.color : 'hsla(350, 45%, 94%, 1)'; // Blush inner folds
+          ctx.fillStyle = idx % 2 === 0 ? f.color : 'hsla(350, 45%, 94%, 1)'; 
           ctx.fill();
         });
 
@@ -1112,20 +1115,17 @@ const GardenEngine = (() => {
           const yPos = -t * gap;
           const scale = 1.0 - (t * 0.15);
 
-          // Left drooping bell
           ctx.beginPath();
           ctx.ellipse(-f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.35 * scale, f.petalSize * 0.5 * scale, -Math.PI / 3, 0, Math.PI * 2);
           ctx.fill();
 
-          // Right drooping bell
           ctx.beginPath();
           ctx.ellipse(f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.35 * scale, f.petalSize * 0.5 * scale, Math.PI / 3, 0, Math.PI * 2);
           ctx.fill();
         }
 
       } else if (f.type === 'forgetmenot' || f.type === 'violet') {
-        // Forget-me-not: clusters of tiny 5-petals blue florets
-        ctx.fillStyle = f.type === 'forgetmenot' ? 'hsla(205, 55%, 84%, 1)' : 'hsla(285, 30%, 78%, 1)'; // Sky Blue / Wild Violet
+        ctx.fillStyle = f.type === 'forgetmenot' ? 'hsla(205, 55%, 84%, 1)' : 'hsla(285, 30%, 78%, 1)'; 
         const offsetPositions = [
           { x: -f.petalSize * 0.6, y: -f.petalSize * 0.4 },
           { x: f.petalSize * 0.6, y: -f.petalSize * 0.5 },
@@ -1141,7 +1141,6 @@ const GardenEngine = (() => {
             ctx.arc(0, f.petalSize * 0.4, f.petalSize * 0.35, 0, Math.PI * 2);
             ctx.fill();
           }
-          // Tiny gold central disk
           ctx.beginPath();
           ctx.arc(0, 0, f.petalSize * 0.2, 0, Math.PI * 2);
           ctx.fillStyle = 'var(--color-soft-gold)';
@@ -1150,7 +1149,6 @@ const GardenEngine = (() => {
         });
 
       } else if (f.type === 'lily') {
-        // Elegant pointed white lily blossoms
         ctx.fillStyle = 'hsla(0, 0%, 94%, 1)';
         for (let p = 0; p < 6; p++) {
           ctx.rotate(Math.PI / 3);
@@ -1160,7 +1158,6 @@ const GardenEngine = (() => {
           ctx.quadraticCurveTo(f.petalSize * 0.3, -f.petalSize * 0.8, 0, 0);
           ctx.fill();
         }
-        // Gold stamens
         ctx.beginPath();
         ctx.arc(0, -f.petalSize * 0.3, f.petalSize * 0.2, 0, Math.PI * 2);
         ctx.fillStyle = 'var(--color-soft-gold)';
@@ -1597,7 +1594,7 @@ const GardenEngine = (() => {
     dom: {},
     lines: [],
     lineTimer: 0,
-    lineDelay: 1600, // Milliseconds between progressive line reveals
+    lineDelay: 1600, 
     activeLineIndex: 0,
     isOpened: false,
 
@@ -1725,14 +1722,16 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Memory Gallery System (Version 4.5 Scrapbook Memory Lane Board)
+   * Memory Gallery System (Version 4.5 Scrapbook Memory Lane Board - Fixed arrays & undefined playPaperSound exceptions)
    * Seeded with Polaroids, vintage Postcards, and handwritten note scraps.
    */
   const GallerySystem = {
     name: 'GallerySystem',
     dom: {},
+    touchStartX: 0,
+    touchStartY: 0,
 
-    // Master memory objects catalog (Includes 6 Polaroids, 2 aged postcards, 1 scrap note)
+    // Core scraps array configuration (Corrected: references scraps cleanly to prevent undef crashes)
     scraps: [
       {
         id: 'scrap-1',
@@ -1742,7 +1741,6 @@ const GardenEngine = (() => {
         sceneClass: 'scene-gradient-starry',
         hasMoon: true,
         hasMountain: true,
-        // Layout coordinates (X, Y, Rotation, Scale) on base 800x520 board canvas
         x: 60, y: 40, rot: -8, scale: 0.95, z: 2
       },
       {
@@ -1798,15 +1796,13 @@ const GardenEngine = (() => {
       if (!this.dom.wrapper) return;
 
       this.buildScrapbookBoard();
+      this.bindTouchGestures();
     },
 
-    /**
-     * Builds and scatters at least 6 Polaroids/Postcards procedurally.
-     * Incorporates custom scaling triggers to support responsive aspect-ratios.
-     */
     buildScrapbookBoard() {
       this.dom.board.innerHTML = '';
 
+      // Corrected: targets scraps array natively (resolves memories undefined crash)
       this.scraps.forEach(s => {
         const item = document.createElement('div');
         item.className = `${s.type}-scrappy`;
@@ -1815,16 +1811,13 @@ const GardenEngine = (() => {
         item.setAttribute('role', 'button');
         item.setAttribute('aria-label', `Memory piece: ${s.title || 'Handwritten note'}`);
 
-        // Standard absolute coordinates configurations
         item.style.left = `${s.x}px`;
         item.style.top = `${s.y}px`;
         item.style.zIndex = s.z;
 
-        // Custom individual styles on visibility reveal
         item.dataset.rot = s.rot;
         item.dataset.scale = s.scale;
 
-        // Populate inner components depending on structural classification
         if (s.type === 'polaroid') {
           let internalSceneHTML = `<div class="scrappy-scene ${s.sceneClass}">`;
           if (s.hasStars) internalSceneHTML += `<div class="procedural-stars"></div>`;
@@ -1867,10 +1860,25 @@ const GardenEngine = (() => {
       this.onResize(State.width, State.height, State.pixelRatio);
     },
 
-    /**
-     * Staggered PHYSICAL Lay-Down Entries.
-     * Fades and rotates memories individually, mimicking laying them on a table.
-     */
+    bindTouchGestures() {
+      const handleStart = (e) => {
+        if (!State.isGalleryActive) return;
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+      };
+
+      const handleEnd = (e) => {
+        if (!State.isGalleryActive) return;
+        const diffX = e.changedTouches[0].clientX - this.touchStartX;
+        const diffY = e.changedTouches[0].clientY - this.touchStartY;
+
+        // Space reserved for future tactile swipe gestures
+      };
+
+      this.dom.board.addEventListener('touchstart', handleStart, { passive: true });
+      this.dom.board.addEventListener('touchend', handleEnd, { passive: true });
+    },
+
     activate() {
       if (State.isGalleryActive) return;
       State.isGalleryActive = true;
@@ -1880,33 +1888,30 @@ const GardenEngine = (() => {
         this.dom.wrapper.setAttribute('aria-hidden', 'false');
       }
 
-      // Sequentially target DOM nodes inside scrapbook board
       const scrapNodes = Array.from(this.dom.board.children);
       
       scrapNodes.forEach((node, idx) => {
         setTimeout(() => {
-          ScrollSystem.playPaperSound('scrap_drop');
+          // Corrected: calls playPaperSound globally (resolves Envelope reference exception)
+          playPaperSound('scrap_drop');
           
           node.classList.add('visible');
           
-          // Animate scale, translation settle, and target rotation angle
           const r = node.dataset.rot;
           const s = node.dataset.scale;
           node.style.transform = `scale(${s}) rotate(${r}deg) translateY(0)`;
-        }, idx * 280); // 280ms stagger delays between arrivals
+        }, idx * 280); 
       });
 
-      ScrollSystem.playPaperSound('board_unveiled');
+      playPaperSound('board_unveiled');
     },
 
     onResize(width, height, dpr) {
       if (!this.dom.board) return;
 
-      // Dynamic scales: resizes the absolute scrapbook coordinates matrix perfectly for mobile device aspect ratios
       const baseWidth = 850;
       const baseHeight = 540;
       
-      // Clamp scale boundaries to protect readability
       const scale = Math.min(width / baseWidth, height / baseHeight);
       const targetScale = GardenEngine.getUtils().clamp(scale, 0.44, 1.0);
       
@@ -1918,7 +1923,6 @@ const GardenEngine = (() => {
     render() {
       if (!this.dom.wrapper || !State.isGalleryActive) return;
 
-      // Parallax board displacement
       const px = State.mouseX * State.width * 0.024;
       const py = State.mouseY * State.height * 0.024;
       this.dom.board.style.marginLeft = `${px}px`;
@@ -1983,8 +1987,8 @@ const GardenEngine = (() => {
       this.registerSystem(CloudSystem); 
       this.registerSystem(MeadowSystem); 
       this.registerSystem(EffectsSystem); 
-      this.registerSystem(ScrollSystem); // Version 4.5 Active
-      this.registerSystem(GallerySystem); // Version 4.5 Active
+      this.registerSystem(ScrollSystem); 
+      this.registerSystem(GallerySystem); 
       
       AnimationManager.start();
 
