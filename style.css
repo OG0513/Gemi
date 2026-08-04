@@ -2,10 +2,10 @@
    1. DESIGN SYSTEM & CUSTOM PROPERTIES (Preserved)
    ========================================================================== */
 :root {
-  /* Soft Cinematic Palette (Desaturated Pastel Variables) */
+  /* Soft Celestial Warm-Yellow Palette */
   --color-sky-top: hsla(230, 25%, 12%, 1);       
   --color-sky-bottom: hsla(260, 20%, 18%, 1);    
-  --color-cream: hsla(38, 40%, 94%, 1);          
+  --color-cream: hsla(38, 45%, 94%, 1);          
   --color-blush-pink: hsla(350, 45%, 88%, 1);    
   --color-lavender: hsla(265, 30%, 82%, 1);      
   --color-baby-blue: hsla(205, 35%, 84%, 1);     
@@ -87,13 +87,17 @@ body {
   background-color: var(--color-sky-top);
   transform-style: preserve-3d;
   will-change: transform;
+  
+  /* Slower, emotionally rich camera transitions */
   transition: 
-    transform 3.0s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 3.2s cubic-bezier(0.25, 1, 0.5, 1),
+    filter 3.2s cubic-bezier(0.25, 1, 0.5, 1),
     opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
+/* Camera movement: Zoom slightly and lower perspective viewpoint upwards */
 .layer-world.state-camera-zoom {
-  transform: scale(1.05) translateY(clamp(10px, 2vh, 25px));
+  transform: scale(1.06) translateY(clamp(15px, 3vh, 35px));
 }
 
 .state-blur-garden .environment-canvas,
@@ -103,6 +107,11 @@ body {
 .state-blur-garden .meadow-canvas,
 .state-blur-garden .effects-canvas {
   filter: blur(4px);
+}
+
+/* Version 4.6 Added: Slightly dim garden backdrop when Memory Lane is active */
+.state-blur-garden .layer-world {
+  filter: brightness(0.72);
 }
 
 .environment-canvas, .stars-canvas, .moon-canvas, .clouds-canvas, .meadow-canvas, .effects-canvas {
@@ -450,7 +459,7 @@ body {
 }
 
 /* ==========================================================================
-   6. REDESIGNED SCRAPBOOK BOARD: MEMORY LANE (Preserved)
+   6. PROCEDURAL MEMORY LANE BOARD (Version 4.6 Enhanced: Volumetric Details)
    ========================================================================== */
 .gallery-wrapper {
   position: absolute;
@@ -470,6 +479,12 @@ body {
   pointer-events: auto;
 }
 
+/* Continuous unblur transition trigger class on gallery exit */
+.state-blur-garden.gallery-wrapper {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .gallery-board {
   position: relative;
   width: 800px;
@@ -478,23 +493,24 @@ body {
   transition: transform 1.5s var(--transition-ease-slow);
 }
 
+/* Redesigned Volumetric Polaroid Frame */
 .polaroid-scrappy {
   position: absolute;
   background-color: #f6f5f0; 
-  border-radius: 2px;
-  padding: 10px 10px 38px 10px; 
+  border-radius: 3px;
+  padding: 10px 10px 42px 10px; /* Thick bottom border for handwritten captions */
   cursor: pointer;
   outline: none;
   user-select: none;
   -webkit-user-select: none;
   
   box-shadow: 
-    inset 0 1px 0 rgba(255,255,255,0.65),
-    -3px 5px 12px rgba(8, 8, 14, 0.16);
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    -3px 5px 14px rgba(8, 8, 14, 0.16);
 
   border-right: 1px solid rgba(180, 170, 160, 0.25);
   border-bottom: 1px solid rgba(180, 170, 160, 0.25);
-  border-bottom-right-radius: 4px 8px; 
+  border-bottom-right-radius: 4px 8px; /* Delicate paper bending */
   
   opacity: 0;
   transform: scale(0.85) translateY(35px) rotate(0deg);
@@ -506,9 +522,22 @@ body {
     opacity 0.9s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* Staggered lay-down classes */
 .polaroid-scrappy.visible {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Version 4.6 Added: Volumetric dissolve transition to final scene */
+.state-dissolving .polaroid-scrappy,
+.state-dissolving .postcard-scrappy,
+.state-dissolving .note-scrappy {
+  transform: translateY(-80px) rotate(12deg) scale(0.8) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: 
+    transform 2.5s cubic-bezier(0.25, 1, 0.5, 1), 
+    opacity 2.5s var(--transition-ease-slow) !important;
 }
 
 .polaroid-scrappy:hover {
@@ -519,6 +548,7 @@ body {
   z-index: 10 !important; 
 }
 
+/* Volumetric Vintage Postcard Frame */
 .postcard-scrappy {
   position: absolute;
   background-color: #ebdcb9; 
@@ -568,6 +598,7 @@ body {
   background: rgba(140, 120, 100, 0.25);
 }
 
+/* Handwritten Note Scrap */
 .note-scrappy {
   position: absolute;
   background-color: #fffdf5; 
@@ -619,6 +650,19 @@ body {
   mix-blend-mode: hard-light;
   opacity: 0.9;
   overflow: hidden;
+}
+
+/* Local moonlight edge reflections */
+.scrappy-scene::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(253, 246, 226, 0.22) 0%, rgba(0,0,0,0) 50%);
+  pointer-events: none;
+  z-index: 5;
 }
 
 .vintage-borders {
