@@ -60,7 +60,7 @@ body {
 }
 
 /* ==========================================================================
-   3. STRUCTURE & VIEWPORT MANAGEMENT (Preserved & Enhanced with Camera Transition)
+   3. STRUCTURE & VIEWPORT MANAGEMENT (Cinematic Camera Zoom & Pan)
    ========================================================================== */
 .app-root {
   position: relative;
@@ -82,16 +82,15 @@ body {
   pointer-events: none;
 }
 
-/* World layer holding all back environments (Enables hardware 3D Camera zooms) */
 .layer-world {
   z-index: var(--z-world);
   background-color: var(--color-sky-top);
   transform-style: preserve-3d;
   will-change: transform;
   
-  /* Extremely smooth cinematic camera movement transitions */
+  /* Slower, emotionally rich camera transitions */
   transition: 
-    transform 2.6s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 3.0s cubic-bezier(0.25, 1, 0.5, 1),
     opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
@@ -100,7 +99,6 @@ body {
   transform: scale(1.06) translateY(clamp(15px, 3vh, 35px));
 }
 
-/* Depth-of-Field Blur transition */
 .state-blur-garden .environment-canvas,
 .state-blur-garden .stars-canvas,
 .state-blur-garden .moon-canvas,
@@ -118,7 +116,7 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
-  transition: filter 1.6s var(--transition-ease-slow);
+  transition: filter 2.2s var(--transition-ease-slow); /* Slowed for smooth background reveal */
 }
 
 .environment-canvas { z-index: 1; image-rendering: auto; }
@@ -235,7 +233,7 @@ body {
 }
 
 /* ==========================================================================
-   5. UI LAYER & BIRTHDAY ENVELOPE (Preserved & Enhanced)
+   5. BIRTHDAY ENVELOPE (Preserved)
    ========================================================================== */
 .envelope-wrapper {
   position: relative;
@@ -246,15 +244,12 @@ body {
   align-items: center;
   perspective: 1200px; 
   transform-style: preserve-3d;
-  
-  /* Cinematic slow breathing floating */
   animation: float-breathing 4.5s ease-in-out infinite;
   transition: 
     opacity 1.5s var(--transition-ease-slow),
     transform 1.5s var(--transition-ease-slow);
 }
 
-/* Transition out fade class used on "Continue" transition */
 .envelope-wrapper.fade-out {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -291,9 +286,7 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
     -4px 8px 18px rgba(10, 12, 20, 0.22);
   
-  background-image: 
-    repeating-linear-gradient(45deg, rgba(33, 25, 10, 0.015) 0px, rgba(33, 25, 10, 0.015) 1px, transparent 1px, transparent 6px),
-    repeating-linear-gradient(-45deg, rgba(33, 25, 10, 0.015) 0px, rgba(33, 25, 10, 0.015) 1px, transparent 1px, transparent 6px);
+  animation: float-breathing 4.5s ease-in-out infinite;
   
   transition: 
     transform var(--transition-duration-slow) var(--transition-ease-slow),
@@ -392,7 +385,7 @@ body {
 }
 
 /* ==========================================================================
-   7. STATIONERY LETTER SHEET DESIGN (Preserved)
+   6. STATIONERY LETTER SHEET DESIGN (Preserved)
    ========================================================================== */
 .letter-preview {
   position: absolute;
@@ -400,6 +393,7 @@ body {
   height: 85%;
   left: 5%;
   bottom: 5px;
+  
   background: radial-gradient(circle at 80% 20%, #fffdf8 0%, var(--color-cream) 100%);
   border-radius: 2px;
   z-index: 2; 
@@ -550,11 +544,12 @@ body {
 }
 
 /* ==========================================================================
-   8. ACTIVE TRANSITIONS & UNFOLD TIMELINES (Version 4.3 Cleaned)
+   7. ACTIVE TRANSITIONS & UNFOLD TIMELINES (Preserved)
    ========================================================================== */
 
 /* Stage 1: Active Lift */
 .state-lifting .envelope {
+  animation: none; 
   transform: translateY(-15px) rotateX(15deg);
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.65),
@@ -586,7 +581,7 @@ body {
 .state-unfolding .letter-preview {
   width: 142%; 
   height: 255%; 
-  transform: translate3d(0, -166%, 15px) scale(1.0);
+  transform: translate3d(-18.3%, -48%, 15px) scale(1.0);
   box-shadow: 
     inset 0 0 12px rgba(45, 35, 25, 0.05),
     -10px 18px 30px rgba(8, 8, 14, 0.18),
@@ -606,7 +601,7 @@ body {
   .state-unfolding .letter-preview {
     width: 182%;
     height: 310%;
-    transform: translate3d(0, -152%, 15px) scale(0.92);
+    transform: translate3d(-25.2%, -40%, 15px) scale(0.92); 
   }
   .letter-text {
     gap: 0.65rem;
@@ -621,7 +616,7 @@ body {
 }
 
 /* ==========================================================================
-   9. MEADOW NEST GRASS (Preserved)
+   8. MEADOW NEST GRASS (Preserved)
    ========================================================================== */
 .meadow-nest {
   position: absolute;
@@ -656,7 +651,6 @@ body {
 .meadow-nest.released .nest-blade-4 { transform: rotate(12deg) translateY(1px); }
 .meadow-nest.released .nest-blade-5 { transform: rotate(26deg) translateY(2px); }
 
-/* Touch Ground wobbly class triggered on envelope descent */
 .meadow-nest.touch-ground .nest-blade-1 { transform: rotate(-28deg) translateY(3px); }
 .meadow-nest.touch-ground .nest-blade-2 { transform: rotate(-22deg) translateY(2px); }
 .meadow-nest.touch-ground .nest-blade-3 { transform: rotate(24deg) translateY(3px); }
@@ -688,7 +682,7 @@ body {
 }
 
 /* ==========================================================================
-   10. MEMORY GALLERY OVERLAY DESIGN (Version 4.3 Physical Stack Enhanced)
+   9. MEMORY GALLERY OVERLAY DESIGN (Preserved & Enhanced)
    ========================================================================== */
 .gallery-wrapper {
   position: absolute;
@@ -706,6 +700,14 @@ body {
 .gallery-wrapper.active {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Vertical layout holding the stack and final exit buttons */
+.gallery-container-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(15px, 3vh, 35px);
 }
 
 .gallery-stack {
@@ -729,13 +731,10 @@ body {
   outline: none;
   user-select: none;
   -webkit-user-select: none;
-  
-  /* Directional drop shadows */
   box-shadow: 
     inset 0 1px 0 rgba(255,255,255,0.7),
     -4px 4px 10px rgba(8, 8, 14, 0.12),
     -12px 12px 30px rgba(8, 8, 14, 0.08); 
-    
   background-image: 
     repeating-linear-gradient(45deg, rgba(30, 20, 10, 0.01) 0px, rgba(30, 20, 10, 0.01) 1px, transparent 1px, transparent 5px),
     repeating-linear-gradient(-45deg, rgba(30, 20, 10, 0.01) 0px, rgba(30, 20, 10, 0.01) 1px, transparent 1px, transparent 5px);
@@ -746,9 +745,9 @@ body {
   border-bottom-right-radius: 6px 12px; /* Very subtle paper bending */
 
   transition: 
-    transform 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.85s cubic-bezier(0.25, 1, 0.5, 1),
     box-shadow 0.8s var(--transition-ease-slow),
-    opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity 0.85s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .polaroid::after {
@@ -764,7 +763,6 @@ body {
   transition: opacity 0.8s var(--transition-ease-slow);
 }
 
-/* Glow highlight focuses on active topmost cards */
 .polaroid-active::after {
   background: linear-gradient(135deg, rgba(253, 246, 226, 0.24) 0%, rgba(0, 0, 0, 0) 55%);
 }
@@ -876,9 +874,54 @@ body {
   opacity: 0.9;
 }
 
-/* Version 4.3 Added: Physical cycle flip animation (Lifts, rotates, slides behind the other cards) */
 .polaroid.throw-action {
-  transform: translate3d(-130px, -45px, 40px) rotate(-14deg) scale(0.9) !important;
-  opacity: 0.7;
-  z-index: 5 !important; /* Forces layout layer projection on lift peak */
+  transform: translate(-320px, -20px) rotate(-22deg) scale(0.9) !important;
+  opacity: 0;
 }
+
+/* ==========================================================================
+   10. GALLERY ACTION CONTINUE BUTTON (Version 5.1 Added)
+   ========================================================================== */
+.gallery-continue-btn {
+  opacity: 0;
+  transform: translateY(15px);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-soft-gold);
+  padding: 0 0 2px 0;
+  margin: 0;
+  color: var(--color-cream);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  outline: none;
+  pointer-events: none;
+  
+  transition: 
+    opacity 1.5s var(--transition-ease-slow),
+    transform 1.5s var(--transition-ease-slow),
+    color var(--transition-duration-normal) var(--transition-ease-slow),
+    border-bottom-color var(--transition-duration-normal) var(--transition-ease-slow),
+    text-shadow var(--transition-duration-normal) var(--transition-ease-slow);
+}
+
+.gallery-continue-btn.visible {
+  opacity: 0.75;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.gallery-continue-btn:hover,
+.gallery-continue-btn:focus {
+  opacity: 1.0;
+  color: var(--color-soft-gold);
+  border-bottom-color: var(--color-cream);
+  text-shadow: 0 0 6px hsla(43, 60%, 75%, 0.45);
+}
+
+.gallery-continue-btn:focus-visible {
+  outline: 1px dashed var(--color-soft-gold);
+  outline-offset: 4px;
+   }
