@@ -1,9 +1,9 @@
 /**
- * Cinematic Environment Engine (Version 4.5 Parchment Scroll & Redesigned Scrapbook Memories)
+ * Cinematic Environment Engine (Version 4.5.2 Meticulous Hotfixes)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
-// Global high-performance paper audio triggers namespaces
+// Global high-performance paper audio triggers (Immunizes calls from unmounted states)
 const playPaperSound = (type) => {
   console.log(`Audio Event Triggered: paper_${type}`);
 };
@@ -134,10 +134,10 @@ const GardenEngine = (() => {
       State.mouseY += (State.targetMouseY - State.mouseY) * State.parallaxSpeed;
 
       ActiveSystems.forEach(system => {
-        if (typeof system.update === 'update' || typeof system.update === 'function') {
+        if (typeof system.update === 'function') {
           system.update(State.deltaTime);
         }
-        if (typeof system.render === 'render' || typeof system.render === 'function') {
+        if (typeof system.render === 'function') {
           system.render();
         }
       });
@@ -461,7 +461,7 @@ const GardenEngine = (() => {
 
     generateStarfield(width, height) {
       this.stars = [];
-      const utils = GardenEngine.getUtils();
+      const utils = Utils; // Fixed Early-execution local scope reference
 
       const area = width * height;
       const starCount = utils.clamp(Math.floor(area / 3200), 120, 500);
@@ -520,7 +520,7 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
-      const utils = GardenEngine.getUtils();
+      const utils = Utils;
 
       const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
       const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
@@ -609,7 +609,7 @@ const GardenEngine = (() => {
 
     generateClouds(width, height) {
       this.clouds = [];
-      const utils = GardenEngine.getUtils();
+      const utils = Utils;
 
       const lanes = [
         { y: height * 0.15, depth: 0, scale: 0.7 },
@@ -781,7 +781,7 @@ const GardenEngine = (() => {
 
     generateGarden(width, height) {
       this.renderList = [];
-      const utils = GardenEngine.getUtils();
+      const utils = Utils;
 
       const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
 
@@ -847,7 +847,7 @@ const GardenEngine = (() => {
           depth: depth,
           parallax: parallax,
           swayPhase: utils.randomRange(0, Math.PI * 2),
-          swaySpeed: utils.randomRange(0.4, 0.9), 
+          swaySpeed: utils.randomRange(0.3, 0.7), 
           swayAmp: swayAmp
         });
       }
@@ -967,7 +967,7 @@ const GardenEngine = (() => {
       const w = State.width;
       const h = State.height;
 
-      ctx.clearRect(0, 0, w, h);
+      ctx.clearRect(0, 0, State.width, State.height);
 
       const groundGrad = ctx.createLinearGradient(0, h * 0.85, 0, h);
       groundGrad.addColorStop(0, 'rgba(25, 20, 35, 0)');
@@ -1199,7 +1199,7 @@ const GardenEngine = (() => {
     },
 
     generateParticles(width, height) {
-      const utils = GardenEngine.getUtils();
+      const utils = Utils;
       const area = width * height;
 
       // 1. Generate Fireflies (Preserved)
@@ -1265,7 +1265,7 @@ const GardenEngine = (() => {
     },
 
     createPetal(width, height, randomY = false) {
-      const utils = GardenEngine.getUtils();
+      const utils = Utils;
       const depthRandom = Math.random();
       
       let depth = 1, scale = 1.0, maxOpacity = utils.randomRange(0.45, 0.75), parallax = 0.012;
@@ -1297,7 +1297,7 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
-      const utils = GardenEngine.getUtils();
+      const utils = Utils;
       const w = State.width;
       const h = State.height;
 
@@ -1610,7 +1610,6 @@ const GardenEngine = (() => {
       this.lines = Array.from(this.dom.lines);
       this.bindEvents();
 
-      // Trigger landing slide entry (1.0s delay after loader settles)
       setTimeout(() => {
         this.triggerScrollLanding();
       }, 1000);
@@ -1630,7 +1629,6 @@ const GardenEngine = (() => {
       this.dom.scroll.classList.add('state-scroll-down');
       this.playPaperSound('scroll_slide_in');
 
-      // Trigger unroll folding sequence (Delay 1.8s)
       setTimeout(() => {
         this.triggerScrollUnroll();
       }, 1800);
@@ -1641,7 +1639,6 @@ const GardenEngine = (() => {
       this.dom.scroll.classList.add('state-scroll-open');
       this.playPaperSound('scroll_unroll');
 
-      // Begin progressively revealing text line-by-line (Delay 2.0s)
       setTimeout(() => {
         this.isOpened = true;
       }, 2000);
@@ -1650,18 +1647,15 @@ const GardenEngine = (() => {
     triggerScrollExit() {
       if (!this.dom.scroll) return;
       
-      // Roll parchment back into center and fade wrapper out cleanly
       this.dom.scroll.classList.remove('state-scroll-open');
       this.dom.scroll.classList.add('fade-out');
 
-      // Set environmental transitions (Soften background garden and zoom-in camera)
       const worldLayer = document.getElementById('layer-world');
       if (worldLayer) {
         worldLayer.classList.add('state-camera-zoom');
         worldLayer.classList.add('state-blur-garden');
       }
 
-      // Activate redesigned Memory Lane collection layout (Delay 1.8s)
       setTimeout(() => {
         GallerySystem.activate();
       }, 1800);
@@ -1678,7 +1672,6 @@ const GardenEngine = (() => {
       if (this.lineTimer >= this.lineDelay) {
         this.lineTimer = 0;
         
-        // Unveil next cursive paragraph line softly
         const line = this.lines[this.activeLineIndex];
         if (line) {
           this.playPaperSound('line_fade');
@@ -1687,7 +1680,6 @@ const GardenEngine = (() => {
         
         this.activeLineIndex++;
 
-        // Reveal Continue trigger once final line has settled
         if (this.activeLineIndex === this.lines.length) {
           this.revealContinueBtn();
         }
@@ -1708,11 +1700,9 @@ const GardenEngine = (() => {
     render() {
       if (!this.dom.scroll) return;
 
-      // Apply subtle parallax to scroll wrapper coordinates
       const px = State.mouseX * State.width * 0.022;
       const py = State.mouseY * State.height * 0.022;
       
-      // Preserves coordinate centering parameters
       this.dom.scroll.style.marginLeft = `${px}px`;
       
       if (!State.isScrollOpening) {
@@ -1731,7 +1721,6 @@ const GardenEngine = (() => {
     touchStartX: 0,
     touchStartY: 0,
 
-    // Core scraps array configuration (Corrected: references scraps cleanly to prevent undef crashes)
     scraps: [
       {
         id: 'scrap-1',
@@ -1802,7 +1791,6 @@ const GardenEngine = (() => {
     buildScrapbookBoard() {
       this.dom.board.innerHTML = '';
 
-      // Corrected: targets scraps array natively (resolves memories undefined crash)
       this.scraps.forEach(s => {
         const item = document.createElement('div');
         item.className = `${s.type}-scrappy`;
@@ -1871,8 +1859,6 @@ const GardenEngine = (() => {
         if (!State.isGalleryActive) return;
         const diffX = e.changedTouches[0].clientX - this.touchStartX;
         const diffY = e.changedTouches[0].clientY - this.touchStartY;
-
-        // Space reserved for future tactile swipe gestures
       };
 
       this.dom.board.addEventListener('touchstart', handleStart, { passive: true });
@@ -1892,7 +1878,6 @@ const GardenEngine = (() => {
       
       scrapNodes.forEach((node, idx) => {
         setTimeout(() => {
-          // Corrected: calls playPaperSound globally (resolves Envelope reference exception)
           playPaperSound('scrap_drop');
           
           node.classList.add('visible');
@@ -1913,7 +1898,7 @@ const GardenEngine = (() => {
       const baseHeight = 540;
       
       const scale = Math.min(width / baseWidth, height / baseHeight);
-      const targetScale = GardenEngine.getUtils().clamp(scale, 0.44, 1.0);
+      const targetScale = Utils.clamp(scale, 0.44, 1.0); // Fixed early lookup scope reference
       
       this.dom.board.style.transform = `scale(${targetScale})`;
     },
