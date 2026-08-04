@@ -1,5 +1,5 @@
 /**
- * Cinematic Environment Engine (Version 5.2 Offscreen Constellation & Finale Message)
+ * Cinematic Environment Engine (Version 4.5 Parchment Scroll & Memory Lane Board)
  * Namespace structure to manage lifecycle, states, and render threads.
  */
 
@@ -27,14 +27,9 @@ const GardenEngine = (() => {
     targetMouseY: 0,
     parallaxSpeed: 0.05,
     
-    // Master timeline block variables
-    isEnvelopeOpening: false,
-    isEnvelopeOpened: false,
-    isGalleryActive: false,
-    isCardCycling: false,
-    
-    // Finale Scene active flags
-    isFinaleActive: false
+    isScrollOpening: false,
+    isScrollOpened: false,
+    isGalleryActive: false
   };
 
   // 3. Module Registry (To easily mount future visual sub-systems)
@@ -134,10 +129,10 @@ const GardenEngine = (() => {
       State.mouseY += (State.targetMouseY - State.mouseY) * State.parallaxSpeed;
 
       ActiveSystems.forEach(system => {
-        if (typeof system.update === 'function') {
+        if (typeof system.update === 'update' || typeof system.update === 'function') {
           system.update(State.deltaTime);
         }
-        if (typeof system.render === 'function') {
+        if (typeof system.render === 'render' || typeof system.render === 'function') {
           system.render();
         }
       });
@@ -146,7 +141,7 @@ const GardenEngine = (() => {
 
   /**
    * Environment System (Version 1.3 Sub-System - Preserved)
-   * Renders a highly performance-optimized, slowly breathing atmospheric evening sky.
+   * Renders a highly performance-optimized slowly breathing atmospheric evening sky.
    */
   const EnvironmentSystem = {
     name: 'EnvironmentSystem',
@@ -227,9 +222,7 @@ const GardenEngine = (() => {
 
       const horizonHaze = ctx.createLinearGradient(0, h * 0.7, 0, h);
       horizonHaze.addColorStop(0, 'rgba(230, 220, 240, 0)');
-      
-      const hazeColor = State.isFinaleActive ? 'hsla(260, 20%, 22%, 0.45)' : 'hsla(260, 20%, 20%, 0.3)';
-      horizonHaze.addColorStop(1, hazeColor); 
+      horizonHaze.addColorStop(1, 'hsla(260, 20%, 20%, 0.3)'); 
       ctx.fillStyle = horizonHaze;
       ctx.fillRect(0, h * 0.65, w, h * 0.35);
     }
@@ -305,10 +298,10 @@ const GardenEngine = (() => {
         center,
         r
       );
-      baseGrad.addColorStop(0, 'hsla(38, 65%, 94%, 1)');       
-      baseGrad.addColorStop(0.45, 'hsla(35, 55%, 88%, 1)');    
-      baseGrad.addColorStop(0.82, 'hsla(43, 60%, 82%, 1)');    
-      baseGrad.addColorStop(1, 'hsla(30, 10%, 65%, 1)');       
+      baseGrad.addColorStop(0, 'hsla(38, 55%, 94%, 1)');
+      baseGrad.addColorStop(0.45, 'hsla(35, 45%, 88%, 1)');
+      baseGrad.addColorStop(0.82, 'hsla(43, 50%, 82%, 1)');
+      baseGrad.addColorStop(1, 'hsla(30, 10%, 65%, 1)');
       octx.fillStyle = baseGrad;
       octx.beginPath();
       octx.arc(center, center, r, 0, Math.PI * 2);
@@ -391,7 +384,7 @@ const GardenEngine = (() => {
       const x = this.centerX + px;
       const y = this.centerY + py;
 
-      const breath = (1.0 + Math.sin(this.glowTime) * 0.15) * (State.isFinaleActive ? 1.22 : 1.0);
+      const breath = 1.0 + Math.sin(this.glowTime) * 0.15;
 
       ctx.globalCompositeOperation = 'screen';
       
@@ -434,20 +427,14 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Star System (Version 5.2 Upgraded: Happy Birthday Constellation)
-   * Procedurally generates stars and animates a subset to assemble into lettering.
+   * Star System (Version 2.3 Sub-System - Preserved)
+   * Procedurally generates, clusters, and renders hundreds of organic, multi-depth stars.
    */
   const StarSystem = {
     name: 'StarSystem',
     canvas: null,
     ctx: null,
     stars: [],
-    
-    // Star Constellation target states
-    constellationPoints: [],
-    isAssembling: false,
-    assemblyProgress: 0,
-    assemblySpeed: 0.38, // Takes roughly 4-5s to migrate
 
     init(width, height, dpr) {
       this.canvas = document.getElementById('stars-canvas');
@@ -465,11 +452,6 @@ const GardenEngine = (() => {
       this.ctx.scale(dpr, dpr);
 
       this.generateStarfield(width, height);
-      
-      // Regene constellation points dynamically to fit new screens
-      if (this.isAssembling) {
-        this.extractHappyBirthdayPoints(width, height);
-      }
     },
 
     generateStarfield(width, height) {
@@ -521,12 +503,6 @@ const GardenEngine = (() => {
         this.stars.push({
           x: sx,
           y: sy,
-          startX: sx,
-          startY: sy,
-          targetX: null,
-          targetY: null,
-          isConstellation: false,
-
           size: size,
           depth: depth,
           glow: glow,
@@ -538,118 +514,22 @@ const GardenEngine = (() => {
       }
     },
 
-    /**
-     * offscreen canvas pixel reader (Version 5.2 Added).
-     * Types "Happy Birthday" into a memory canvas, reads solid pixels,
-     * and maps them as coordinate vectors center-spaced on stars.
-     */
-    extractHappyBirthdayPoints(width, height) {
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      
-      const isMobile = width < 600;
-      
-      // Width bounds of text block
-      const bufferW = 320;
-      const bufferH = 100;
-      tempCanvas.width = bufferW;
-      tempCanvas.height = bufferH;
-
-      tempCtx.clearRect(0, 0, bufferW, bufferH);
-      tempCtx.fillStyle = '#ffffff';
-      
-      // Use clean serif typeface for letter-constellations
-      tempCtx.font = 'bold 26px Georgia, serif';
-      tempCtx.textAlign = 'center';
-      tempCtx.textBaseline = 'middle';
-      
-      // Type stacked message: "Happy" on line 1, "Birthday" on line 2
-      tempCtx.fillText('Happy', bufferW / 2, bufferH * 0.3);
-      tempCtx.fillText('Birthday', bufferW / 2, bufferH * 0.7);
-
-      const imgData = tempCtx.getImageData(0, 0, bufferW, bufferH).data;
-      this.constellationPoints = [];
-
-      // Extract pixel steps to generate comfortable letter density (approximately 110-150 points)
-      const step = isMobile ? 6 : 5; 
-      for (let y = 0; y < bufferH; y += step) {
-        for (let x = 0; x < bufferW; x += step) {
-          const index = (y * bufferW + x) * 4;
-          const alpha = imgData[index + 3];
-
-          if (alpha > 120) {
-            // Map offscreen points to the upper-middle of our main viewport
-            const scale = isMobile ? 1.0 : 1.35;
-            const targetX = (x - bufferW / 2) * scale + (width * 0.5);
-            const targetY = (y - bufferH / 2) * scale + (height * (isMobile ? 0.22 : 0.28));
-            
-            this.constellationPoints.push({ x: targetX, y: targetY });
-          }
-        }
-      }
-    },
-
-    /**
-     * Assigns star targets to start LERP movements.
-     */
-    assembleHappyBirthday() {
-      if (this.isAssembling) return;
-
-      this.extractHappyBirthdayPoints(State.width, State.height);
-      
-      const targetCount = this.constellationPoints.length;
-      let matched = 0;
-
-      // Map constellation targets to a subset of existing background stars (depth 0)
-      for (let i = 0; i < this.stars.length; i++) {
-        const s = this.stars[i];
-        if (s.depth === 0 && matched < targetCount) {
-          const t = this.constellationPoints[matched];
-          s.targetX = t.x;
-          s.targetY = t.y;
-          s.isConstellation = true;
-          matched++;
-        }
-      }
-
-      this.isAssembling = true;
-      this.assemblyProgress = 0;
-      console.log(`Constellation assembly activated. Points matched: ${matched}`);
-    },
-
     update(dt) {
       const utils = GardenEngine.getUtils();
 
-      const moonScale = State.isFinaleActive ? 1.0 : 1.007;
-      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007 * moonScale);
-      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007 * moonScale);
+      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
+      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
       const moonR = MoonSystem.radius;
       const glareRadius = moonR * 3.8;
-
-      if (this.isAssembling && this.assemblyProgress < 1.0) {
-        this.assemblyProgress += this.assemblySpeed * dt;
-        this.assemblyProgress = Math.min(this.assemblyProgress, 1.0);
-      }
 
       for (let i = 0; i < this.stars.length; i++) {
         const s = this.stars[i];
 
         s.twinklePhase += s.twinkleSpeed * dt;
         let twinkleFactor = 0.6 + Math.sin(s.twinklePhase) * 0.4;
+        
         let targetOpacity = s.baseOpacity * twinkleFactor;
 
-        // Apply smooth LERP transition when constellation is assembling
-        if (this.isAssembling && s.isConstellation) {
-          // Slow, non-linear ease out curve
-          const ease = Math.pow(this.assemblyProgress, 1.6);
-          s.x = s.startX + (s.targetX - s.startX) * ease;
-          s.y = s.startY + (s.targetY - s.startY) * ease;
-          
-          // Boost opacity of constellation stars to make them clear
-          targetOpacity = utils.clamp(targetOpacity * 1.55, 0.4, 0.95);
-        }
-
-        // Glare attenuation
         if (moonR > 0) {
           const dx = s.x - moonX;
           const dy = s.y - moonY;
@@ -678,17 +558,12 @@ const GardenEngine = (() => {
         const s = this.stars[i];
         
         ctx.beginPath();
-        
-        // Parallax offset is only applied to background stars that are not locked inside constellation positions
-        const renderX = s.isConstellation ? s.x : s.x + px;
-        const renderY = s.isConstellation ? s.y : s.y + py;
+        ctx.arc(s.x + px, s.y + py, s.size, 0, Math.PI * 2);
 
-        ctx.arc(renderX, renderY, s.size, 0, Math.PI * 2);
-
-        if (s.depth === 2 || s.isConstellation) {
+        if (s.depth === 2) {
           ctx.fillStyle = `rgba(253, 246, 226, ${s.opacity})`;
           ctx.shadowColor = 'rgba(253, 246, 226, 0.5)';
-          ctx.shadowBlur = s.isConstellation ? 5 : s.glow;
+          ctx.shadowBlur = s.glow;
         } else {
           ctx.fillStyle = `rgba(240, 243, 255, ${s.opacity})`;
         }
@@ -869,7 +744,7 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Meadow & Flower Garden System (Version 5.2 Upgraded: Optimized grass and flowers)
+   * Meadow & Flower Garden System (Version 4.5 Expanded Species & Slower Waves)
    * Procedurally generates, clusters, and depth-interleaves grass blades and wildflowers.
    */
   const MeadowSystem = {
@@ -879,7 +754,7 @@ const GardenEngine = (() => {
     renderList: [],
     
     windTime: 0,
-    windSpeed: 1.4,
+    windSpeed: 0.75, // Reduced waving speed for extremely slow, subtle, and calming sways
 
     init(width, height, dpr) {
       this.canvas = document.getElementById('meadow-canvas');
@@ -905,32 +780,30 @@ const GardenEngine = (() => {
 
       const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
 
-      // Grass optimization Pass: Reduced total grass blades from 850+ to 300-520 max.
-      // Widened blade widths to maintain lush density while saving substantial rendering overhead.
-      const grassCount = utils.clamp(Math.floor(width * 0.42), 240, 520);
+      const grassCount = utils.clamp(Math.floor(width * 0.72), 300, 850);
       for (let i = 0; i < grassCount; i++) {
         const baseX = utils.randomRange(0, width);
         const depthRandom = Math.random();
         
         let depth = 1; 
         let length = utils.randomRange(32, 52);
-        let baseWidth = utils.randomRange(1.8, 2.8); // Slightly wider base
-        let swayAmp = utils.randomRange(6, 11);
+        let baseWidth = utils.randomRange(1.5, 2.4);
+        let swayAmp = utils.randomRange(4, 9); // Reduced bending
         let baseY = height + utils.randomRange(-5, 15);
         let parallax = 0.012;
 
         if (depthRandom < 0.45) {
           depth = 0;
           length = utils.randomRange(16, 28);
-          baseWidth = utils.randomRange(1.0, 1.8);
-          swayAmp = utils.randomRange(3, 5);
+          baseWidth = utils.randomRange(0.8, 1.4);
+          swayAmp = utils.randomRange(2, 4);
           baseY = height - utils.randomRange(5, 18);
           parallax = 0.004;
         } else if (depthRandom > 0.86) {
           depth = 2;
           length = utils.randomRange(58, 88);
-          baseWidth = utils.randomRange(3.0, 4.4); // Widened foreground blades
-          swayAmp = utils.randomRange(13, 22);
+          baseWidth = utils.randomRange(2.6, 3.8);
+          swayAmp = utils.randomRange(8, 16);
           baseY = height + utils.randomRange(10, 28);
           parallax = 0.022;
         }
@@ -953,8 +826,7 @@ const GardenEngine = (() => {
 
         let colorString;
         if (lightInfluence > 0.45 && Math.random() < lightInfluence * 0.8) {
-          const multiplier = State.isFinaleActive ? 1.25 : 1.15;
-          colorString = `hsla(43, 25%, ${Math.floor(light * multiplier)}%, ${depth === 0 ? 0.7 : 1.0})`;
+          colorString = `hsla(43, 25%, ${Math.floor(light * 1.15)}%, ${depth === 0 ? 0.7 : 1.0})`;
         } else {
           colorString = `hsla(${hue}, ${sat}%, ${Math.floor(light)}%, ${depth === 0 ? 0.7 : 1.0})`;
         }
@@ -970,31 +842,31 @@ const GardenEngine = (() => {
           depth: depth,
           parallax: parallax,
           swayPhase: utils.randomRange(0, Math.PI * 2),
-          swaySpeed: utils.randomRange(0.8, 1.6),
-          swayAmp: swayAmp,
-          lightInfluence: lightInfluence,
-          lightValue: light
+          swaySpeed: utils.randomRange(0.4, 0.9), // Slower independent sways
+          swayAmp: swayAmp
         });
       }
 
-      // Rebalanced flower distribution: Scattered evenly in natural depth clusters
-      const flowerCount = utils.clamp(Math.floor(width / 36), 14, 42);
-      const clusterCenters = [width * 0.22, width * 0.48, width * 0.82];
+      // Increased overall flower count and varieties (roses, bluebells, forget-me-nots, cosmos, buttercups, lilies, violets)
+      const flowerCount = utils.clamp(Math.floor(width / 24), 22, 60); // Increased density
+      const clusterCenters = [width * 0.18, width * 0.35, width * 0.52, width * 0.72, width * 0.88]; // Added cluster lanes
 
-      const flowerTypes = ['daisy', 'tulip', 'lavender'];
+      const flowerTypes = ['daisy', 'tulip', 'lavender', 'rose', 'bluebell', 'forgetmenot', 'cosmos', 'buttercup', 'lily', 'violet'];
       const flowerColors = [
-        'hsla(350, 45%, 88%, 1)',
-        'hsla(265, 35%, 84%, 1)',
-        'hsla(205, 35%, 84%, 1)',
-        'hsla(38, 45%, 92%, 1)',
-        'hsla(0, 0%, 94%, 1)'
+        'hsla(350, 45%, 88%, 1)',  /* Blush Pink */
+        'hsla(265, 35%, 84%, 1)',  /* Soft Lavender */
+        'hsla(205, 35%, 84%, 1)',  /* Baby Blue */
+        'hsla(38, 45%, 92%, 1)',   /* Cream */
+        'hsla(43, 60%, 75%, 1)',   /* Soft Gold */
+        'hsla(0, 0%, 94%, 1)',     /* Soft White */
+        'hsla(285, 30%, 78%, 1)'   /* Wild Violet */
       ];
 
       for (let i = 0; i < flowerCount; i++) {
         let fx;
         if (Math.random() < 0.75) {
           const center = clusterCenters[Math.floor(Math.random() * clusterCenters.length)];
-          fx = center + utils.randomRange(-width * 0.1, width * 0.1);
+          fx = center + utils.randomRange(-width * 0.08, width * 0.08);
         } else {
           fx = utils.randomRange(width * 0.05, width * 0.95);
         }
@@ -1008,7 +880,7 @@ const GardenEngine = (() => {
         let depth = 1;
         let length = utils.randomRange(48, 76);
         let stemWidth = utils.randomRange(1.8, 2.4);
-        let swayAmp = utils.randomRange(8, 14);
+        let swayAmp = utils.randomRange(6, 11); // Subtle bending
         let baseY = height + utils.randomRange(-2, 18);
         let parallax = 0.012;
 
@@ -1016,14 +888,14 @@ const GardenEngine = (() => {
           depth = 0;
           length = utils.randomRange(28, 45);
           stemWidth = utils.randomRange(1.0, 1.5);
-          swayAmp = utils.randomRange(4, 7);
+          swayAmp = utils.randomRange(3, 5);
           baseY = height - utils.randomRange(3, 14);
           parallax = 0.004;
         } else if (depthRandom > 0.88) {
           depth = 2;
           length = utils.randomRange(80, 110);
           stemWidth = utils.randomRange(2.8, 3.6);
-          swayAmp = utils.randomRange(16, 26);
+          swayAmp = utils.randomRange(12, 18);
           baseY = height + utils.randomRange(12, 32);
           parallax = 0.022;
         }
@@ -1061,7 +933,7 @@ const GardenEngine = (() => {
           bloomAngle: utils.randomRange(-0.15, 0.15),
           leaves: leaves,
           swayPhase: utils.randomRange(0, Math.PI * 2),
-          swaySpeed: utils.randomRange(0.7, 1.4),
+          swaySpeed: utils.randomRange(0.3, 0.7), // Slowed down significantly
           swayAmp: swayAmp,
           headX: 0,
           headY: 0
@@ -1075,7 +947,6 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
-      this.windSpeed += (1.4 - this.windSpeed) * dt;
       this.windTime += this.windSpeed * dt;
 
       for (let i = 0; i < this.renderList.length; i++) {
@@ -1126,19 +997,11 @@ const GardenEngine = (() => {
       const ctrlX = bx + (tipX - bx) * 0.55;
       const ctrlY = by - b.length * 0.5;
 
-      let bladeGrad = ctx.createLinearGradient(bx, by, tipX, tipY);
-      bladeGrad.addColorStop(0, b.color);
-      bladeGrad.addColorStop(0.82, b.color);
-      
-      // Upper edges of the grass blades catch faint moonlight glow details (tip color intensity optimized)
-      const tipLightFactor = State.isFinaleActive ? 1.45 : 1.35;
-      bladeGrad.addColorStop(1, `hsla(43, 65%, ${Math.floor(b.lightValue * tipLightFactor)}%, ${b.depth === 0 ? 0.7 : 1.0})`);
-
       ctx.beginPath();
       ctx.moveTo(bx - b.width / 2, by);
       ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
       ctx.quadraticCurveTo(ctrlX, ctrlY, bx + b.width / 2, by);
-      ctx.fillStyle = bladeGrad;
+      ctx.fillStyle = b.color;
       ctx.fill();
     },
 
@@ -1186,21 +1049,20 @@ const GardenEngine = (() => {
       const angle = Math.atan2(dy, dx) - Math.PI / 2 + f.bloomAngle;
       ctx.rotate(angle);
 
-      // Dynamic Flower Glow: Bloom factor luminosity values (Petals facing the moon receive soft yellow highlights & translucent bloom)
-      const pulseOpacity = (0.8 + (f.lightInfluence * 0.2)) * (State.isFinaleActive ? 1.15 : 1.0);
+      const pulseOpacity = 0.8 + (f.lightInfluence * 0.2);
       ctx.globalAlpha = isBackground ? 0.65 : pulseOpacity;
 
-      if (f.type === 'daisy') {
+      // Draw Flower varieties based on unique species silhouettes (roses, bluebells, forgetmenots, cosmos, buttercups, lilies, violets)
+      if (f.type === 'daisy' || f.type === 'cosmos') {
         const petalC = f.color;
-        
-        // Soft warm yellowish moonlight center disk
         const centerC = f.lightInfluence > 0.4 ? 'hsla(43, 60%, 75%, 1)' : 'hsla(43, 40%, 65%, 1)';
+        const count = f.type === 'cosmos' ? 8 : f.petalCount;
 
         ctx.fillStyle = petalC;
-        for (let p = 0; p < f.petalCount; p++) {
-          ctx.rotate((Math.PI * 2) / f.petalCount);
+        for (let p = 0; p < count; p++) {
+          ctx.rotate((Math.PI * 2) / count);
           ctx.beginPath();
-          ctx.ellipse(0, f.petalSize * 1.1, f.petalSize * 0.35, f.petalSize, 0, 0, Math.PI * 2);
+          ctx.ellipse(0, f.petalSize * 1.1, f.petalSize * (f.type === 'cosmos' ? 0.5 : 0.35), f.petalSize, 0, 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -1209,16 +1071,8 @@ const GardenEngine = (() => {
         ctx.fillStyle = centerC;
         ctx.fill();
 
-        // Moonlight highlights overlay on daisy face (Soft golden flare representing light scattering)
-        if (f.lightInfluence > 0.4 && !isBackground) {
-          ctx.beginPath();
-          ctx.ellipse(0, f.petalSize * 0.5, f.petalSize * 0.25, f.petalSize * 0.5, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(253, 246, 226, 0.22)';
-          ctx.fill();
-        }
-
-      } else if (f.type === 'tulip') {
-        const c = f.color;
+      } else if (f.type === 'tulip' || f.type === 'buttercup') {
+        const c = f.type === 'buttercup' ? 'hsla(43, 80%, 72%, 1)' : f.color; // Yellow Gold buttercup
         ctx.fillStyle = c;
 
         ctx.beginPath();
@@ -1228,9 +1082,7 @@ const GardenEngine = (() => {
         ctx.closePath();
         ctx.fill();
 
-        // Warm Gold highlight shine representing soft golden highlights
-        const highlightColor = f.lightInfluence > 0.4 ? 'rgba(253, 246, 226, 0.28)' : 'rgba(255, 255, 255, 0.12)';
-        ctx.fillStyle = highlightColor;
+        ctx.fillStyle = `hsla(43, 60%, 94%, 0.15)`;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.bezierCurveTo(-f.petalSize * 0.4, -f.petalSize * 0.8, -f.petalSize * 0.2, -f.petalSize * 1.6, 0, -f.petalSize * 1.8);
@@ -1238,8 +1090,19 @@ const GardenEngine = (() => {
         ctx.closePath();
         ctx.fill();
 
-      } else if (f.type === 'lavender') {
-        const c = f.color;
+      } else if (f.type === 'rose') {
+        // Procedural rose: Nested overlapping circles forming petals
+        ctx.fillStyle = f.color;
+        const layers = [f.petalSize * 1.2, f.petalSize * 0.85, f.petalSize * 0.5];
+        layers.forEach((size, idx) => {
+          ctx.beginPath();
+          ctx.arc(0, -size * 0.2, size, 0, Math.PI * 2);
+          ctx.fillStyle = idx % 2 === 0 ? f.color : 'hsla(350, 45%, 94%, 1)'; // Blush inner folds
+          ctx.fill();
+        });
+
+      } else if (f.type === 'bluebell' || f.type === 'lavender') {
+        const c = f.type === 'bluebell' ? 'hsla(205, 45%, 84%, 1)' : f.color;
         ctx.fillStyle = c;
 
         const tiers = isBackground ? 3 : 5;
@@ -1249,23 +1112,59 @@ const GardenEngine = (() => {
           const yPos = -t * gap;
           const scale = 1.0 - (t * 0.15);
 
-          ctx.fillStyle = (f.lightInfluence > 0.4 && t % 2 === 0) ? 'hsla(43, 60%, 82%, 0.9)' : c;
-
+          // Left drooping bell
           ctx.beginPath();
-          ctx.ellipse(-f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.3 * scale, f.petalSize * 0.4 * scale, -Math.PI / 4, 0, Math.PI * 2);
+          ctx.ellipse(-f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.35 * scale, f.petalSize * 0.5 * scale, -Math.PI / 3, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = c;
+          // Right drooping bell
           ctx.beginPath();
-          ctx.ellipse(f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.3 * scale, f.petalSize * 0.4 * scale, Math.PI / 4, 0, Math.PI * 2);
+          ctx.ellipse(f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.35 * scale, f.petalSize * 0.5 * scale, Math.PI / 3, 0, Math.PI * 2);
           ctx.fill();
+        }
 
-          if (t === tiers - 1) {
+      } else if (f.type === 'forgetmenot' || f.type === 'violet') {
+        // Forget-me-not: clusters of tiny 5-petals blue florets
+        ctx.fillStyle = f.type === 'forgetmenot' ? 'hsla(205, 55%, 84%, 1)' : 'hsla(285, 30%, 78%, 1)'; // Sky Blue / Wild Violet
+        const offsetPositions = [
+          { x: -f.petalSize * 0.6, y: -f.petalSize * 0.4 },
+          { x: f.petalSize * 0.6, y: -f.petalSize * 0.5 },
+          { x: 0, y: -f.petalSize * 1.2 }
+        ];
+
+        offsetPositions.forEach(pos => {
+          ctx.save();
+          ctx.translate(pos.x, pos.y);
+          for (let p = 0; p < 5; p++) {
+            ctx.rotate((Math.PI * 2) / 5);
             ctx.beginPath();
-            ctx.ellipse(0, yPos - gap * 0.8, f.petalSize * 0.25 * scale, f.petalSize * 0.45 * scale, 0, 0, Math.PI * 2);
+            ctx.arc(0, f.petalSize * 0.4, f.petalSize * 0.35, 0, Math.PI * 2);
             ctx.fill();
           }
+          // Tiny gold central disk
+          ctx.beginPath();
+          ctx.arc(0, 0, f.petalSize * 0.2, 0, Math.PI * 2);
+          ctx.fillStyle = 'var(--color-soft-gold)';
+          ctx.fill();
+          ctx.restore();
+        });
+
+      } else if (f.type === 'lily') {
+        // Elegant pointed white lily blossoms
+        ctx.fillStyle = 'hsla(0, 0%, 94%, 1)';
+        for (let p = 0; p < 6; p++) {
+          ctx.rotate(Math.PI / 3);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(-f.petalSize * 0.3, -f.petalSize * 0.8, 0, -f.petalSize * 1.6);
+          ctx.quadraticCurveTo(f.petalSize * 0.3, -f.petalSize * 0.8, 0, 0);
+          ctx.fill();
         }
+        // Gold stamens
+        ctx.beginPath();
+        ctx.arc(0, -f.petalSize * 0.3, f.petalSize * 0.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'var(--color-soft-gold)';
+        ctx.fill();
       }
 
       ctx.restore();
@@ -1368,37 +1267,6 @@ const GardenEngine = (() => {
       }
     },
 
-    awakenFinaleFireflies() {
-      const utils = GardenEngine.getUtils();
-      const w = State.width;
-      const h = State.height;
-
-      // Spawns 25 more fireflies (Version 5.2 Updated: distributed naturally across garden to avoid clustering)
-      for (let i = 0; i < 25; i++) {
-        this.fireflies.push({
-          x: utils.randomRange(50, w - 50),
-          y: utils.randomRange(h * 0.45, h * 0.92),
-          size: utils.randomRange(1.4, 2.6),
-          depth: utils.randomRange(0, 2) > 1 ? 2 : 1, 
-          parallax: 0.018,
-          speed: 0,
-          targetSpeed: utils.randomRange(15, 34),
-          angle: utils.randomRange(0, Math.PI * 2),
-          targetAngle: utils.randomRange(0, Math.PI * 2),
-          steeringForce: utils.randomRange(2.0, 3.8),
-          maxOpacity: utils.randomRange(0.55, 0.85),
-          opacity: 0,
-          pulsePhase: utils.randomRange(0, Math.PI * 2),
-          pulseSpeed: utils.randomRange(1.0, 2.5),
-          behaviorTimer: utils.randomRange(0.5, 2.2),
-          isCircling: false,
-          circleSpeed: 0,
-          hoverTarget: null,
-          hoverTimer: 0
-        });
-      }
-    },
-
     createPetal(width, height, randomY = false) {
       const utils = GardenEngine.getUtils();
       const depthRandom = Math.random();
@@ -1436,9 +1304,8 @@ const GardenEngine = (() => {
       const w = State.width;
       const h = State.height;
 
-      const moonScale = State.isFinaleActive ? 1.0 : 1.007;
-      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007 * moonScale);
-      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007 * moonScale);
+      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
+      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
       const moonR = MoonSystem.radius;
       const avoidanceShield = moonR * 1.35;
 
@@ -1722,201 +1589,85 @@ const GardenEngine = (() => {
   };
 
   /**
-   * Interactive Envelope & Letter Controller (Version 3.4 - Preserved)
-   * Manages opening foldings and descending return transitions on press continue.
+   * Parchment Scroll Controller (Version 4.5 Sub-System - Replaces EnvelopeSystem)
+   * Manages rolling animations, vertical scaling, line reveals, and continue actions.
    */
-  const EnvelopeSystem = {
-    name: 'EnvelopeSystem',
+  const ScrollSystem = {
+    name: 'ScrollSystem',
     dom: {},
-    sparkles: [],
-    sparkleTimer: 0,
-    sparkleDelay: 420,
-    isHovered: false,
+    lines: [],
+    lineTimer: 0,
+    lineDelay: 1600, // Milliseconds between progressive line reveals
+    activeLineIndex: 0,
+    isOpened: false,
 
     init() {
       this.dom = {
-        envelope: document.getElementById('interactive-envelope'),
-        wrapper: document.querySelector('.envelope-wrapper'),
-        sparkles: document.getElementById('envelope-sparkles'),
-        nest: document.getElementById('meadow-nest-grass'),
-        letter: document.getElementById('stationery-letter'),
-        paragraphs: document.querySelectorAll('.letter-paragraph'),
-        continueBtn: document.getElementById('letter-continue-trigger')
+        scroll: document.getElementById('scroll-intro'),
+        trigger: document.getElementById('scroll-continue-trigger'),
+        lines: document.querySelectorAll('.scroll-line')
       };
 
-      if (!this.dom.envelope) return;
+      if (!this.dom.scroll) return;
 
+      this.lines = Array.from(this.dom.lines);
       this.bindEvents();
+
+      // Trigger landing slide entry (1.0s delay after loader settles)
+      setTimeout(() => {
+        this.triggerScrollLanding();
+      }, 1000);
     },
 
     bindEvents() {
-      const enter = () => {
-        if (State.isEnvelopeOpening) return;
-        this.isHovered = true;
-        this.sparkleDelay = 180;
-      };
-
-      const leave = () => {
-        if (State.isEnvelopeOpening) return;
-        this.isHovered = false;
-        this.sparkleDelay = 420;
-      };
-
-      this.dom.envelope.addEventListener('mouseenter', enter, { passive: true });
-      this.dom.envelope.addEventListener('mouseleave', leave, { passive: true });
-      this.dom.envelope.addEventListener('touchstart', enter, { passive: true });
-      this.dom.envelope.addEventListener('touchend', leave, { passive: true });
-
-      this.dom.envelope.addEventListener('focus', enter, { passive: true });
-      this.dom.envelope.addEventListener('blur', leave, { passive: true });
-
-      this.dom.envelope.addEventListener('click', this.triggerOpenSequence.bind(this));
-      this.dom.envelope.addEventListener('keydown', (e) => {
-        if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          this.triggerOpenSequence();
-        }
-      });
-
-      if (this.dom.continueBtn) {
-        this.dom.continueBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); 
-          this.playPaperSound('continue_action');
-          this.triggerLetterTransition();
+      if (this.dom.trigger) {
+        this.dom.trigger.addEventListener('click', () => {
+          this.playPaperSound('scroll_exit');
+          this.triggerScrollExit();
         });
       }
     },
 
-    triggerLetterTransition() {
-      if (!this.dom.wrapper) return;
+    triggerScrollLanding() {
+      if (!this.dom.scroll) return;
+      this.dom.scroll.classList.add('state-scroll-down');
+      this.playPaperSound('scroll_slide_in');
 
-      this.playPaperSound('stationery_folding_back');
-      this.dom.wrapper.classList.remove('state-unfolding');
-
+      // Trigger unroll folding sequence (Delay 1.8s)
       setTimeout(() => {
-        this.playPaperSound('letter_sliding_inside');
-        this.dom.wrapper.classList.remove('state-emerging');
-      }, 1400);
-
-      setTimeout(() => {
-        this.playPaperSound('closing_flap');
-        this.dom.wrapper.classList.remove('state-opening');
-      }, 2800);
-
-      setTimeout(() => {
-        this.playPaperSound('envelope_descending');
-        this.dom.wrapper.classList.remove('state-lifting');
-        
-        this.dom.wrapper.style.animation = 'float-breathing 4.5s ease-in-out infinite';
-      }, 4200);
-
-      setTimeout(() => {
-        if (this.dom.nest) {
-          this.dom.nest.classList.remove('released');
-          this.dom.nest.classList.add('touch-ground'); 
-          
-          MeadowSystem.windSpeed = 2.8;
-          
-          setTimeout(() => {
-            this.dom.nest.classList.remove('touch-ground');
-          }, 1500);
-        }
-      }, 5000);
-
-      setTimeout(() => {
-        this.dom.wrapper.classList.add('fade-out');
-
-        const worldLayer = document.getElementById('layer-world');
-        if (worldLayer) {
-          worldLayer.classList.add('state-camera-zoom');
-          worldLayer.classList.add('state-blur-garden');
-        }
-      }, 5400);
-
-      setTimeout(() => {
-        GallerySystem.activate();
-      }, 6900);
+        this.triggerScrollUnroll();
+      }, 1800);
     },
 
-    triggerOpenSequence() {
-      if (State.isEnvelopeOpening || State.isEnvelopeOpened) return;
+    triggerScrollUnroll() {
+      if (!this.dom.scroll) return;
+      this.dom.scroll.classList.add('state-scroll-open');
+      this.playPaperSound('scroll_unroll');
+
+      // Begin progressively revealing text line-by-line (Delay 2.0s)
+      setTimeout(() => {
+        this.isOpened = true;
+      }, 2000);
+    },
+
+    triggerScrollExit() {
+      if (!this.dom.scroll) return;
       
-      State.isEnvelopeOpening = true;
-      this.isHovered = true;
+      // Roll parchment back into center and fade wrapper out cleanly
+      this.dom.scroll.classList.remove('state-scroll-open');
+      this.dom.scroll.classList.add('fade-out');
 
-      this.playPaperSound('lift_envelope');
-
-      this.dom.wrapper.style.animation = 'none'; 
-      this.dom.wrapper.classList.add('state-lifting');
-
-      if (this.dom.nest) {
-        this.dom.nest.classList.add('released');
+      // Set environmental transitions (Soften background garden and zoom-in camera)
+      const worldLayer = document.getElementById('layer-world');
+      if (worldLayer) {
+        worldLayer.classList.add('state-camera-zoom');
+        worldLayer.classList.add('state-blur-garden');
       }
 
-      MeadowSystem.windSpeed = 3.8;
-
+      // Activate redesigned Memory Lane collection layout (Delay 1.8s)
       setTimeout(() => {
-        this.playPaperSound('seal_unlocked');
-        this.sparkleDelay = 60; 
-      }, 900);
-
-      setTimeout(() => {
-        this.playPaperSound('unfold_flap');
-        this.dom.wrapper.classList.add('state-opening');
-      }, 1500);
-
-      setTimeout(() => {
-        this.playPaperSound('letter_emerging');
-        this.dom.wrapper.classList.add('state-emerging');
-      }, 3100);
-
-      setTimeout(() => {
-        this.playPaperSound('stationery_unfolding');
-        this.dom.wrapper.classList.add('state-unfolding');
-        
-        if (this.dom.letter) {
-          this.dom.letter.setAttribute('aria-hidden', 'false');
-        }
-      }, 4400);
-
-      setTimeout(() => {
-        State.isEnvelopeOpened = true;
-        this.sparkleDelay = 140; 
-        this.triggerTextSequence();
-      }, 5800);
-    },
-
-    triggerTextSequence() {
-      if (!this.dom.paragraphs.length) return;
-
-      const totalParas = this.dom.paragraphs.length;
-
-      this.dom.paragraphs.forEach((p, index) => {
-        let delay = 200;
-        if (index === 1) delay = 1800;
-        if (index === 2) delay = 4000;
-        if (index === 3) delay = 6200;
-
-        setTimeout(() => {
-          this.playPaperSound('text_appearing');
-          p.classList.add('visible');
-
-          if (index === totalParas - 1) {
-            this.revealContinueBtn();
-          }
-        }, delay);
-      });
-    },
-
-    revealContinueBtn() {
-      setTimeout(() => {
-        this.playPaperSound('button_revealed');
-        if (this.dom.continueBtn) {
-          this.dom.continueBtn.classList.add('visible');
-          this.dom.continueBtn.setAttribute('tabindex', '0');
-          this.dom.continueBtn.setAttribute('aria-hidden', 'false');
-        }
-      }, 2000); 
+        GallerySystem.activate();
+      }, 1800);
     },
 
     playPaperSound(type) {
@@ -1924,458 +1675,254 @@ const GardenEngine = (() => {
     },
 
     update(dt) {
-      this.sparkleTimer += dt * 1000;
+      if (!this.isOpened || this.activeLineIndex >= this.lines.length) return;
 
-      if (this.sparkleTimer >= this.sparkleDelay) {
-        this.sparkleTimer = 0;
-        this.spawnSparkle();
+      this.lineTimer += dt * 1000;
+      if (this.lineTimer >= this.lineDelay) {
+        this.lineTimer = 0;
+        
+        // Unveil next cursive paragraph line softly
+        const line = this.lines[this.activeLineIndex];
+        if (line) {
+          this.playPaperSound('line_fade');
+          line.classList.add('visible');
+        }
+        
+        this.activeLineIndex++;
+
+        // Reveal Continue trigger once final line has settled
+        if (this.activeLineIndex === this.lines.length) {
+          this.revealContinueBtn();
+        }
       }
     },
 
-    spawnSparkle() {
-      if (document.hidden || !State.isActive) return;
-
-      const utils = GardenEngine.getUtils();
-      const sparkle = document.createElement('div');
-      sparkle.className = 'envelope-sparkle';
-
-      const x = utils.randomRange(10, 90);
-      const y = utils.randomRange(15, 85);
-      sparkle.style.left = `${x}%`;
-      sparkle.style.top = `${y}%`;
-
-      const dx = utils.randomRange(-35, 35);
-      const dy = utils.randomRange(-30, -70);
-      sparkle.style.setProperty('--dx', `${dx}px`);
-      sparkle.style.setProperty('--dy', `${dy}px`);
-
-      const scale = utils.randomRange(0.6, 1.4);
-      sparkle.style.transform = `scale(${scale})`;
-
-      this.dom.sparkles.appendChild(sparkle);
-
+    revealContinueBtn() {
       setTimeout(() => {
-        sparkle.remove();
-      }, 1400);
+        this.playPaperSound('continue_unlocked');
+        if (this.dom.trigger) {
+          this.dom.trigger.classList.add('visible');
+          this.dom.trigger.setAttribute('tabindex', '0');
+          this.dom.trigger.setAttribute('aria-hidden', 'false');
+        }
+      }, 1200);
     },
 
     render() {
-      if (!this.dom.wrapper) return;
+      if (!this.dom.scroll) return;
 
-      const px = State.mouseX * State.width * 0.024;
-      const py = State.mouseY * State.height * 0.024;
+      // Apply subtle parallax to scroll wrapper coordinates
+      const px = State.mouseX * State.width * 0.022;
+      const py = State.mouseY * State.height * 0.022;
       
-      this.dom.wrapper.style.left = `${px}px`;
+      // Preserves coordinate centering parameters
+      this.dom.scroll.style.marginLeft = `${px}px`;
       
-      if (!State.isEnvelopeOpening) {
-        this.dom.wrapper.style.top = `${py}px`;
-      } else {
-        this.dom.wrapper.style.top = `calc(0px + ${py}px)`;
+      if (!State.isScrollOpening) {
+        this.dom.scroll.style.marginTop = `${py}px`;
       }
     }
   };
 
   /**
-   * Memory Gallery System (Version 5.1 Enhanced: Dynamic Stack Cycling & Final Continue Button)
-   * Manages stacked instant film Polaroids.
+   * Memory Gallery System (Version 4.5 Scrapbook Memory Lane Board)
+   * Seeded with Polaroids, vintage Postcards, and handwritten note scraps.
    */
   const GallerySystem = {
     name: 'GallerySystem',
     dom: {},
-    touchStartX: 0,
-    touchStartY: 0,
-    flipCount: 0,
 
-    memories: [
+    // Master memory objects catalog (Includes 6 Polaroids, 2 aged postcards, 1 scrap note)
+    scraps: [
       {
-        id: 'memory-1',
+        id: 'scrap-1',
+        type: 'polaroid',
         title: 'Starlit Walk',
-        date: 'October 14th, 2024',
+        date: 'Oct 14, 2024',
         sceneClass: 'scene-gradient-starry',
         hasMoon: true,
-        hasMountain: true
+        hasMountain: true,
+        // Layout coordinates (X, Y, Rotation, Scale) on base 800x520 board canvas
+        x: 60, y: 40, rot: -8, scale: 0.95, z: 2
       },
       {
-        id: 'memory-2',
+        id: 'scrap-2',
+        type: 'polaroid',
         title: 'Twilight Lake',
-        date: 'November 22nd, 2024',
-        desc: 'Watching silent ripple reflections in the cold...',
+        date: 'Nov 22, 2024',
         sceneClass: 'scene-gradient-sunset',
         hasFlower: true,
-        hasMountain: true
+        hasMountain: true,
+        x: 480, y: 30, rot: 5, scale: 1.0, z: 4
       },
       {
-        id: 'memory-3',
-        title: 'Warm Twilight',
-        date: 'December 25th, 2024',
-        desc: 'Cozy, quiet moments wrapping up the year...',
+        id: 'scrap-3',
+        type: 'polaroid',
+        title: 'December Wish',
+        date: 'Dec 25, 2024',
         sceneClass: 'scene-gradient-aurora',
         hasStars: true,
-        hasMountain: true
+        hasMountain: true,
+        x: 270, y: 220, rot: -3, scale: 1.05, z: 6
+      },
+      {
+        id: 'scrap-4',
+        type: 'postcard',
+        title: 'The Journey',
+        text: 'Every step taken alongside you feels like walking through a dream... May we continue charting constellations together.',
+        x: 60, y: 280, rot: 4, scale: 0.9, z: 3
+      },
+      {
+        id: 'scrap-5',
+        type: 'note',
+        text: 'A quick little note just to say... thank you for being the warmest light in my sky. ✿',
+        x: 320, y: 20, rot: -12, scale: 0.85, z: 1
+      },
+      {
+        id: 'scrap-6',
+        type: 'polaroid',
+        title: 'Golden Meadows',
+        date: 'Jan 02, 2025',
+        sceneClass: 'scene-gradient-sunset',
+        hasFlower: true,
+        x: 540, y: 280, rot: -6, scale: 0.95, z: 5
       }
     ],
 
     init() {
       this.dom = {
         wrapper: document.getElementById('memory-gallery'),
-        stack: document.getElementById('gallery-stack-container'),
-        finalBtn: document.getElementById('gallery-continue-trigger')
+        board: document.getElementById('gallery-board-container')
       };
 
       if (!this.dom.wrapper) return;
 
-      this.buildPolaroidDOM();
-      this.bindTouchGestures();
-    },
-
-    buildPolaroidDOM() {
-      this.dom.stack.innerHTML = '';
-
-      this.memories.forEach((mem, index) => {
-        const card = document.createElement('div');
-        card.className = `polaroid polaroid-depth-${index}`;
-        card.setAttribute('tabindex', index === 0 ? '0' : '-1');
-        card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', `Memory Card: ${mem.title}. Click to swap stack.`);
-        card.id = mem.id;
-
-        this.applyCardPositionStyles(card, index);
-
-        let internalSceneHTML = `<div class="procedural-scene ${mem.sceneClass}">`;
-        if (mem.hasStars) internalSceneHTML += `<div class="procedural-stars"></div>`;
-        if (mem.hasMoon) internalSceneHTML += `<div class="procedural-moon"></div>`;
-        if (mem.hasMountain) internalSceneHTML += `<div class="procedural-mountain"></div>`;
-        if (mem.hasFlower) internalSceneHTML += `<div class="procedural-flower-silhouette"></div>`;
-        internalSceneHTML += `</div>`;
-
-        card.innerHTML = `
-          <div class="photo-slot">
-            ${internalSceneHTML}
-          </div>
-          <div class="polaroid-caption">
-            <h3 class="caption-title">${mem.title}</h3>
-            <span class="caption-date">${mem.date}</span>
-          </div>
-        `;
-
-        card.addEventListener('click', () => this.swapTopCard());
-        card.addEventListener('keydown', (e) => {
-          if (e.key === ' ' || e.key === 'Enter') {
-            e.preventDefault();
-            this.swapTopCard();
-          }
-        });
-
-        this.dom.stack.appendChild(card);
-      });
-
-      if (this.dom.finalBtn) {
-        this.dom.finalBtn.addEventListener('click', () => {
-          this.triggerGalleryExit();
-        });
-      }
-    },
-
-    bindTouchGestures() {
-      const handleStart = (e) => {
-        if (!State.isGalleryActive || State.isCardCycling) return;
-        this.touchStartX = e.touches[0].clientX;
-        this.touchStartY = e.touches[0].clientY;
-      };
-
-      const handleEnd = (e) => {
-        if (!State.isGalleryActive || State.isCardCycling) return;
-        const diffX = e.changedTouches[0].clientX - this.touchStartX;
-        const diffY = e.changedTouches[0].clientY - this.touchStartY;
-
-        if (Math.abs(diffX) > 60 && Math.abs(diffY) < 100) {
-          this.swapTopCard();
-        }
-      };
-
-      this.dom.stack.addEventListener('touchstart', handleStart, { passive: true });
-      this.dom.stack.addEventListener('touchend', handleEnd, { passive: true });
-    },
-
-    applyCardPositionStyles(card, index) {
-      if (index === 0) {
-        card.style.transform = 'translate3d(0, 0, 15px) rotate(0deg) scale(1.0)';
-        card.style.zIndex = '3';
-        card.style.opacity = '1';
-        card.style.pointerEvents = 'auto';
-        card.setAttribute('tabindex', '0');
-        card.classList.add('polaroid-active');
-      } else if (index === 1) {
-        card.style.transform = 'translate3d(4px, 4px, 5px) rotate(4deg) scale(0.96)';
-        card.style.zIndex = '2';
-        card.style.opacity = '0.92';
-        card.style.pointerEvents = 'none';
-        card.setAttribute('tabindex', '-1');
-        card.classList.remove('polaroid-active');
-      } else {
-        card.style.transform = 'translate3d(-5px, 8px, 0px) rotate(-5deg) scale(0.92)';
-        card.style.zIndex = '1';
-        card.style.opacity = '0.82';
-        card.style.pointerEvents = 'none';
-        card.setAttribute('tabindex', '-1');
-        card.classList.remove('polaroid-active');
-      }
-    },
-
-    swapTopCard() {
-      if (!State.isGalleryActive || State.isCardCycling) return;
-      State.isCardCycling = true; 
-
-      const cardsList = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
-      if (cardsList.length <= 1) return;
-
-      const activeCard = cardsList.find(c => c.style.zIndex === '3');
-      if (!activeCard) return;
-
-      EnvelopeSystem.playPaperSound('polaroid_flip');
-
-      activeCard.classList.add('throw-action');
-
-      setTimeout(() => {
-        this.dom.stack.appendChild(activeCard);
-        activeCard.classList.remove('throw-action');
-
-        const reorderedCards = Array.from(this.dom.stack.querySelectorAll('.polaroid'));
-        reorderedCards.forEach((card, index) => {
-          this.applyCardPositionStyles(card, index);
-        });
-
-        const newActive = reorderedCards[0];
-        if (newActive) newActive.focus();
-
-        this.flipCount++;
-        if (this.flipCount >= this.memories.length - 1) {
-          this.revealFinalContinueBtn();
-        }
-
-        setTimeout(() => {
-          State.isCardCycling = false;
-        }, 400); 
-
-      }, 400); 
-    },
-
-    revealFinalContinueBtn() {
-      if (!this.dom.finalBtn || this.dom.finalBtn.classList.contains('visible')) return;
-      
-      setTimeout(() => {
-        EnvelopeSystem.playPaperSound('button_revealed');
-        this.dom.finalBtn.classList.add('visible');
-        this.dom.finalBtn.setAttribute('tabindex', '0');
-        this.dom.finalBtn.setAttribute('aria-hidden', 'false');
-      }, 1000); 
+      this.buildScrapbookBoard();
     },
 
     /**
-     * Triggers the continuous reverse Camera pullback transition (Version 5.1 & 5.2).
-     * Cards sink -> gallery fades -> camera zooms out -> garden unblurs and illuminates warmly.
+     * Builds and scatters at least 6 Polaroids/Postcards procedurally.
+     * Incorporates custom scaling triggers to support responsive aspect-ratios.
      */
-    triggerGalleryExit() {
-      if (!State.isGalleryActive || State.isCardCycling) return;
-      
-      State.isGalleryActive = false;
-      State.isCardCycling = true;
+    buildScrapbookBoard() {
+      this.dom.board.innerHTML = '';
 
-      EnvelopeSystem.playPaperSound('gallery_exit');
+      this.scraps.forEach(s => {
+        const item = document.createElement('div');
+        item.className = `${s.type}-scrappy`;
+        item.id = s.id;
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('role', 'button');
+        item.setAttribute('aria-label', `Memory piece: ${s.title || 'Handwritten note'}`);
 
-      if (this.dom.wrapper) {
-        this.dom.wrapper.classList.add('fade-out');
-        
-        if (this.dom.finalBtn) {
-          this.dom.finalBtn.setAttribute('tabindex', '-1');
-          this.dom.finalBtn.setAttribute('aria-hidden', 'true');
+        // Standard absolute coordinates configurations
+        item.style.left = `${s.x}px`;
+        item.style.top = `${s.y}px`;
+        item.style.zIndex = s.z;
+
+        // Custom individual styles on visibility reveal
+        item.dataset.rot = s.rot;
+        item.dataset.scale = s.scale;
+
+        // Populate inner components depending on structural classification
+        if (s.type === 'polaroid') {
+          let internalSceneHTML = `<div class="scrappy-scene ${s.sceneClass}">`;
+          if (s.hasStars) internalSceneHTML += `<div class="procedural-stars"></div>`;
+          if (s.hasMoon) internalSceneHTML += `<div class="procedural-moon"></div>`;
+          if (s.hasMountain) internalSceneHTML += `<div class="procedural-mountain"></div>`;
+          if (s.hasFlower) internalSceneHTML += `<div class="procedural-flower-silhouette"></div>`;
+          internalSceneHTML += `</div>`;
+
+          item.innerHTML = `
+            <div class="photo-slot">
+              ${internalSceneHTML}
+            </div>
+            <div class="polaroid-caption">
+              <h3 class="caption-title">${s.title}</h3>
+              <span class="caption-date">${s.date}</span>
+            </div>
+          `;
+        } else if (s.type === 'postcard') {
+          item.innerHTML = `
+            <div class="vintage-borders"></div>
+            <div class="postcard-divider"></div>
+            <div class="note-text" style="width: 44%;">
+              <p style="margin: 0 0 4px 0; font-weight: bold; border-bottom: 1px dashed rgba(140, 120, 100, 0.35); padding-bottom: 2px;">Postcard</p>
+              ${s.text}
+            </div>
+          `;
+          item.style.width = '240px';
+          item.style.height = '160px';
+        } else if (s.type === 'note') {
+          item.innerHTML = `
+            <div class="note-text" style="width: 140px;">
+              ${s.text}
+            </div>
+          `;
         }
-      }
 
-      // Camera pulls back slowly over 3.0s, revealing more of sky/moon
-      const worldLayer = document.getElementById('layer-world');
-      if (worldLayer) {
-        worldLayer.classList.remove('state-camera-zoom');
-        worldLayer.classList.remove('state-blur-garden');
-      }
+        this.dom.board.appendChild(item);
+      });
 
-      setTimeout(() => {
-        State.isFinaleActive = true;
-        
-        // Dynamic Spawns: awaken extra fireflies across the screen naturally
-        EffectsSystem.awakenFinaleFireflies();
-        
-        // Regenerate garden structures with warm light parameters
-        MeadowSystem.generateGarden(State.width, State.height);
-      }, 1600); 
-
-      // 1. Stage Finale: Assemble Constellation Letterings (Version 5.2 Added: Delay 4.2s)
-      setTimeout(() => {
-        StarSystem.assembleHappyBirthday();
-      }, 4200);
-
-      // 2. Stage Finale: Fade in Handwritten finale message (Version 5.2 Added: Delay 10.5s)
-      setTimeout(() => {
-        const finaleMsg = document.getElementById('finale-message');
-        if (finaleMsg) {
-          EnvelopeSystem.playPaperSound('finale_message_revealed');
-          finaleMsg.classList.add('visible');
-          finaleMsg.setAttribute('aria-hidden', 'false');
-        }
-      }, 10500);
+      this.onResize(State.width, State.height, State.pixelRatio);
     },
 
+    /**
+     * Staggered PHYSICAL Lay-Down Entries.
+     * Fades and rotates memories individually, mimicking laying them on a table.
+     */
     activate() {
       if (State.isGalleryActive) return;
-
       State.isGalleryActive = true;
+
       if (this.dom.wrapper) {
         this.dom.wrapper.classList.add('active');
         this.dom.wrapper.setAttribute('aria-hidden', 'false');
       }
 
-      EnvelopeSystem.playPaperSound('gallery_unveiled');
+      // Sequentially target DOM nodes inside scrapbook board
+      const scrapNodes = Array.from(this.dom.board.children);
+      
+      scrapNodes.forEach((node, idx) => {
+        setTimeout(() => {
+          ScrollSystem.playPaperSound('scrap_drop');
+          
+          node.classList.add('visible');
+          
+          // Animate scale, translation settle, and target rotation angle
+          const r = node.dataset.rot;
+          const s = node.dataset.scale;
+          node.style.transform = `scale(${s}) rotate(${r}deg) translateY(0)`;
+        }, idx * 280); // 280ms stagger delays between arrivals
+      });
+
+      ScrollSystem.playPaperSound('board_unveiled');
     },
 
-    update(dt) {
+    onResize(width, height, dpr) {
+      if (!this.dom.board) return;
+
+      // Dynamic scales: resizes the absolute scrapbook coordinates matrix perfectly for mobile device aspect ratios
+      const baseWidth = 850;
+      const baseHeight = 540;
+      
+      // Clamp scale boundaries to protect readability
+      const scale = Math.min(width / baseWidth, height / baseHeight);
+      const targetScale = GardenEngine.getUtils().clamp(scale, 0.44, 1.0);
+      
+      this.dom.board.style.transform = `scale(${targetScale})`;
     },
+
+    update(dt) {},
 
     render() {
       if (!this.dom.wrapper || !State.isGalleryActive) return;
 
+      // Parallax board displacement
       const px = State.mouseX * State.width * 0.024;
       const py = State.mouseY * State.height * 0.024;
-      this.dom.stack.style.left = `${px}px`;
-      this.dom.stack.style.top = `${py}px`;
-    }
-  };
-
-  /**
-   * Loading Screen System (Version 1.2 Sub-System - Preserved)
-   * Manages SVG Calligraphy strokes, magical dust canvas updates, and transitions.
-   */
-  const LoadingSystem = {
-    name: 'LoadingSystem',
-    canvas: null,
-    ctx: null,
-    particles: [],
-    maxParticles: 45,
-    isRunning: true,
-
-    init(width, height, dpr) {
-      this.canvas = document.getElementById('loading-canvas');
-      if (!this.canvas) return;
-
-      this.ctx = this.canvas.getContext('2d', { alpha: true });
-      this.onResize(width, height, dpr);
-      this.generateParticles();
-      this.triggerMonogramTimeline();
-    },
-
-    onResize(width, height, dpr) {
-      if (!this.canvas) return;
-      this.canvas.width = width * dpr;
-      this.canvas.height = height * dpr;
-      this.ctx.scale(dpr, dpr);
-    },
-
-    generateParticles() {
-      this.particles = [];
-      const utils = GardenEngine.getUtils();
-
-      for (let i = 0; i < this.maxParticles; i++) {
-        this.particles.push({
-          x: utils.randomRange(0, State.width),
-          y: utils.randomRange(0, State.height),
-          radius: utils.randomRange(1, 2.8),
-          opacity: utils.randomRange(0.1, 0.6),
-          baseOpacity: utils.randomRange(0.1, 0.5),
-          vx: utils.randomRange(-8, 8),
-          vy: utils.randomRange(-15, -5),
-          pulseSpeed: utils.randomRange(1, 3),
-          pulsePhase: utils.randomRange(0, Math.PI * 2)
-        });
-      }
-    },
-
-    update(dt) {
-      if (!this.isRunning) return;
-
-      const utils = GardenEngine.getUtils();
-
-      for (let i = 0; i < this.particles.length; i++) {
-        const p = this.particles[i];
-        p.x += (p.vx * dt);
-        p.y += (p.vy * dt);
-
-        p.pulsePhase += p.pulseSpeed * dt;
-        p.opacity = p.baseOpacity + Math.sin(p.pulsePhase) * 0.15;
-        p.opacity = utils.clamp(p.opacity, 0.05, 0.85);
-
-        if (p.y < -10) {
-          p.y = State.height + 10;
-          p.x = utils.randomRange(0, State.width);
-        }
-        if (p.x < -10 || p.x > State.width + 10) {
-          p.x = utils.randomRange(0, State.width);
-        }
-      }
-    },
-
-    render() {
-      if (!this.isRunning || !this.ctx) return;
-
-      const ctx = this.ctx;
-      ctx.clearRect(0, 0, State.width, State.height);
-
-      for (let i = 0; i < this.particles.length; i++) {
-        const p = this.particles[i];
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(43, 60%, 75%, ${p.opacity})`;
-        ctx.shadowColor = 'hsla(43, 60%, 75%, 0.4)';
-        ctx.shadowBlur = 4;
-        ctx.fill();
-      }
-      ctx.shadowBlur = 0;
-    },
-
-    triggerMonogramTimeline() {
-      const paths = document.querySelectorAll('.draw-path');
-      const monogramSvg = document.querySelector('.monogram-svg');
-      const message = document.querySelectorAll('.loading-message');
-
-      paths.forEach(path => {
-        const length = path.getTotalLength();
-        path.style.strokeDasharray = length;
-        path.style.strokeDashoffset = length;
-      });
-
-      setTimeout(() => {
-        paths.forEach(path => {
-          path.style.strokeDashoffset = '0';
-        });
-      }, 400);
-
-      setTimeout(() => {
-        if (monogramSvg) monogramSvg.classList.add('glowing');
-      }, 2100);
-
-      setTimeout(() => {
-        message.forEach(m => m.classList.add('visible'));
-      }, 3000);
-
-      setTimeout(() => {
-        SceneManager.revealWorld();
-      }, 4500);
-    },
-
-    destroy() {
-      this.isRunning = false;
-      this.particles = [];
-      if (this.canvas) {
-        this.canvas.style.display = 'none';
-      }
+      this.dom.board.style.marginLeft = `${px}px`;
+      this.dom.board.style.marginTop = `${py}px`;
     }
   };
 
@@ -2436,8 +1983,8 @@ const GardenEngine = (() => {
       this.registerSystem(CloudSystem); 
       this.registerSystem(MeadowSystem); 
       this.registerSystem(EffectsSystem); 
-      this.registerSystem(EnvelopeSystem); 
-      this.registerSystem(GallerySystem); 
+      this.registerSystem(ScrollSystem); // Version 4.5 Active
+      this.registerSystem(GallerySystem); // Version 4.5 Active
       
       AnimationManager.start();
 
