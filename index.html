@@ -45,69 +45,59 @@
         <canvas id="effects-canvas" class="effects-canvas"></canvas>
       </div>
 
-      <!-- UI Layer -->
+      <!-- UI Layer (Version 4.5 Updated: Added Parchment Scroll & Redesigned Memory Lane) -->
       <div id="layer-ui" class="layer sub-layer">
         
-        <!-- Envelope Wrapper Layer -->
-        <div class="envelope-wrapper">
-          <div class="envelope-shadow"></div>
-          <div class="envelope" id="interactive-envelope" tabindex="0" role="button" aria-label="Open Birthday Letter">
-            <div class="moonlight-shine"></div>
-            <div class="envelope-back"></div>
-            <div class="letter-preview" id="stationery-letter" aria-hidden="true">
-              <div class="letter-gold-rim"></div>
-              <svg class="letter-frame" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <rect x="4" y="4" width="92" height="92" rx="2" fill="none" stroke="var(--color-soft-gold)" stroke-width="0.5" opacity="0.35" />
-                <path d="M 6,10 L 6,6 L 10,6 M 94,10 L 94,6 L 90,6 M 6,90 L 6,94 L 10,94 M 94,90 L 94,94 L 90,94" fill="none" stroke="var(--color-soft-gold)" stroke-width="0.8" opacity="0.5" />
-              </svg>
-              <div class="paper-crease crease-top"></div>
-              <div class="paper-crease crease-bottom"></div>
-              <div class="letter-content">
-                <div class="letter-header-doodle">
-                  <span class="doodle-heart">✿</span>
-                </div>
-                <div class="letter-text" id="letter-text-container">
-                  <p class="letter-paragraph">Dearest,</p>
-                  <p class="letter-paragraph">On this <span class="glow-word">magical night</span>, under the soft breathing glow of the full moon, I wanted to build a little world created especially for you.</p>
-                  <p class="letter-paragraph">May your day be filled with the same peaceful <span class="glow-word">wonder</span> and joy that you bring into my life every single day.</p>
-                  <p class="letter-paragraph">Happy Birthday. <span class="glow-word">✿</span></p>
-                  <button class="letter-continue-btn" id="letter-continue-trigger" tabindex="-1" aria-hidden="true">
+        <!-- Animated Parchment Scroll Component (Envelope completely replaced) -->
+        <div class="scroll-wrapper" id="scroll-intro">
+          <div class="scroll-shadow"></div>
+          <div class="scroll-body">
+            <!-- Wooden top roller -->
+            <div class="scroll-roller roller-top">
+              <div class="roller-cap cap-left"></div>
+              <div class="roller-cap cap-right"></div>
+            </div>
+
+            <div class="scroll-paper">
+              <!-- Specular moonlit glow filters -->
+              <div class="scroll-moonlight-shine"></div>
+              
+              <!-- Handmade stationery doodles -->
+              <div class="scroll-decorations">
+                <div class="scroll-doodle doodle-tl">✿</div>
+                <div class="scroll-doodle doodle-tr">✿</div>
+                <div class="scroll-doodle doodle-bl">✿</div>
+                <div class="scroll-doodle doodle-br">✿</div>
+              </div>
+
+              <div class="scroll-content">
+                <div class="scroll-text-container">
+                  <p class="scroll-line">Dearest,</p>
+                  <p class="scroll-line">Welcome to this magical moonlit garden.</p>
+                  <p class="scroll-line">Every flower sways and every star twinkles just for you today.</p>
+                  <p class="scroll-line">I have gathered some of our precious memories here...</p>
+                  
+                  <button class="scroll-continue-btn" id="scroll-continue-trigger" tabindex="-1" aria-hidden="true">
                     Continue <span class="arrow">→</span>
                   </button>
                 </div>
               </div>
             </div>
-            <div class="sparkles-container" id="envelope-sparkles"></div>
-            <div class="envelope-pocket"></div>
-            <div class="envelope-flap-group">
-              <div class="envelope-flap"></div>
-              <div class="wax-seal"></div>
+
+            <!-- Wooden bottom roller -->
+            <div class="scroll-roller roller-bottom">
+              <div class="roller-cap cap-left"></div>
+              <div class="roller-cap cap-right"></div>
             </div>
-          </div>
-          <div class="meadow-nest" id="meadow-nest-grass">
-            <div class="nest-blade nest-blade-1"></div>
-            <div class="nest-blade nest-blade-2"></div>
-            <div class="nest-blade nest-blade-3"></div>
-            <div class="nest-blade nest-blade-4"></div>
-            <div class="nest-blade nest-blade-5"></div>
           </div>
         </div>
 
-        <!-- Memory Gallery Overlay -->
+        <!-- Redesigned Memory Lane Overlay (Version 4.5 Scrapbook Board) -->
         <div class="gallery-wrapper" id="memory-gallery" aria-hidden="true">
-          <div class="gallery-container-vertical">
-            <div class="gallery-stack" id="gallery-stack-container">
-              <!-- Dynamic Polaroid stack generated by GallerySystem -->
-            </div>
-            <button class="gallery-continue-btn" id="gallery-continue-trigger" tabindex="-1" aria-hidden="true">
-              Gather the Stars <span class="arrow">→</span>
-            </button>
+          <!-- Scalable scattered layout board container -->
+          <div class="gallery-board" id="gallery-board-container">
+            <!-- Polaroids, Postcards and Notes seeded dynamically by script -->
           </div>
-        </div>
-
-        <!-- Version 5.2 Added: Softly fading final handwritten message -->
-        <div class="finale-message-container" id="finale-message" aria-hidden="true">
-          <p class="finale-paragraph">Thank you for being part of my life.</p>
         </div>
 
       </div>
