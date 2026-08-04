@@ -60,7 +60,7 @@ body {
 }
 
 /* ==========================================================================
-   3. STRUCTURE & VIEWPORT MANAGEMENT (Cinematic Camera Zoom & Pan)
+   3. STRUCTURE & VIEWPORT MANAGEMENT (Preserved)
    ========================================================================== */
 .app-root {
   position: relative;
@@ -87,14 +87,11 @@ body {
   background-color: var(--color-sky-top);
   transform-style: preserve-3d;
   will-change: transform;
-  
-  /* Slower, emotionally rich camera transitions */
   transition: 
     transform 3.0s cubic-bezier(0.25, 1, 0.5, 1),
     opacity var(--transition-duration-slow) var(--transition-ease-slow);
 }
 
-/* Camera movement: Zoom slightly and lower perspective viewpoint upwards */
 .layer-world.state-camera-zoom {
   transform: scale(1.06) translateY(clamp(15px, 3vh, 35px));
 }
@@ -116,7 +113,7 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
-  transition: filter 2.2s var(--transition-ease-slow); /* Slowed for smooth background reveal */
+  transition: filter 2.2s var(--transition-ease-slow); 
 }
 
 .environment-canvas { z-index: 1; image-rendering: auto; }
@@ -281,13 +278,10 @@ body {
   outline: none;
   pointer-events: auto;
   transform-style: preserve-3d;
-  
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
     -4px 8px 18px rgba(10, 12, 20, 0.22);
-  
   animation: float-breathing 4.5s ease-in-out infinite;
-  
   transition: 
     transform var(--transition-duration-slow) var(--transition-ease-slow),
     box-shadow var(--transition-duration-slow) var(--transition-ease-slow);
@@ -393,7 +387,6 @@ body {
   height: 85%;
   left: 5%;
   bottom: 5px;
-  
   background: radial-gradient(circle at 80% 20%, #fffdf8 0%, var(--color-cream) 100%);
   border-radius: 2px;
   z-index: 2; 
@@ -682,7 +675,7 @@ body {
 }
 
 /* ==========================================================================
-   9. MEMORY GALLERY OVERLAY DESIGN (Preserved & Enhanced)
+   9. MEMORY GALLERY OVERLAY DESIGN (Preserved)
    ========================================================================== */
 .gallery-wrapper {
   position: absolute;
@@ -702,7 +695,12 @@ body {
   pointer-events: auto;
 }
 
-/* Vertical layout holding the stack and final exit buttons */
+.gallery-wrapper.fade-out {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 1.5s var(--transition-ease-slow) !important;
+}
+
 .gallery-container-vertical {
   display: flex;
   flex-direction: column;
@@ -717,9 +715,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: transform 1.5s var(--transition-ease-slow);
 }
 
-/* Polaroid Matte Film Frame Architecture */
 .polaroid {
   position: absolute;
   width: 100%;
@@ -739,10 +737,9 @@ body {
     repeating-linear-gradient(45deg, rgba(30, 20, 10, 0.01) 0px, rgba(30, 20, 10, 0.01) 1px, transparent 1px, transparent 5px),
     repeating-linear-gradient(-45deg, rgba(30, 20, 10, 0.01) 0px, rgba(30, 20, 10, 0.01) 1px, transparent 1px, transparent 5px);
   
-  /* Stamped Edge Imperfections */
   border-right: 1px solid rgba(180, 170, 160, 0.25);
   border-bottom: 1px solid rgba(180, 170, 160, 0.25);
-  border-bottom-right-radius: 6px 12px; /* Very subtle paper bending */
+  border-bottom-right-radius: 6px 12px; 
 
   transition: 
     transform 0.85s cubic-bezier(0.25, 1, 0.5, 1),
@@ -875,13 +872,11 @@ body {
 }
 
 .polaroid.throw-action {
-  transform: translate(-320px, -20px) rotate(-22deg) scale(0.9) !important;
-  opacity: 0;
+  transform: translate3d(-130px, -45px, 40px) rotate(-14deg) scale(0.9) !important;
+  opacity: 0.7;
+  z-index: 5 !important; 
 }
 
-/* ==========================================================================
-   10. GALLERY ACTION CONTINUE BUTTON (Version 5.1 Added)
-   ========================================================================== */
 .gallery-continue-btn {
   opacity: 0;
   transform: translateY(15px);
@@ -921,7 +916,40 @@ body {
   text-shadow: 0 0 6px hsla(43, 60%, 75%, 0.45);
 }
 
-.gallery-continue-btn:focus-visible {
-  outline: 1px dashed var(--color-soft-gold);
-  outline-offset: 4px;
-   }
+/* ==========================================================================
+   11. FINALE MESSAGE LAYOUT (Version 5.2 Added)
+   ========================================================================== */
+.finale-message-container {
+  position: absolute;
+  /* Centered exactly horizontally and vertically in lower viewport */
+  bottom: clamp(40px, 12vh, 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 90%;
+  max-width: 480px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(15px);
+  z-index: var(--z-ui);
+  
+  transition: 
+    opacity 2.2s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 2.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.finale-message-container.visible {
+  opacity: 0.85;
+  transform: translateY(0);
+}
+
+.finale-paragraph {
+  margin: 0;
+  color: var(--color-cream);
+  font-family: 'Apple Chancery', 'Brush Script MT', 'Great Vibes', cursive, serif;
+  font-size: clamp(1.1rem, 3.5vw, 1.45rem);
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  text-shadow: 0 0 10px rgba(253, 246, 226, 0.25);
+}
