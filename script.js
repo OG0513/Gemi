@@ -1,2035 +1,2200 @@
 /**
- * Cinematic Environment Engine (Version 4.6 Procedural Scraps & Dissolves)
- * Namespace structure to manage lifecycle, states, and render threads.
+ * A Little World Made Just for Her
+ * Cinematic Interactive Experience with Integrated Canvas Firework Engine
  */
-
-// Global high-performance paper audio triggers
-const playPaperSound = (type) => {
-  console.log(`Audio Event Triggered: paper_${type}`);
+/* ==================================================
+   1. CONFIGURATION SYSTEM
+   ================================================== */
+const Config = {
+  scaleFactor: 0.90, // Firework scale set to 90%
+  celebrationDuration: 14000, // Duration of active firework launches
+  initials: {
+    viewBox: "0 0 600 240",
+    strokes: [
+      {
+        id: "stroke-1",
+        d: "M 65,160 C 45,140 45,95 75,70 C 100,50 135,50 138,95 C 142,140 135,185 130,200 C 128,205 120,195 125,165 C 135,115 155,110 175,135 C 185,148 195,160 210,158",
+        duration: 1100,
+        strokeWidth: 3.5,
+        color: "var(--color-cream)"
+      },
+      {
+        id: "stroke-2",
+        d: "M 100,128 C 120,120 150,118 175,125",
+        duration: 400,
+        strokeWidth: 3.0,
+        color: "var(--color-cream)"
+      },
+      {
+        id: "stroke-3",
+        d: "M 300,135 C 315,118 318,100 302,88 C 285,75 265,95 282,122 C 298,150 315,172 278,178 C 258,181 248,162 262,148 C 282,128 308,118 328,152 C 335,165 342,175 348,173",
+        duration: 900,
+        strokeWidth: 3.0,
+        color: "var(--color-soft-gold)"
+      },
+      {
+        id: "stroke-4",
+        d: "M 385,150 C 375,138 372,118 388,95 C 402,72 418,72 418,118 C 418,148 412,185 412,195 C 412,200 418,192 428,165 C 442,125 458,92 468,112 C 475,128 468,178 468,192 C 468,198 474,190 484,165 C 498,125 512,95 522,115 C 528,130 525,165 538,160 C 548,155 558,145 565,140",
+        duration: 1300,
+        strokeWidth: 3.5,
+        color: "var(--color-cream)"
+      }
+    ]
+  },
+  particles: {
+    colors: [
+      "rgba(252, 248, 242, 0.75)",
+      "rgba(230, 202, 133, 0.8)",
+      "rgba(247, 214, 208, 0.65)",
+      "rgba(200, 221, 242, 0.65)",
+      "rgba(226, 216, 238, 0.65)"
+    ],
+    stardustColor: "rgba(252, 232, 158, 0.9)"
+  },
+  sky: {
+    starCount: 130,
+    starColors: [
+      "rgba(252, 248, 242, 0.9)",
+      "rgba(230, 202, 133, 0.95)",
+      "rgba(247, 214, 208, 0.85)",
+      "rgba(200, 221, 242, 0.85)",
+      "rgba(226, 216, 238, 0.85)"
+    ]
+  },
+  grass: {
+    palette: {
+      back: ["#162a24", "#1a332b", "#1f3a32"],
+      mid: ["#234338", "#2a4f43", "#315b4d"],
+      front: ["#345e52", "#3e6f61", "#487e70"]
+    },
+    moonlightTip: "rgba(230, 202, 133, 0.4)"
+  },
+  flowers: {
+    species: ["daisy", "lavender", "cosmos", "bluebell", "buttercup", "violet"],
+    palette: {
+      daisy: { petal: "#fcf8f2", center: "#e6ca85" },
+      lavender: { floret: "#c5b2db", stem: "#2a4a3e" },
+      cosmos: { petal: "#f3b1aa", center: "#fce89e" },
+      bluebell: { petal: "#b3d1ee", stem: "#28483c" },
+      buttercup: { petal: "#fce89e", center: "#385d52" },
+      violet: { petal: "#b590d6", center: "#fcf8f2" }
+    }
+  },
+  fireflies: {
+    color: "rgba(252, 232, 158, 0.95)",
+    glowColor: "rgba(230, 202, 133, 0.28)"
+  },
+  memories: [
+    { id: 1, image: "images/photo01.jpg", caption: "A quiet night under the stars...", type: "polaroid", accent: "tape-top-right", number: "No. 01", fallbackRoman: "I" },
+    { id: 2, image: "images/photo02.jpg", caption: "Sweet laughter & gentle breeze", type: "postcard", accent: "postmark", number: "No. 02", fallbackRoman: "II" },
+    { id: 3, image: "images/photo03.jpg", caption: "Unforgettable warm moments", type: "polaroid", accent: "pressed-flower", number: "No. 03", fallbackRoman: "III" },
+    { id: 4, image: "images/photo04.jpg", caption: "Walking through the moonlight", type: "polaroid", accent: "tape-top-left", number: "No. 04", fallbackRoman: "IV" },
+    { id: 5, image: "images/photo05.jpg", caption: "A smile that brightens the day", type: "postcard", accent: "stamp-air", number: "No. 05", fallbackRoman: "V" },
+    { id: 6, image: "images/photo06.jpg", caption: "Forever in our hearts", type: "polaroid", accent: "pressed-leaf", number: "No. 06", fallbackRoman: "VI" },
+    { id: 7, image: "images/photo07.jpg", caption: "Whispers of joy and light", type: "postcard", accent: "tape-top-right", number: "No. 07", fallbackRoman: "VII" },
+    { id: 8, image: "images/photo08.jpg", caption: "Surrounded by nature’s grace", type: "postcard", accent: "stamp-wish", number: "No. 08", fallbackRoman: "VIII" },
+    { id: 9, image: "images/photo09.jpg", caption: "Moments that shine forever", type: "polaroid", accent: "pressed-flower-pink", number: "No. 09", fallbackRoman: "IX" },
+    { id: 10, image: "images/photo10.jpg", caption: "A story made just for her", type: "postcard", accent: "tape-top-left", number: "No. 10", fallbackRoman: "X" }
+  ],
+  finalMessage: {
+    recipientName: "My Dearest",
+    signature: "— Atif",
+    lines: [
+      { text: "Happy Birthday once again,", class: "final-line-salutation" },
+      { text: "{{recipientName}}", class: "final-line-recipient" },
+      { text: "I hope this little journey", class: "" },
+      { text: "brought a smile to your face.", class: "" },
+      { text: "May this year bring you", class: "" },
+      { text: "happiness,", class: "" },
+      { text: "good health,", class: "" },
+      { text: "success,", class: "" },
+      { text: "and countless beautiful memories.", class: "" },
+      { text: "Thank you for being", class: "" },
+      { text: "a wonderful part of my life.", class: "" },
+      { text: "Keep smiling.", class: "" },
+      { text: "Keep shining.", class: "" },
+      { text: "Have the most amazing birthday.", class: "" },
+      { text: "{{signature}}", class: "final-line-signature" }
+    ]
+  },
+  timings: {
+    initialPause: 600,
+    interStrokeDelay: 80,
+    glowDelay: 200,
+    subtitleDelay: 400,
+    subtitleHold: 1400,
+    fadeSceneDuration: 1200,
+    gardenAdmirePause: 900,
+    rollPauseBeforeUnfurl: 400,
+    unfurlDuration: 1400,
+    pauseBeforeLetterReveal: 350,
+    lineRevealInterval: 550,
+    pauseBeforeContinue: 400,
+    finalLineRevealInterval: 700
+  }
 };
 
-const GardenEngine = (() => {
-  'use strict';
+/* ==================================================
+   2. UTILITIES & MATH
+   ================================================== */
+const MyMath = {
+  random: (min, max) => Math.random() * (max - min) + min,
+  clamp: (val, min, max) => Math.max(min, Math.min(max, val)),
+  randomChoice: arr => arr[Math.floor(Math.random() * arr.length)],
+  pointDist: (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1),
+  pointAngle: (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1)
+};
 
-  // 1. Core Configuration Parameters
-  const Config = {
-    fpsLimit: 60,
-    resizeDebounceDelay: 150,
-  };
+const Utils = {
+  clamp: MyMath.clamp,
+  randomRange: MyMath.random,
+  easeInOutCubic: t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  wait: ms => new Promise(resolve => setTimeout(resolve, ms)),
+  prefersReducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  debounce: (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => { clearTimeout(timeout); func(...args); };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
+  generateFallbackSVG: romanNumber => {
+    const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23e8dec8"/><circle cx="200" cy="130" r="45" fill="%23d4c5a9"/><path d="M80,240 Q160,170 240,240 T400,240 L400,300 L80,300 Z" fill="%23bba88a"/><text x="50%" y="270" font-family="serif" font-size="16" fill="%2378654c" text-anchor="middle" font-style="italic">Memory ${romanNumber}</text></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}`;
+  }
+};
 
-  // 2. Global State Engine
-  const State = {
-    width: window.innerWidth,
-    height: window.innerHeight,
-    pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-    isInitialized: false,
-    isActive: true,
+/* ==================================================
+   3. STAGE CANVAS LOOP WRAPPER
+   ================================================== */
+class Stage {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas.getContext('2d');
+    this.dpr = window.devicePixelRatio || 1;
+    this.listeners = {};
+    this.lastTime = performance.now();
     
-    // Parallax displacements
-    mouseX: 0,
-    mouseY: 0,
-    targetMouseX: 0,
-    targetMouseY: 0,
-    parallaxSpeed: 0.05,
-    
-    isScrollOpening: false,
-    isScrollOpened: false,
-    isGalleryActive: false,
-    isLoaded: false
-  };
+    this.tick = this.tick.bind(this);
+    requestAnimationFrame(this.tick);
+  }
 
-  // 3. Module Registry (To easily mount future visual sub-systems)
-  const ActiveSystems = new Set();
+  addEventListener(type, fn) {
+    if (!this.listeners[type]) this.listeners[type] = [];
+    this.listeners[type].push(fn);
+  }
 
-  /**
-   * Performance-optimized window resizing and device sensors manager.
-   */
-  const ResizeManager = {
-    timer: null,
+  resize(w, h) {
+    this.width = w;
+    this.height = h;
+    this.canvas.width = w * this.dpr;
+    this.canvas.height = h * this.dpr;
+    this.canvas.style.width = w + 'px';
+    this.canvas.style.height = h + 'px';
+  }
 
-    init() {
-      window.addEventListener('resize', this.handleResize.bind(this), { passive: true });
-      window.addEventListener('orientationchange', this.handleResize.bind(this), { passive: true });
-      this.bindInputs();
-      this.updateViewportDimensions();
-    },
+  tick(now) {
+    const dt = now - this.lastTime;
+    this.lastTime = now;
+    const frameTime = Math.min(dt, 100);
+    const lag = frameTime / (1000 / 60);
 
-    bindInputs() {
-      const trackMove = (e) => {
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        
-        State.targetMouseX = (clientX / State.width) - 0.5;
-        State.targetMouseY = (clientY / State.height) - 0.5;
-      };
-
-      window.addEventListener('mousemove', trackMove, { passive: true });
-      window.addEventListener('touchmove', trackMove, { passive: true });
-
-      if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', (e) => {
-          if (!e.gamma || !e.beta) return;
-          const tiltX = e.gamma / 45; 
-          const tiltY = (e.beta - 45) / 45; 
-
-          State.targetMouseX = Utils.clamp(tiltX, -0.5, 0.5);
-          State.targetMouseY = Utils.clamp(tiltY, -0.5, 0.5);
-        }, { passive: true });
-      }
-    },
-
-    updateViewportDimensions() {
-      State.width = window.innerWidth;
-      State.height = window.innerHeight;
-      State.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-
-      ActiveSystems.forEach(system => {
-        if (typeof system.onResize === 'function') {
-          system.onResize(State.width, State.height, State.pixelRatio);
-        }
-      });
-    },
-
-    handleResize() {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
-        this.updateViewportDimensions();
-      }, Config.resizeDebounceDelay);
+    if (this.listeners['ticker']) {
+      this.listeners['ticker'].forEach(fn => fn(frameTime, lag));
     }
-  };
+    requestAnimationFrame(this.tick);
+  }
+}
 
-  /**
-   * Centralized Animation Loop Manager.
-   */
-  const AnimationManager = {
-    frameId: null,
+/* ==================================================
+   4. WEB AUDIO SOUND MANAGER (WITH AUDIO DUCKING)
+   ================================================== */
+const soundManager = {
+  baseURL: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/329180/',
+  ctx: null,
+  sources: {
+    lift: { volume: 0.9, playbackRateMin: 0.85, playbackRateMax: 0.95, fileNames: ['lift1.mp3', 'lift2.mp3', 'lift3.mp3'] },
+    burst: { volume: 0.9, playbackRateMin: 0.8, playbackRateMax: 0.9, fileNames: ['burst1.mp3', 'burst2.mp3'] },
+    burstSmall: { volume: 0.25, playbackRateMin: 0.8, playbackRateMax: 1, fileNames: ['burst-sm-1.mp3', 'burst-sm-2.mp3'] },
+    crackle: { volume: 0.2, playbackRateMin: 1, playbackRateMax: 1, fileNames: ['crackle1.mp3'] },
+    crackleSmall: { volume: 0.3, playbackRateMin: 1, playbackRateMax: 1, fileNames: ['crackle-sm-1.mp3'] }
+  },
+  _lastSmallBurstTime: 0,
 
-    start() {
-      State.lastFrameTime = performance.now();
-      this.bindVisibilityTracker();
-      this.loop(State.lastFrameTime);
-    },
-
-    bindVisibilityTracker() {
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          State.isActive = false;
-          if (this.frameId) cancelAnimationFrame(this.frameId);
-        } else {
-          State.isActive = true;
-          State.lastFrameTime = performance.now();
-          this.loop(State.lastFrameTime);
-        }
-      });
-    },
-
-    loop(currentTime) {
-      if (!State.isActive) return;
-
-      this.frameId = requestAnimationFrame(this.loop.bind(this));
-
-      State.deltaTime = (currentTime - State.lastFrameTime) / 1000;
-      State.lastFrameTime = currentTime;
-
-      State.mouseX += (State.targetMouseX - State.mouseX) * State.parallaxSpeed;
-      State.mouseY += (State.targetMouseY - State.mouseY) * State.parallaxSpeed;
-
-      ActiveSystems.forEach(system => {
-        if (typeof system.update === 'function') {
-          system.update(State.deltaTime);
-        }
-        if (typeof system.render === 'function') {
-          system.render();
-        }
-      });
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.preload();
     }
-  };
+  },
 
-  /**
-   * Environment System (Version 1.3 Sub-System - Preserved)
-   * Renders a highly performance-optimized slowly breathing atmospheric evening sky.
-   */
-  const EnvironmentSystem = {
-    name: 'EnvironmentSystem',
-    canvas: null,
-    ctx: null,
-    bufferWidth: 512,
-    bufferHeight: 512,
-    ambientTime: 0,
-    ambientSpeed: 0.04,
-
-    init(width, height, dpr) {
-      this.canvas = document.getElementById('environment-canvas');
-      if (!this.canvas) return;
-
-      this.ctx = this.canvas.getContext('2d', { alpha: false });
-      this.onResize(width, height, dpr);
-    },
-
-    onResize(width, height, dpr) {
-      if (!this.canvas) return;
-      this.canvas.width = this.bufferWidth;
-      this.canvas.height = this.bufferHeight;
-    },
-
-    update(dt) {
-      this.ambientTime += this.ambientSpeed * dt;
-    },
-
-    render() {
-      if (!this.ctx) return;
-
-      const ctx = this.ctx;
-      const w = this.bufferWidth;
-      const h = this.bufferHeight;
-
-      ctx.clearRect(0, 0, w, h);
-
-      const px = State.mouseX * w * 0.003;
-      const py = State.mouseY * h * 0.003;
-
-      const baseGradient = ctx.createLinearGradient(0, 0, 0, h);
-      baseGradient.addColorStop(0, 'hsla(230, 25%, 12%, 1)');
-      baseGradient.addColorStop(0.5, 'hsla(260, 20%, 18%, 1)');
-      baseGradient.addColorStop(1, 'hsla(265, 30%, 25%, 1)');
-      ctx.fillStyle = baseGradient;
-      ctx.fillRect(0, 0, w, h);
-
-      const driftX = Math.sin(this.ambientTime) * (w * 0.15) + px;
-      const driftY = Math.cos(this.ambientTime * 0.8) * (h * 0.08) + py;
-
-      const horizonGlow = ctx.createRadialGradient(
-        w * 0.5 + driftX,
-        h * 0.85 + driftY,
-        0,
-        w * 0.5 + driftX,
-        h * 0.85 + driftY,
-        w * 0.6
-      );
-      horizonGlow.addColorStop(0, 'hsla(43, 50%, 75%, 0.15)');
-      horizonGlow.addColorStop(0.5, 'hsla(350, 40%, 88%, 0.08)');
-      horizonGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = horizonGlow;
-      ctx.fillRect(0, 0, w, h);
-
-      const upperAtmosphereGlow = ctx.createRadialGradient(
-        w * 0.35 - driftX * 0.5,
-        h * 0.2 + driftY * 0.5,
-        w * 0.1,
-        w * 0.35 - driftX * 0.5,
-        h * 0.2 + driftY * 0.5,
-        w * 0.8
-      );
-      upperAtmosphereGlow.addColorStop(0, 'hsla(205, 35%, 84%, 0.12)');
-      upperAtmosphereGlow.addColorStop(0.6, 'hsla(265, 30%, 82%, 0.04)');
-      upperAtmosphereGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = upperAtmosphereGlow;
-      ctx.fillRect(0, 0, w, h);
-
-      const horizonHaze = ctx.createLinearGradient(0, h * 0.7, 0, h);
-      horizonHaze.addColorStop(0, 'rgba(230, 220, 240, 0)');
-      horizonHaze.addColorStop(1, 'hsla(260, 20%, 20%, 0.3)'); 
-      ctx.fillStyle = horizonHaze;
-      ctx.fillRect(0, h * 0.65, w, h * 0.35);
-    }
-  };
-
-  /**
-   * Moon System (Version 2.3 Refined - Preserved)
-   * Manages the warm celestial moon coordinates, pre-rendered surfaces, and nested glow filters.
-   */
-  const MoonSystem = {
-    name: 'MoonSystem',
-    canvas: null,
-    ctx: null,
-    offscreenCanvas: null,
-    offscreenCtx: null,
-    centerX: 0,
-    centerY: 0,
-    radius: 0,
-    glowTime: 0,
-    glowSpeed: 0.35,
-
-    init(width, height, dpr) {
-      this.canvas = document.getElementById('moon-canvas');
-      if (!this.canvas) return;
-
-      this.ctx = this.canvas.getContext('2d');
-      this.offscreenCanvas = document.createElement('canvas');
-      this.offscreenCtx = this.offscreenCanvas.getContext('2d');
-
-      this.onResize(width, height, dpr);
-    },
-
-    onResize(width, height, dpr) {
-      if (!this.canvas) return;
-
-      this.canvas.width = width * dpr;
-      this.canvas.height = height * dpr;
-      this.ctx.scale(dpr, dpr);
-
-      const isMobile = width < 600;
-      this.centerX = width * (isMobile ? 0.66 : 0.74);
-      this.centerY = height * (isMobile ? 0.24 : 0.28);
-      
-      const baseMeasurement = Math.min(width, height);
-      this.radius = baseMeasurement * (isMobile ? 0.16 : 0.135);
-      this.radius = Math.max(Math.min(this.radius, 200), 55);
-
-      this.preRenderLunarSurface();
-    },
-
-    preRenderLunarSurface() {
-      const dpr = State.pixelRatio;
-      const size = Math.ceil(this.radius * 2 * dpr);
-      const center = size / 2;
-      const r = this.radius * dpr;
-
-      this.offscreenCanvas.width = size;
-      this.offscreenCanvas.height = size;
-      const octx = this.offscreenCtx;
-
-      octx.clearRect(0, 0, size, size);
-
-      octx.save();
-      octx.beginPath();
-      octx.arc(center, center, r, 0, Math.PI * 2);
-      octx.clip();
-
-      const baseGrad = octx.createRadialGradient(
-        center - r * 0.15,
-        center - r * 0.15,
-        r * 0.05,
-        center,
-        center,
-        r
-      );
-      baseGrad.addColorStop(0, 'hsla(38, 55%, 94%, 1)');
-      baseGrad.addColorStop(0.45, 'hsla(35, 45%, 88%, 1)');
-      baseGrad.addColorStop(0.82, 'hsla(43, 50%, 82%, 1)');
-      baseGrad.addColorStop(1, 'hsla(30, 10%, 65%, 1)');
-      octx.fillStyle = baseGrad;
-      octx.beginPath();
-      octx.arc(center, center, r, 0, Math.PI * 2);
-      octx.fill();
-
-      octx.globalAlpha = 0.11;
-      octx.fillStyle = 'hsla(25, 10%, 42%, 1)';
-      const maria = [
-        { x: center - r * 0.35, y: center - r * 0.25, r: r * 0.38 },
-        { x: center - r * 0.15, y: center + r * 0.1, r: r * 0.28 },
-        { x: center + r * 0.3, y: center - r * 0.45, r: r * 0.24 },
-        { x: center + r * 0.35, y: center + r * 0.1, r: r * 0.32 },
-        { x: center - r * 0.5, y: center + r * 0.3, r: r * 0.22 },
-        { x: center + r * 0.05, y: center - r * 0.5, r: r * 0.18 }
-      ];
-      maria.forEach(m => {
-        octx.beginPath();
-        octx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
-        octx.filter = `blur(${r * 0.09}px)`;
-        octx.fill();
+  preload() {
+    Object.keys(this.sources).forEach(type => {
+      const source = this.sources[type];
+      source.buffers = [];
+      source.fileNames.forEach(fileName => {
+        fetch(this.baseURL + fileName)
+          .then(res => res.arrayBuffer())
+          .then(data => this.ctx.decodeAudioData(data))
+          .then(buffer => source.buffers.push(buffer))
+          .catch(() => {});
       });
-      octx.filter = 'none';
-      octx.globalAlpha = 1.0;
+    });
+  },
 
-      let seed = 123;
-      const seededRandom = () => {
-        let x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-      };
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
 
-      const generateCraters = (count, maxR, shadowIntensity) => {
-        for (let i = 0; i < count; i++) {
-          const angle = seededRandom() * Math.PI * 2;
-          const distance = Math.sqrt(seededRandom()) * r * 0.95;
-          const cx = center + Math.cos(angle) * distance;
-          const cy = center + Math.sin(angle) * distance;
-          const cr = r * seededRandom() * maxR;
+  playSound(type, scale = 1) {
+    if (!this.ctx || this.ctx.state !== 'running') return;
+    if (type === 'burstSmall') {
+      const now = Date.now();
+      if (now - this._lastSmallBurstTime < 20) return;
+      this._lastSmallBurstTime = now;
+    }
 
-          octx.save();
-          octx.beginPath();
-          octx.arc(cx, cy, cr, 0, Math.PI * 2);
-          octx.clip();
+    const source = this.sources[type];
+    if (!source || !source.buffers.length) return;
 
-          octx.beginPath();
-          octx.arc(cx - cr * 0.12, cy - cr * 0.12, cr, 0, Math.PI * 2);
-          octx.fillStyle = `rgba(50, 42, 35, ${shadowIntensity * 0.26})`;
-          octx.fill();
+    scale = MyMath.clamp(scale, 0, 1);
+    const volume = source.volume * scale;
+    const rate = MyMath.random(source.playbackRateMin, source.playbackRateMax) * (2 - scale);
 
-          octx.beginPath();
-          octx.arc(cx + cr * 0.1, cy + cr * 0.1, cr, 0, Math.PI * 2);
-          octx.strokeStyle = 'rgba(253, 246, 226, 0.45)';
-          octx.lineWidth = Math.max(cr * 0.08, 0.5);
-          octx.stroke();
+    const gainNode = this.ctx.createGain();
+    gainNode.gain.value = volume;
 
-          octx.restore();
-        }
-      };
+    const buffer = MyMath.randomChoice(source.buffers);
+    const bufferSource = this.ctx.createBufferSource();
+    bufferSource.playbackRate.value = rate;
+    bufferSource.buffer = buffer;
+    bufferSource.connect(gainNode);
+    gainNode.connect(this.ctx.destination);
+    bufferSource.start(0);
+  }
+};
 
-      generateCraters(12, 0.08, 1.2);
-      generateCraters(60, 0.025, 0.9);
+function setAmbientAudioDucking(duck) {
+  if (window.ambientAudio && typeof window.ambientAudio.setVolume === 'function') {
+    const targetVolume = duck ? 0.25 : 1.0;
+    window.ambientAudio.fadeToVolume(targetVolume, 1000);
+  }
+}
 
-      octx.restore();
-    },
+/* ==================================================
+   5. RESPONSIVE ENVIRONMENT ENGINE
+   ================================================== */
+class ResponsiveSystem {
+  constructor(particleCanvas, grassCanvas, particleSystem, grassSystem) {
+    this.particleCanvas = particleCanvas;
+    this.grassCanvas = grassCanvas;
+    this.particleSystem = particleSystem;
+    this.grassSystem = grassSystem;
 
-    update(dt) {
-      this.glowTime += this.glowSpeed * dt;
-    },
+    this.debouncedResize = Utils.debounce(() => this.handleResize(), 100);
+    this.init();
+  }
 
-    render() {
-      if (!this.ctx || !this.offscreenCanvas) return;
+  getViewportCategory() {
+    const w = window.innerWidth;
+    if (w < 380) return 'small-phone';
+    if (w < 600) return 'medium-phone';
+    if (w < 1024) return 'tablet';
+    if (w < 1440) return 'laptop';
+    return 'desktop';
+  }
 
-      const ctx = this.ctx;
-      const r = this.radius;
+  getMeadowHeightPct() {
+    const cat = this.getViewportCategory();
+    switch (cat) {
+      case 'small-phone':
+      case 'medium-phone': return 0.35;
+      case 'tablet': return 0.32;
+      case 'laptop': return 0.30;
+      case 'desktop': default: return 0.28;
+    }
+  }
 
-      ctx.clearRect(0, 0, State.width, State.height);
+  getGrassCount() {
+    const cat = this.getViewportCategory();
+    switch (cat) {
+      case 'small-phone': return 210;
+      case 'medium-phone': return 250;
+      case 'tablet': return 300;
+      case 'laptop': return 340;
+      case 'desktop': default: return 380;
+    }
+  }
 
-      const px = State.mouseX * State.width * 0.007;
-      const py = State.mouseY * State.height * 0.007;
+  getFlowerCount() {
+    const cat = this.getViewportCategory();
+    switch (cat) {
+      case 'small-phone': return 32;
+      case 'medium-phone': return 42;
+      case 'tablet': return 55;
+      case 'laptop': return 68;
+      case 'desktop': default: return 80;
+    }
+  }
 
-      const x = this.centerX + px;
-      const y = this.centerY + py;
+  getFlowerScale() {
+    const cat = this.getViewportCategory();
+    switch (cat) {
+      case 'small-phone': return 1.05;
+      case 'medium-phone': return 1.12;
+      case 'tablet': return 1.22;
+      case 'laptop': return 1.28;
+      case 'desktop': default: return 1.35;
+    }
+  }
 
-      const breath = 1.0 + Math.sin(this.glowTime) * 0.15;
+  getFireflyCount() {
+    const cat = this.getViewportCategory();
+    switch (cat) {
+      case 'small-phone': return 14;
+      case 'medium-phone': return 17;
+      case 'tablet': return 21;
+      case 'laptop': return 25;
+      case 'desktop': default: return 28;
+    }
+  }
 
-      ctx.globalCompositeOperation = 'screen';
-      
-      const outerGlow = ctx.createRadialGradient(x, y, r * 0.8, x, y, r * 5.0);
-      outerGlow.addColorStop(0, `hsla(43, 50%, 75%, ${0.05 * breath})`);
-      outerGlow.addColorStop(0.4, `hsla(350, 40%, 88%, ${0.02 * breath})`);
-      outerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = outerGlow;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 5.0, 0, Math.PI * 2);
-      ctx.fill();
+  getPollenCount() {
+    const cat = this.getViewportCategory();
+    switch (cat) {
+      case 'small-phone': return 16;
+      case 'medium-phone': return 20;
+      case 'tablet': return 22;
+      case 'laptop': return 26;
+      case 'desktop': default: return 30;
+    }
+  }
 
-      const ambientGlow = ctx.createRadialGradient(x, y, r * 0.5, x, y, r * 3.0);
-      ambientGlow.addColorStop(0, `hsla(43, 65%, 78%, ${0.09 * breath})`);
-      ambientGlow.addColorStop(0.5, `hsla(38, 55%, 94%, ${0.03 * breath})`);
-      ambientGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = ambientGlow;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 3.0, 0, Math.PI * 2);
-      ctx.fill();
+  getSafeBottomInset() {
+    const div = document.createElement('div');
+    div.style.paddingBottom = 'env(safe-area-inset-bottom, 0px)';
+    document.body.appendChild(div);
+    const inset = parseFloat(window.getComputedStyle(div).paddingBottom) || 0;
+    document.body.removeChild(div);
+    return inset;
+  }
 
-      const coreGlow = ctx.createRadialGradient(x, y, r * 0.2, x, y, r * 1.5);
-      coreGlow.addColorStop(0, `hsla(38, 55%, 94%, ${0.18 * breath})`);
-      coreGlow.addColorStop(0.6, `hsla(43, 65%, 78%, ${0.06 * breath})`);
-      coreGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = coreGlow;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
-      ctx.fill();
+  init() {
+    this.updateDimensions();
+    window.addEventListener('resize', this.debouncedResize);
+  }
 
-      ctx.globalCompositeOperation = 'source-over';
+  updateDimensions() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-      const size = r * 2;
-      ctx.drawImage(
-        this.offscreenCanvas,
-        0, 0, this.offscreenCanvas.width, this.offscreenCanvas.height,
-        x - r, y - r, size, size
+    const meadowPct = this.getMeadowHeightPct();
+    const grassCanvasHeight = this.height * meadowPct;
+
+    document.documentElement.style.setProperty('--meadow-height', `${grassCanvasHeight}px`);
+
+    if (this.particleCanvas) {
+      this.particleCanvas.width = this.width * this.dpr;
+      this.particleCanvas.height = this.height * this.dpr;
+      this.particleCanvas.style.width = `${this.width}px`;
+      this.particleCanvas.style.height = `${this.height}px`;
+
+      const ctx = this.particleCanvas.getContext('2d');
+      ctx.scale(this.dpr, this.dpr);
+    }
+
+    if (this.grassCanvas) {
+      this.grassCanvas.width = this.width * this.dpr;
+      this.grassCanvas.height = grassCanvasHeight * this.dpr;
+      this.grassCanvas.style.width = `${this.width}px`;
+      this.grassCanvas.style.height = `${grassCanvasHeight}px`;
+
+      const ctx = this.grassCanvas.getContext('2d');
+      ctx.scale(this.dpr, this.dpr);
+    }
+  }
+
+  handleResize() {
+    this.updateDimensions();
+    if (this.particleSystem) {
+      this.particleSystem.resize(this.width, this.height, this.getFireflyCount(), this.getPollenCount());
+    }
+    if (this.grassSystem) {
+      this.grassSystem.resize(
+        this.width,
+        this.height * this.getMeadowHeightPct(),
+        this.getGrassCount(),
+        this.getFlowerCount(),
+        this.getFlowerScale(),
+        this.getSafeBottomInset()
       );
     }
-  };
+  }
+}
 
-  /**
-   * Star System (Version 2.3 Sub-System - Preserved)
-   * Procedurally generates, clusters, and renders hundreds of organic, multi-depth stars.
-   */
-  const StarSystem = {
-    name: 'StarSystem',
-    canvas: null,
-    ctx: null,
-    stars: [],
+/* ==================================================
+   6. BACKGROUND PARTICLES, MILKY WAY & CONTINUOUS STARS
+   ================================================== */
+class ParticleSystem {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.particles = [];
+    this.stars = [];
+    this.stardustSparks = [];
+    this.shootingStars = [];
+    this.fireflies = [];
+    this.pollen = [];
 
-    init(width, height, dpr) {
-      this.canvas = document.getElementById('stars-canvas');
-      if (!this.canvas) return;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.isRunning = false;
+    this.animFrameId = null;
+    this.lastShootingStarTime = performance.now();
 
-      this.ctx = this.canvas.getContext('2d');
-      this.onResize(width, height, dpr);
-    },
+    this.fireflyCount = 28;
+    this.pollenCount = 30;
+    this.isGatheringHigh = false;
 
-    onResize(width, height, dpr) {
-      if (!this.canvas) return;
+    this.initParticles();
+    this.initStars();
+    this.initFireflies();
+    this.initPollen();
+  }
 
-      this.canvas.width = width * dpr;
-      this.canvas.height = height * dpr;
-      this.ctx.scale(dpr, dpr);
+  initParticles() {
+    this.particles = [];
+    for (let i = 0; i < 28; i++) {
+      this.particles.push({
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        radius: Utils.randomRange(1.2, 2.8),
+        vx: Utils.randomRange(-0.015, 0.015),
+        vy: Utils.randomRange(-0.03, -0.005),
+        baseAlpha: Utils.randomRange(0.2, 0.7),
+        alpha: Utils.randomRange(0.2, 0.7),
+        phase: Math.random() * Math.PI * 2,
+        pulseSpeed: Utils.randomRange(0.002, 0.006),
+        color: Config.particles.colors[Math.floor(Math.random() * Config.particles.colors.length)]
+      });
+    }
+  }
 
-      this.generateStarfield(width, height);
-    },
+  initStars() {
+    if (this.stars.length > 0) return;
 
-    generateStarfield(width, height) {
-      this.stars = [];
-      const utils = Utils; 
+    this.stars = [];
+    for (let i = 0; i < Config.sky.starCount; i++) {
+      const isSparkle = Math.random() < 0.12;
+      this.stars.push({
+        relX: Math.random(),
+        relY: Math.random(),
+        x: 0,
+        y: 0,
+        radius: isSparkle ? Utils.randomRange(1.8, 2.8) : Utils.randomRange(0.7, 1.6),
+        baseAlpha: Utils.randomRange(0.3, 0.9),
+        alpha: Utils.randomRange(0.3, 0.9),
+        twinkleSpeed: Utils.randomRange(0.01, 0.03),
+        phase: Math.random() * Math.PI * 2,
+        isSparkle: isSparkle,
+        color: Config.sky.starColors[Math.floor(Math.random() * Config.sky.starColors.length)]
+      });
+    }
+    this.updateStarPositions();
+  }
 
-      const area = width * height;
-      const starCount = utils.clamp(Math.floor(area / 3200), 120, 500);
+  updateStarPositions() {
+    this.stars.forEach(s => {
+      s.x = s.relX * this.width;
+      s.y = s.relY * this.height;
+    });
+  }
 
-      const clusters = [];
-      for (let c = 0; c < 5; c++) {
-        clusters.push({
-          x: utils.randomRange(width * 0.1, width * 0.9),
-          y: utils.randomRange(height * 0.1, height * 0.6)
-        });
+  initFireflies() {
+    this.fireflies = [];
+    for (let i = 0; i < this.fireflyCount; i++) {
+      this.fireflies.push({
+        x: Math.random() * this.width,
+        y: Utils.randomRange(this.height * 0.35, this.height * 0.88),
+        radius: Utils.randomRange(1.8, 2.8),
+        glowRadius: Utils.randomRange(14, 24),
+        vx: Utils.randomRange(-0.25, 0.25),
+        vy: Utils.randomRange(-0.2, 0.2),
+        phase: Math.random() * Math.PI * 2,
+        pulseSpeed: Utils.randomRange(0.01, 0.025),
+        alpha: Utils.randomRange(0.2, 0.85),
+        wanderTimer: 0
+      });
+    }
+  }
+
+  initPollen() {
+    this.pollen = [];
+    for (let i = 0; i < this.pollenCount; i++) {
+      this.pollen.push({
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        radius: Utils.randomRange(0.8, 1.8),
+        vx: Utils.randomRange(-0.02, 0.02),
+        vy: Utils.randomRange(-0.02, 0.01),
+        phase: Math.random() * Math.PI * 2,
+        pulseSpeed: Utils.randomRange(0.002, 0.006),
+        alpha: Utils.randomRange(0.15, 0.55),
+        color: Config.particles.colors[Math.floor(Math.random() * Config.particles.colors.length)]
+      });
+    }
+  }
+
+  setGatheringHigh(enabled) { this.isGatheringHigh = enabled; }
+
+  addStardustSpark(x, y) {
+    if (Utils.prefersReducedMotion()) return;
+    for (let i = 0; i < 2; i++) {
+      this.stardustSparks.push({
+        x: x + Utils.randomRange(-2, 2),
+        y: y + Utils.randomRange(-2, 2),
+        radius: Utils.randomRange(1.2, 3.0),
+        vx: Utils.randomRange(-0.5, 0.5),
+        vy: Utils.randomRange(-0.5, 0.5),
+        alpha: 0.95,
+        decay: Utils.randomRange(0.02, 0.04),
+        color: Config.particles.stardustColor
+      });
+    }
+  }
+
+  triggerShootingStar() {
+    if (Utils.prefersReducedMotion()) return;
+    const startX = Utils.randomRange(this.width * 0.1, this.width * 0.7);
+    const startY = Utils.randomRange(this.height * 0.05, this.height * 0.35);
+    const length = Utils.randomRange(80, 140);
+    const speed = Utils.randomRange(3.5, 5.5);
+
+    this.shootingStars.push({
+      x: startX, y: startY, length: length,
+      vx: speed, vy: speed * 0.55, alpha: 1.0,
+      decay: Utils.randomRange(0.014, 0.024), width: Utils.randomRange(1.4, 2.2)
+    });
+  }
+
+  resize(width, height, fireflyCount, pollenCount) {
+    this.width = width; this.height = height;
+    if (fireflyCount) this.fireflyCount = fireflyCount;
+    if (pollenCount) this.pollenCount = pollenCount;
+    this.updateStarPositions();
+    this.initFireflies();
+    this.initPollen();
+  }
+
+  start() { if (this.isRunning) return; this.isRunning = true; this.loop(); }
+  stop() { this.isRunning = false; if (this.animFrameId) cancelAnimationFrame(this.animFrameId); }
+
+  drawMilkyWay() {
+    const ctx = this.ctx;
+    ctx.save();
+
+    const grad = ctx.createLinearGradient(0, this.height * 0.1, this.width, this.height * 0.75);
+    grad.addColorStop(0, 'rgba(200, 220, 242, 0.0)');
+    grad.addColorStop(0.35, 'rgba(216, 200, 242, 0.038)');
+    grad.addColorStop(0.5, 'rgba(235, 240, 255, 0.065)');
+    grad.addColorStop(0.65, 'rgba(200, 220, 242, 0.038)');
+    grad.addColorStop(1, 'rgba(200, 220, 242, 0.0)');
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(0, this.height * 0.08);
+    ctx.bezierCurveTo(this.width * 0.35, this.height * 0.15, this.width * 0.65, this.height * 0.45, this.width, this.height * 0.68);
+    ctx.lineTo(this.width, this.height * 0.88);
+    ctx.bezierCurveTo(this.width * 0.65, this.height * 0.65, this.width * 0.35, this.height * 0.35, 0, this.height * 0.28);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  drawSparkleStar(x, y, radius, alpha, color) {
+    this.ctx.save();
+    this.ctx.globalAlpha = alpha;
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = 0.75;
+
+    const size = radius * 2.8;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x - size, y); this.ctx.lineTo(x + size, y);
+    this.ctx.moveTo(x, y - size); this.ctx.lineTo(x, y + size);
+    this.ctx.stroke();
+
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, radius * 0.7, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+  }
+
+  loop(now = performance.now()) {
+    if (!this.isRunning) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    const isReduced = Utils.prefersReducedMotion();
+
+    this.drawMilkyWay();
+
+    for (let s of this.stars) {
+      if (!isReduced) {
+        s.phase += s.twinkleSpeed;
+        s.alpha = Utils.clamp(s.baseAlpha + Math.sin(s.phase) * 0.35, 0.15, 0.95);
       }
-
-      for (let i = 0; i < starCount; i++) {
-        let sx, sy;
-
-        if (Math.random() < 0.65) {
-          const parent = clusters[Math.floor(Math.random() * clusters.length)];
-          const r = utils.randomRange(20, Math.min(width, height) * 0.25);
-          const theta = Math.random() * Math.PI * 2;
-          sx = parent.x + Math.cos(theta) * r;
-          sy = parent.y + Math.sin(theta) * r;
-        } else {
-          sx = utils.randomRange(0, width);
-          sy = utils.randomRange(0, height * 0.75);
-        }
-
-        sx = utils.clamp(sx, 1, width - 1);
-        sy = utils.clamp(sy, 1, height - 1);
-
-        const depthRandom = Math.random();
-        let depth = 0;
-        let size = utils.randomRange(0.4, 0.75);
-        let glow = 0;
-
-        if (depthRandom > 0.70 && depthRandom <= 0.94) {
-          depth = 1;
-          size = utils.randomRange(0.8, 1.25);
-        } else if (depthRandom > 0.94) {
-          depth = 2;
-          size = utils.randomRange(1.3, 1.75);
-          glow = utils.randomRange(2, 4);
-        }
-
-        this.stars.push({
-          x: sx,
-          y: sy,
-          size: size,
-          depth: depth,
-          glow: glow,
-          baseOpacity: utils.randomRange(0.2, 0.7),
-          opacity: 0,
-          twinkleSpeed: utils.randomRange(0.6, 2.2),
-          twinklePhase: utils.randomRange(0, Math.PI * 2)
-        });
-      }
-    },
-
-    update(dt) {
-      const utils = Utils;
-
-      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
-      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
-      const moonR = MoonSystem.radius;
-      const glareRadius = moonR * 3.8;
-
-      for (let i = 0; i < this.stars.length; i++) {
-        const s = this.stars[i];
-
-        s.twinklePhase += s.twinkleSpeed * dt;
-        let twinkleFactor = 0.6 + Math.sin(s.twinklePhase) * 0.4;
-        
-        let targetOpacity = s.baseOpacity * twinkleFactor;
-
-        if (moonR > 0) {
-          const dx = s.x - moonX;
-          const dy = s.y - moonY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < glareRadius) {
-            const factor = utils.clamp((distance - moonR * 1.1) / (glareRadius - moonR * 1.1), 0.05, 1.0);
-            targetOpacity *= factor;
-          }
-        }
-
-        s.opacity = targetOpacity;
-      }
-    },
-
-    render() {
-      if (!this.ctx) return;
-
-      const ctx = this.ctx;
-      ctx.clearRect(0, 0, State.width, State.height);
-
-      const px = State.mouseX * State.width * 0.004;
-      const py = State.mouseY * State.height * 0.004;
-
-      for (let i = 0; i < this.stars.length; i++) {
-        const s = this.stars[i];
-        
-        ctx.beginPath();
-        ctx.arc(s.x + px, s.y + py, s.size, 0, Math.PI * 2);
-
-        if (s.depth === 2) {
-          ctx.fillStyle = `rgba(253, 246, 226, ${s.opacity})`;
-          ctx.shadowColor = 'rgba(253, 246, 226, 0.5)';
-          ctx.shadowBlur = s.glow;
-        } else {
-          ctx.fillStyle = `rgba(240, 243, 255, ${s.opacity})`;
-        }
-
-        ctx.fill();
-        ctx.shadowBlur = 0;
+      if (s.isSparkle) this.drawSparkleStar(s.x, s.y, s.radius, s.alpha, s.color);
+      else {
+        this.ctx.save();
+        this.ctx.globalAlpha = s.alpha;
+        this.ctx.fillStyle = s.color;
+        this.ctx.beginPath();
+        this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
       }
     }
-  };
 
-  /**
-   * Cloud System (Version 2.4 Sub-System - Preserved)
-   * Renders volumetric clouds using grouped puff particles of offset radial gradients.
-   */
-  const CloudSystem = {
-    name: 'CloudSystem',
-    canvas: null,
-    ctx: null,
-    clouds: [],
-    
-    init(width, height, dpr) {
-      this.canvas = document.getElementById('clouds-canvas');
-      if (!this.canvas) return;
-
-      this.ctx = this.canvas.getContext('2d');
-      this.onResize(width, height, dpr);
-    },
-
-    onResize(width, height, dpr) {
-      if (!this.canvas) return;
-
-      this.canvas.width = width * dpr;
-      this.canvas.height = height * dpr;
-      this.ctx.scale(dpr, dpr);
-
-      this.generateClouds(width, height);
-    },
-
-    generateClouds(width, height) {
-      this.clouds = [];
-      const utils = Utils;
-
-      const lanes = [
-        { y: height * 0.15, depth: 0, scale: 0.7 },
-        { y: height * 0.42, depth: 1, scale: 1.0 },
-        { y: height * 0.28, depth: 2, scale: 1.3 },
-        { y: height * 0.60, depth: 1, scale: 1.1 },
-        { y: height * 0.50, depth: 0, scale: 0.8 },
-        { y: height * 0.32, depth: 2, scale: 1.45 }
-      ];
-
-      lanes.forEach((lane, index) => {
-        const cloudBaseWidth = utils.randomRange(180, 280) * lane.scale;
-        const cloudBaseHeight = utils.randomRange(50, 80) * lane.scale;
-        
-        const puffs = [];
-        const puffCount = 14;
-
-        for (let p = 0; p < puffCount; p++) {
-          const ratio = p / (puffCount - 1);
-          const px = (ratio - 0.5) * cloudBaseWidth * utils.randomRange(0.8, 1.1);
-          const domeFactor = Math.sin(ratio * Math.PI);
-          const py = -domeFactor * cloudBaseHeight * utils.randomRange(0.4, 0.85);
-          const pr = cloudBaseHeight * (0.35 + domeFactor * utils.randomRange(0.4, 0.65));
-
-          puffs.push({
-            offsetX: px,
-            offsetY: py,
-            radius: pr,
-            baseAlpha: utils.randomRange(0.08, 0.24)
-          });
-        }
-
-        let driftVelocity = 0;
-        let baseOpacity = 0.15;
-        let parallaxFactor = 0.01;
-
-        if (lane.depth === 0) {
-          driftVelocity = utils.randomRange(3.5, 6.0);
-          baseOpacity = 0.22;
-          parallaxFactor = 0.008;
-        } else if (lane.depth === 1) {
-          driftVelocity = utils.randomRange(2.0, 3.2);
-          baseOpacity = 0.38;
-          parallaxFactor = 0.018;
-        } else {
-          driftVelocity = utils.randomRange(0.9, 1.8);
-          baseOpacity = 0.45;
-          parallaxFactor = 0.03;
-        }
-
-        const startX = utils.randomRange(-width * 0.2, width * 0.85);
-
-        this.clouds.push({
-          x: startX,
-          baseY: lane.y,
-          width: cloudBaseWidth,
-          height: cloudBaseHeight,
-          puffs: puffs,
-          depth: lane.depth,
-          vx: driftVelocity,
-          opacity: baseOpacity,
-          parallax: parallaxFactor
-        });
-      });
-    },
-
-    update(dt) {
-      const boundaryOffset = 450;
-
-      for (let i = 0; i < this.clouds.length; i++) {
-        const c = this.clouds[i];
-        c.x += (c.vx * dt);
-
-        if (c.x > State.width + boundaryOffset) {
-          c.x = -boundaryOffset - c.width;
-        }
+    for (let pol of this.pollen) {
+      if (!isReduced) {
+        pol.x += pol.vx; pol.y += pol.vy; pol.phase += pol.pulseSpeed;
+        pol.alpha = 0.15 + (Math.sin(pol.phase) * 0.5 + 0.5) * 0.4;
+        if (pol.y < -10) pol.y = this.height + 10;
+        if (pol.x < -10) pol.x = this.width + 10;
+        if (pol.x > this.width + 10) pol.x = -10;
       }
-    },
-
-    render() {
-      if (!this.ctx) return;
-
-      const ctx = this.ctx;
-      ctx.clearRect(0, 0, State.width, State.height);
-
-      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
-      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
-
-      const sortedClouds = [...this.clouds].sort((a, b) => a.depth - b.depth);
-
-      for (let i = 0; i < sortedClouds.length; i++) {
-        const c = sortedClouds[i];
-
-        const px = State.mouseX * State.width * c.parallax;
-        const py = State.mouseY * State.height * c.parallax;
-
-        const renderX = c.x + px;
-        const renderY = c.baseY + py;
-
-        for (let j = 0; j < c.puffs.length; j++) {
-          const p = c.puffs[j];
-          const puffX = renderX + p.offsetX;
-          const puffY = renderY + p.offsetY;
-
-          const dx = moonX - puffX;
-          const dy = moonY - puffY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          const dirX = dx / dist;
-          const dirY = dy / dist;
-
-          const lightIntensity = Math.max(0.1, 1.0 - dist / (State.width * 0.75));
-          const offsetDist = p.radius * 0.24 * lightIntensity;
-          const gradCenterX = puffX + (dirX * offsetDist);
-          const gradCenterY = puffY + (dirY * offsetDist);
-
-          const puffGrad = ctx.createRadialGradient(
-            gradCenterX, gradCenterY, p.radius * 0.05,
-            puffX, puffY, p.radius
-          );
-
-          const goldenRim = `hsla(43, 60%, 82%, ${c.opacity * p.baseAlpha * 1.5 * lightIntensity})`;
-          const shadowBody = `hsla(262, 12%, 40%, ${c.opacity * p.baseAlpha * 0.8})`;
-          const diffuseFade = 'rgba(25, 20, 35, 0)';
-
-          puffGrad.addColorStop(0, goldenRim);
-          puffGrad.addColorStop(0.3, shadowBody);
-          puffGrad.addColorStop(1, diffuseFade);
-
-          ctx.beginPath();
-          ctx.arc(puffX, puffY, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = puffGrad;
-          ctx.fill();
-        }
-      }
+      this.ctx.save();
+      this.ctx.globalAlpha = pol.alpha;
+      this.ctx.fillStyle = pol.color;
+      this.ctx.beginPath();
+      this.ctx.arc(pol.x, pol.y, pol.radius, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
     }
-  };
 
-  /**
-   * Meadow & Flower Garden System (Version 4.5 Expanded Species & Slower Waves)
-   * Procedurally generates, clusters, and depth-interleaves grass blades and wildflowers.
-   */
-  const MeadowSystem = {
-    name: 'MeadowSystem',
-    canvas: null,
-    ctx: null,
-    renderList: [],
-    
-    windTime: 0,
-    windSpeed: 0.75, 
+    for (let p of this.particles) {
+      if (!isReduced) {
+        p.x += p.vx; p.y += p.vy; p.phase += p.pulseSpeed;
+        p.alpha = Utils.clamp(p.baseAlpha + Math.sin(p.phase) * 0.15, 0.1, 0.85);
+        if (p.y < -10) p.y = this.height + 10;
+        if (p.x < -10) p.x = this.width + 10;
+        if (p.x > this.width + 10) p.x = -10;
+      }
+      const grad = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 3.2);
+      grad.addColorStop(0, p.color);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
 
-    init(width, height, dpr) {
-      this.canvas = document.getElementById('meadow-canvas');
-      if (!this.canvas) return;
+      this.ctx.save();
+      this.ctx.globalAlpha = p.alpha;
+      this.ctx.fillStyle = grad;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.radius * 3.2, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    }
 
-      this.ctx = this.canvas.getContext('2d');
-      this.onResize(width, height, dpr);
-    },
+    for (let ff of this.fireflies) {
+      if (!isReduced) {
+        ff.phase += ff.pulseSpeed;
+        ff.alpha = 0.25 + (Math.sin(ff.phase) * 0.5 + 0.5) * 0.65;
+        const targetMinY = this.isGatheringHigh ? this.height * 0.15 : this.height * 0.35;
+        const targetMaxY = this.isGatheringHigh ? this.height * 0.65 : this.height * 0.88;
 
-    onResize(width, height, dpr) {
-      if (!this.canvas) return;
+        if (ff.y > targetMaxY) ff.vy -= 0.03;
+        if (ff.y < targetMinY) ff.vy += 0.03;
+        ff.x += ff.vx + Math.sin(ff.phase * 0.8) * 0.25;
+        ff.y += ff.vy + Math.cos(ff.phase * 0.6) * 0.18;
 
-      this.canvas.width = width * dpr;
-      this.canvas.height = height * dpr;
-      this.ctx.scale(dpr, dpr);
-
-      this.generateGarden(width, height);
-    },
-
-    generateGarden(width, height) {
-      this.renderList = [];
-      const utils = Utils;
-
-      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
-
-      const grassCount = utils.clamp(Math.floor(width * 0.72), 300, 850);
-      for (let i = 0; i < grassCount; i++) {
-        const baseX = utils.randomRange(0, width);
-        const depthRandom = Math.random();
-        
-        let depth = 1; 
-        let length = utils.randomRange(32, 52);
-        let baseWidth = utils.randomRange(1.5, 2.4);
-        let swayAmp = utils.randomRange(4, 9); 
-        let baseY = height + utils.randomRange(-5, 15);
-        let parallax = 0.012;
-
-        if (depthRandom < 0.45) {
-          depth = 0;
-          length = utils.randomRange(16, 28);
-          baseWidth = utils.randomRange(0.8, 1.4);
-          swayAmp = utils.randomRange(2, 4);
-          baseY = height - utils.randomRange(5, 18);
-          parallax = 0.004;
-        } else if (depthRandom > 0.86) {
-          depth = 2;
-          length = utils.randomRange(58, 88);
-          baseWidth = utils.randomRange(2.6, 3.8);
-          swayAmp = utils.randomRange(8, 16);
-          baseY = height + utils.randomRange(10, 28);
-          parallax = 0.022;
+        ff.wanderTimer += 0.016;
+        if (ff.wanderTimer > 3.5) {
+          ff.vx = Utils.randomRange(-0.25, 0.25);
+          ff.vy = Utils.randomRange(-0.2, 0.2);
+          ff.wanderTimer = 0;
         }
-
-        const baseCurve = utils.randomRange(-0.06, 0.06);
-
-        const distToMoon = Math.abs(baseX - moonX);
-        const lightInfluence = utils.clamp(1.0 - (distToMoon / (width * 0.55)), 0, 1.0);
-
-        let hue, sat, light;
-        if (Math.random() < 0.6) {
-          hue = utils.randomRange(105, 125);
-          sat = utils.randomRange(14, 22);
-          light = utils.randomRange(16, 26) + (lightInfluence * 12);
-        } else {
-          hue = utils.randomRange(185, 210);
-          sat = utils.randomRange(10, 18);
-          light = utils.randomRange(14, 22) + (lightInfluence * 8);
-        }
-
-        let colorString;
-        if (lightInfluence > 0.45 && Math.random() < lightInfluence * 0.8) {
-          colorString = `hsla(43, 25%, ${Math.floor(light * 1.15)}%, ${depth === 0 ? 0.7 : 1.0})`;
-        } else {
-          colorString = `hsla(${hue}, ${sat}%, ${Math.floor(light)}%, ${depth === 0 ? 0.7 : 1.0})`;
-        }
-
-        this.renderList.push({
-          isFlower: false,
-          baseX: baseX,
-          baseY: baseY,
-          length: length,
-          width: baseWidth,
-          curve: baseCurve,
-          color: colorString,
-          depth: depth,
-          parallax: parallax,
-          swayPhase: utils.randomRange(0, Math.PI * 2),
-          swaySpeed: utils.randomRange(0.3, 0.7), 
-          swayAmp: swayAmp
-        });
       }
 
-      const flowerCount = utils.clamp(Math.floor(width / 24), 22, 60); 
-      const clusterCenters = [width * 0.18, width * 0.35, width * 0.52, width * 0.72, width * 0.88]; 
+      const fireflyGrad = this.ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, ff.glowRadius);
+      fireflyGrad.addColorStop(0, Config.fireflies.color);
+      fireflyGrad.addColorStop(0.35, Config.fireflies.glowColor);
+      fireflyGrad.addColorStop(1, 'rgba(0,0,0,0)');
 
-      const flowerTypes = ['daisy', 'tulip', 'lavender', 'rose', 'bluebell', 'forgetmenot', 'cosmos', 'buttercup', 'lily', 'violet'];
-      const flowerColors = [
-        'hsla(350, 45%, 88%, 1)',  
-        'hsla(265, 35%, 84%, 1)',  
-        'hsla(205, 35%, 84%, 1)',  
-        'hsla(38, 45%, 92%, 1)',   
-        'hsla(43, 60%, 75%, 1)',   
-        'hsla(0, 0%, 94%, 1)',     
-        'hsla(285, 30%, 78%, 1)'   
-      ];
+      this.ctx.save();
+      this.ctx.globalAlpha = ff.alpha;
+      this.ctx.fillStyle = fireflyGrad;
+      this.ctx.beginPath();
+      this.ctx.arc(ff.x, ff.y, ff.glowRadius, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    }
 
-      for (let i = 0; i < flowerCount; i++) {
-        let fx;
-        if (Math.random() < 0.75) {
-          const center = clusterCenters[Math.floor(Math.random() * clusterCenters.length)];
-          fx = center + utils.randomRange(-width * 0.08, width * 0.08);
-        } else {
-          fx = utils.randomRange(width * 0.05, width * 0.95);
-        }
+    for (let i = this.stardustSparks.length - 1; i >= 0; i--) {
+      const sp = this.stardustSparks[i];
+      sp.x += sp.vx; sp.y += sp.vy; sp.alpha -= sp.decay;
+      if (sp.alpha <= 0) { this.stardustSparks.splice(i, 1); continue; }
 
-        fx = utils.clamp(fx, 15, width - 15);
+      this.ctx.save();
+      this.ctx.globalAlpha = sp.alpha;
+      this.ctx.fillStyle = sp.color;
+      this.ctx.beginPath();
+      this.ctx.arc(sp.x, sp.y, sp.radius, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    }
 
-        const distToMoon = Math.abs(fx - moonX);
-        const lightInfluence = utils.clamp(1.0 - (distToMoon / (width * 0.55)), 0, 1.0);
+    if (!isReduced && now - this.lastShootingStarTime > 8500) {
+      this.triggerShootingStar();
+      this.lastShootingStarTime = now + Utils.randomRange(-2000, 3000);
+    }
 
-        const depthRandom = Math.random();
-        let depth = 1;
-        let length = utils.randomRange(48, 76);
-        let stemWidth = utils.randomRange(1.8, 2.4);
-        let swayAmp = utils.randomRange(6, 11); 
-        let baseY = height + utils.randomRange(-2, 18);
-        let parallax = 0.012;
+    for (let i = this.shootingStars.length - 1; i >= 0; i--) {
+      const st = this.shootingStars[i];
+      st.x += st.vx; st.y += st.vy; st.alpha -= st.decay;
+      if (st.alpha <= 0) { this.shootingStars.splice(i, 1); continue; }
 
-        if (depthRandom < 0.35) {
-          depth = 0;
-          length = utils.randomRange(28, 45);
-          stemWidth = utils.randomRange(1.0, 1.5);
-          swayAmp = utils.randomRange(3, 5);
-          baseY = height - utils.randomRange(3, 14);
-          parallax = 0.004;
-        } else if (depthRandom > 0.88) {
-          depth = 2;
-          length = utils.randomRange(80, 110);
-          stemWidth = utils.randomRange(2.8, 3.6);
-          swayAmp = utils.randomRange(12, 18);
-          baseY = height + utils.randomRange(12, 32);
-          parallax = 0.022;
-        }
+      const tailX = st.x - (st.vx / Math.hypot(st.vx, st.vy)) * st.length;
+      const tailY = st.y - (st.vy / Math.hypot(st.vx, st.vy)) * st.length;
+      const grad = this.ctx.createLinearGradient(st.x, st.y, tailX, tailY);
+      grad.addColorStop(0, `rgba(252, 248, 242, ${st.alpha})`);
+      grad.addColorStop(0.3, `rgba(230, 202, 133, ${st.alpha * 0.7})`);
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
-        const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
-        const baseColor = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+      this.ctx.save();
+      this.ctx.strokeStyle = grad;
+      this.ctx.lineWidth = st.width;
+      this.ctx.lineCap = 'round';
+      this.ctx.beginPath();
+      this.ctx.moveTo(st.x, st.y);
+      this.ctx.lineTo(tailX, tailY);
+      this.ctx.stroke();
+      this.ctx.restore();
+    }
 
-        const leafCount = Math.floor(utils.randomRange(0, 3));
-        const leaves = [];
-        for (let l = 0; l < leafCount; l++) {
-          leaves.push({
-            side: Math.random() < 0.5 ? -1 : 1,
-            yOffset: utils.randomRange(0.25, 0.7),
-            length: utils.randomRange(8, 16) * (depth === 0 ? 0.6 : (depth === 2 ? 1.4 : 1.0)),
-            angle: utils.randomRange(0.2, 0.6)
-          });
-        }
+    this.animFrameId = requestAnimationFrame(timestamp => this.loop(timestamp));
+  }
+}
 
-        const stemCurve = utils.randomRange(-0.06, 0.06);
+/* ==================================================
+   7. PLANTING ZONE GARDEN ENGINE (GRASS & FLOWERS)
+   ================================================== */
+class GrassSystem {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.width = window.innerWidth;
+    this.height = window.innerHeight * 0.30;
+    this.grassCount = 340;
+    this.flowerCount = 68;
+    this.flowerScaleGlobal = 1.28;
+    this.safeBottomInset = 0;
+    this.isCalmWind = false;
 
-        this.renderList.push({
-          isFlower: true,
-          type: type,
-          baseX: fx,
-          baseY: baseY,
-          length: length,
-          stemWidth: stemWidth,
-          curve: stemCurve,
-          depth: depth,
-          parallax: parallax,
-          color: baseColor,
-          lightInfluence: lightInfluence,
-          petalCount: Math.floor(utils.randomRange(8, 14)),
-          petalSize: utils.randomRange(4, 9) * (depth === 0 ? 0.6 : (depth === 2 ? 1.4 : 1.0)),
-          bloomAngle: utils.randomRange(-0.15, 0.15),
-          leaves: leaves,
-          swayPhase: utils.randomRange(0, Math.PI * 2),
-          swaySpeed: utils.randomRange(0.3, 0.7), 
-          swayAmp: swayAmp,
-          headX: 0,
-          headY: 0
-        });
+    this.blades = [];
+    this.flowers = [];
+    this.isRunning = false;
+    this.animFrameId = null;
+
+    this.initGarden();
+  }
+
+  setCalmWind(enabled) { this.isCalmWind = enabled; }
+
+  initGarden() {
+    this.initGrass();
+    this.initFlowers();
+  }
+
+  initGrass() {
+    this.blades = [];
+    for (let i = 0; i < this.grassCount; i++) {
+      let layer = 0;
+      const layerRoll = Math.random();
+      if (layerRoll > 0.6) layer = 2;
+      else if (layerRoll > 0.28) layer = 1;
+
+      let height = Utils.randomRange(24, 42);
+      let baseWidth = Utils.randomRange(1.4, 2.0);
+      let colorArray = Config.grass.palette.back;
+
+      if (layer === 1) {
+        height = Utils.randomRange(40, 64); baseWidth = Utils.randomRange(2.0, 3.0); colorArray = Config.grass.palette.mid;
+      } else if (layer === 2) {
+        height = Utils.randomRange(58, 86); baseWidth = Utils.randomRange(2.8, 4.0); colorArray = Config.grass.palette.front;
       }
 
-      this.renderList.sort((a, b) => {
-        if (a.depth !== b.depth) return a.depth - b.depth;
-        return a.baseY - b.baseY;
+      this.blades.push({
+        x: Math.random() * this.width, layer, height, baseWidth,
+        naturalCurve: Utils.randomRange(-8, 8), flexibility: Utils.randomRange(0.6, 1.3),
+        freq: Utils.randomRange(0.0012, 0.0025), phase: Math.random() * Math.PI * 2,
+        color: colorArray[Math.floor(Math.random() * colorArray.length)],
+        hasHighlight: layer === 2 && Math.random() < 0.65
       });
-    },
+    }
+    this.blades.sort((a, b) => a.layer - b.layer);
+  }
 
-    update(dt) {
-      this.windSpeed += (1.4 - this.windSpeed) * dt;
-      this.windTime += this.windSpeed * dt;
+  initFlowers() {
+    this.flowers = [];
+    for (let i = 0; i < this.flowerCount; i++) {
+      const species = Config.flowers.species[Math.floor(Math.random() * Config.flowers.species.length)];
+      let layer = Math.floor(Math.random() * 3);
+      let layerScale = Utils.randomRange(0.75, 0.95);
+      if (layer === 1) layerScale = Utils.randomRange(0.95, 1.15);
+      if (layer === 2) layerScale = Utils.randomRange(1.15, 1.35);
 
-      for (let i = 0; i < this.renderList.length; i++) {
-        const item = this.renderList[i];
-        item.swayPhase += item.swaySpeed * dt;
-      }
-    },
-
-    render() {
-      if (!this.ctx) return;
-
-      const ctx = this.ctx;
-      const w = State.width;
-      const h = State.height;
-
-      ctx.clearRect(0, 0, State.width, State.height);
-
-      const groundGrad = ctx.createLinearGradient(0, h * 0.85, 0, h);
-      groundGrad.addColorStop(0, 'rgba(25, 20, 35, 0)');
-      groundGrad.addColorStop(0.35, 'hsla(110, 15%, 15%, 0.4)');
-      groundGrad.addColorStop(1, 'hsla(260, 20%, 11%, 0.95)');
-      ctx.fillStyle = groundGrad;
-      ctx.fillRect(0, h * 0.82, w, h * 0.18);
-
-      for (let i = 0; i < this.renderList.length; i++) {
-        const item = this.renderList[i];
-
-        const px = State.mouseX * w * item.parallax;
-        const py = State.mouseY * h * item.parallax;
-
-        const bx = item.baseX + px;
-        const by = item.baseY + py;
-
-        const windWave = Math.sin(this.windTime + (bx * 0.004) + item.swayPhase) * item.swayAmp;
-
-        if (item.isFlower) {
-          this.drawFlower(ctx, item, bx, by, windWave);
-        } else {
-          this.drawGrass(ctx, item, bx, by, windWave);
-        }
-      }
-    },
-
-    drawGrass(ctx, b, bx, by, windWave) {
-      const tipX = bx + windWave + (b.curve * b.length);
-      const tipY = by - b.length;
-
-      const ctrlX = bx + (tipX - bx) * 0.55;
-      const ctrlY = by - b.length * 0.5;
-
-      ctx.beginPath();
-      ctx.moveTo(bx - b.width / 2, by);
-      ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
-      ctx.quadraticCurveTo(ctrlX, ctrlY, bx + b.width / 2, by);
-      ctx.fillStyle = b.color;
-      ctx.fill();
-    },
-
-    drawFlower(ctx, f, bx, by, windWave) {
-      const tipX = bx + windWave + (f.curve * f.length);
-      const tipY = by - f.length;
-
-      const ctrlX = bx + (tipX - bx) * 0.55;
-      const ctrlY = by - f.length * 0.5;
-
-      f.headX = tipX;
-      f.headY = tipY;
-
-      ctx.beginPath();
-      ctx.moveTo(bx, by);
-      ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
-      
-      const isBackground = f.depth === 0;
-      ctx.strokeStyle = isBackground ? 'hsla(110, 10%, 25%, 0.7)' : 'hsla(110, 15%, 30%, 1)';
-      ctx.lineWidth = f.stemWidth;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-
-      f.leaves.forEach(leaf => {
-        const t = leaf.yOffset;
-        const leafY = by * (1 - t) * (1 - t) + ctrlY * 2 * (1 - t) * t + tipY * t * t;
-        const leafX = bx * (1 - t) * (1 - t) + ctrlX * 2 * (1 - t) * t + tipX * t * t;
-
-        const leafEnd = leafX + (leaf.length * leaf.side);
-        const leafControlY = leafY - leaf.length * 0.25;
-
-        ctx.beginPath();
-        ctx.moveTo(leafX, leafY);
-        ctx.quadraticCurveTo(leafX + (leaf.length * 0.5 * leaf.side), leafControlY, leafEnd, leafY);
-        ctx.quadraticCurveTo(leafX + (leaf.length * 0.5 * leaf.side), leafY + leaf.length * 0.15, leafX, leafY);
-        ctx.fillStyle = isBackground ? 'hsla(110, 10%, 22%, 0.6)' : 'hsla(110, 12%, 26%, 1)';
-        ctx.fill();
+      const combinedScale = layerScale * this.flowerScaleGlobal;
+      this.flowers.push({
+        x: Math.random() * this.width, layer, species,
+        plantZoneOffset: Utils.randomRange(18, 48),
+        stemHeight: Utils.randomRange(28, 58) * combinedScale,
+        stemCurve: Utils.randomRange(-8, 8), scale: combinedScale,
+        windFactor: species === 'lavender' || species === 'cosmos' ? 0.45 : 0.32,
+        freq: Utils.randomRange(0.001, 0.002), phase: Math.random() * Math.PI * 2,
+        color: Config.flowers.palette[species]
       });
+    }
+    this.flowers.sort((a, b) => a.layer - b.layer);
+  }
 
-      ctx.save();
-      ctx.translate(tipX, tipY);
-      
-      const dx = tipX - ctrlX;
-      const dy = tipY - ctrlY;
-      const angle = Math.atan2(dy, dx) - Math.PI / 2 + f.bloomAngle;
-      ctx.rotate(angle);
+  resize(width, height, grassCount, flowerCount, flowerScaleGlobal, safeBottomInset) {
+    this.width = width; this.height = height;
+    if (grassCount) this.grassCount = grassCount;
+    if (flowerCount) this.flowerCount = flowerCount;
+    if (flowerScaleGlobal) this.flowerScaleGlobal = flowerScaleGlobal;
+    if (safeBottomInset !== undefined) this.safeBottomInset = safeBottomInset;
+    this.initGarden();
+  }
 
-      const pulseOpacity = 0.8 + (f.lightInfluence * 0.2);
-      ctx.globalAlpha = isBackground ? 0.65 : pulseOpacity;
+  start() { if (this.isRunning) return; this.isRunning = true; this.loop(); }
+  stop() { this.isRunning = false; if (this.animFrameId) cancelAnimationFrame(this.animFrameId); }
 
-      if (f.type === 'daisy' || f.type === 'cosmos') {
-        const petalC = f.color;
-        const centerC = f.lightInfluence > 0.4 ? 'hsla(43, 60%, 75%, 1)' : 'hsla(43, 40%, 65%, 1)';
-        const count = f.type === 'cosmos' ? 8 : f.petalCount;
+  drawFlower(flower, tipX, tipY) {
+    const ctx = this.ctx;
+    const s = flower.scale;
+    ctx.save();
+    ctx.translate(tipX, tipY);
 
-        ctx.fillStyle = petalC;
-        for (let p = 0; p < count; p++) {
-          ctx.rotate((Math.PI * 2) / count);
-          ctx.beginPath();
-          ctx.ellipse(0, f.petalSize * 1.1, f.petalSize * (f.type === 'cosmos' ? 0.5 : 0.35), f.petalSize, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.beginPath();
-        ctx.arc(0, 0, f.petalSize * 0.55, 0, Math.PI * 2);
-        ctx.fillStyle = centerC;
-        ctx.fill();
-
-      } else if (f.type === 'tulip' || f.type === 'buttercup') {
-        const c = f.type === 'buttercup' ? 'hsla(43, 80%, 72%, 1)' : f.color; 
-        ctx.fillStyle = c;
-
-        ctx.beginPath();
-        ctx.moveTo(-f.petalSize * 0.6, 0);
-        ctx.bezierCurveTo(-f.petalSize * 1.1, -f.petalSize * 1.5, -f.petalSize * 0.3, -f.petalSize * 1.8, 0, -f.petalSize * 0.8);
-        ctx.bezierCurveTo(f.petalSize * 0.3, -f.petalSize * 1.8, f.petalSize * 1.1, -f.petalSize * 1.5, f.petalSize * 0.6, 0);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = `hsla(43, 60%, 94%, 0.15)`;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(-f.petalSize * 0.4, -f.petalSize * 0.8, -f.petalSize * 0.2, -f.petalSize * 1.6, 0, -f.petalSize * 1.8);
-        ctx.bezierCurveTo(f.petalSize * 0.2, -f.petalSize * 1.6, f.petalSize * 0.4, -f.petalSize * 0.8, 0, 0);
-        ctx.closePath();
-        ctx.fill();
-
-      } else if (f.type === 'rose') {
-        ctx.fillStyle = f.color;
-        const layers = [f.petalSize * 1.2, f.petalSize * 0.85, f.petalSize * 0.5];
-        layers.forEach((size, idx) => {
-          ctx.beginPath();
-          ctx.arc(0, -size * 0.2, size, 0, Math.PI * 2);
-          ctx.fillStyle = idx % 2 === 0 ? f.color : 'hsla(350, 45%, 94%, 1)'; 
-          ctx.fill();
-        });
-
-      } else if (f.type === 'bluebell' || f.type === 'lavender') {
-        const c = f.type === 'bluebell' ? 'hsla(205, 45%, 84%, 1)' : f.color;
-        ctx.fillStyle = c;
-
-        const tiers = isBackground ? 3 : 5;
-        const gap = f.petalSize * 1.15;
-
-        for (let t = 0; t < tiers; t++) {
-          const yPos = -t * gap;
-          const scale = 1.0 - (t * 0.15);
-
-          ctx.beginPath();
-          ctx.ellipse(-f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.35 * scale, f.petalSize * 0.5 * scale, -Math.PI / 3, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.ellipse(f.petalSize * 0.5 * scale, yPos, f.petalSize * 0.35 * scale, f.petalSize * 0.5 * scale, Math.PI / 3, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-      } else if (f.type === 'forgetmenot' || f.type === 'violet') {
-        ctx.fillStyle = f.type === 'forgetmenot' ? 'hsla(205, 55%, 84%, 1)' : 'hsla(285, 30%, 78%, 1)'; 
-        const offsetPositions = [
-          { x: -f.petalSize * 0.6, y: -f.petalSize * 0.4 },
-          { x: f.petalSize * 0.6, y: -f.petalSize * 0.5 },
-          { x: 0, y: -f.petalSize * 1.2 }
-        ];
-
-        offsetPositions.forEach(pos => {
+    switch (flower.species) {
+      case 'daisy': {
+        const petalCount = 10;
+        ctx.fillStyle = flower.color.petal;
+        for (let i = 0; i < petalCount; i++) {
           ctx.save();
-          ctx.translate(pos.x, pos.y);
-          for (let p = 0; p < 5; p++) {
-            ctx.rotate((Math.PI * 2) / 5);
-            ctx.beginPath();
-            ctx.arc(0, f.petalSize * 0.4, f.petalSize * 0.35, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          ctx.rotate((i * Math.PI * 2) / petalCount);
           ctx.beginPath();
-          ctx.arc(0, 0, f.petalSize * 0.2, 0, Math.PI * 2);
-          ctx.fillStyle = 'var(--color-soft-gold)';
+          ctx.ellipse(0, -8 * s, 2.6 * s, 7 * s, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
-        });
-
-      } else if (f.type === 'lily') {
-        ctx.fillStyle = 'hsla(0, 0%, 94%, 1)';
-        for (let p = 0; p < 6; p++) {
-          ctx.rotate(Math.PI / 3);
+        }
+        ctx.fillStyle = flower.color.center;
+        ctx.beginPath(); ctx.arc(0, 0, 3.8 * s, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      case 'lavender': {
+        ctx.fillStyle = flower.color.floret;
+        for (let i = 0; i < 6; i++) {
+          const yOff = -i * 4.5 * s;
           ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.quadraticCurveTo(-f.petalSize * 0.3, -f.petalSize * 0.8, 0, -f.petalSize * 1.6);
-          ctx.quadraticCurveTo(f.petalSize * 0.3, -f.petalSize * 0.8, 0, 0);
+          ctx.ellipse(-2.5 * s, yOff, 3 * s, 2 * s, -0.2, 0, Math.PI * 2);
+          ctx.ellipse(2.5 * s, yOff, 3 * s, 2 * s, 0.2, 0, Math.PI * 2);
           ctx.fill();
         }
-        ctx.beginPath();
-        ctx.arc(0, -f.petalSize * 0.3, f.petalSize * 0.2, 0, Math.PI * 2);
-        ctx.fillStyle = 'var(--color-soft-gold)';
-        ctx.fill();
+        break;
       }
-
-      ctx.restore();
-    }
-  };
-
-  /**
-   * Effects System (Version 2.8 Consolidates Fireflies, Floating Petals, Ambient Dust)
-   * Renders high-performance particle states onto a single unified High-DPI canvas layer.
-   */
-  const EffectsSystem = {
-    name: 'EffectsSystem',
-    canvas: null,
-    ctx: null,
-    fireflies: [],
-    petals: [],
-    dust: [],
-
-    init(width, height, dpr) {
-      this.canvas = document.getElementById('effects-canvas');
-      if (!this.canvas) return;
-
-      this.ctx = this.canvas.getContext('2d');
-      this.onResize(width, height, dpr);
-    },
-
-    onResize(width, height, dpr) {
-      if (!this.canvas) return;
-
-      this.canvas.width = width * dpr;
-      this.canvas.height = height * dpr;
-      this.ctx.scale(dpr, dpr);
-
-      this.generateParticles(width, height);
-    },
-
-    generateParticles(width, height) {
-      const utils = Utils;
-      const area = width * height;
-
-      // 1. Generate Fireflies (Preserved)
-      this.fireflies = [];
-      const ffCount = utils.clamp(Math.floor(area / 30000), 20, 55);
-      for (let i = 0; i < ffCount; i++) {
-        const depthRandom = Math.random();
-        let depth = 1, size = utils.randomRange(1.0, 1.8), maxOpacity = utils.randomRange(0.4, 0.7), speedFactor = 1.0, parallax = 0.012;
-
-        if (depthRandom < 0.35) {
-          depth = 0; size = utils.randomRange(0.5, 0.95); maxOpacity = utils.randomRange(0.2, 0.45); speedFactor = 0.6; parallax = 0.005;
-        } else if (depthRandom > 0.88) {
-          depth = 2; size = utils.randomRange(2.0, 3.2); maxOpacity = utils.randomRange(0.7, 0.95); speedFactor = 1.4; parallax = 0.024;
+      case 'cosmos': {
+        ctx.fillStyle = flower.color.petal;
+        for (let i = 0; i < 8; i++) {
+          ctx.save(); ctx.rotate((i * Math.PI * 2) / 8);
+          ctx.beginPath(); ctx.ellipse(0, -8.5 * s, 4 * s, 7.5 * s, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
         }
-
-        this.fireflies.push({
-          x: utils.randomRange(50, width - 50),
-          y: utils.randomRange(height * 0.45, height * 0.92),
-          size: size,
-          depth: depth,
-          parallax: parallax,
-          speed: 0,
-          targetSpeed: utils.randomRange(15, 30) * speedFactor,
-          angle: utils.randomRange(0, Math.PI * 2),
-          targetAngle: utils.randomRange(0, Math.PI * 2),
-          steeringForce: utils.randomRange(1.8, 3.5),
-          maxOpacity: maxOpacity,
-          opacity: 0,
-          pulsePhase: utils.randomRange(0, Math.PI * 2),
-          pulseSpeed: utils.randomRange(0.8, 2.5),
-          behaviorTimer: utils.randomRange(0.5, 2.5),
-          isCircling: false,
-          circleSpeed: 0,
-          hoverTarget: null,
-          hoverTimer: 0
-        });
+        ctx.fillStyle = flower.color.center;
+        ctx.beginPath(); ctx.arc(0, 0, 3.5 * s, 0, Math.PI * 2); ctx.fill();
+        break;
       }
-
-      // 2. Generate Floating Petals
-      this.petals = [];
-      const petalCount = utils.clamp(Math.floor(width / 75), 10, 25);
-      for (let i = 0; i < petalCount; i++) {
-        this.petals.push(this.createPetal(width, height, true));
+      case 'bluebell': {
+        ctx.fillStyle = flower.color.petal;
+        for (let i = 0; i < 3; i++) {
+          ctx.save(); ctx.translate(-i * 2.5 * s, i * 5 * s);
+          ctx.beginPath(); ctx.arc(0, 0, 4 * s, 0, Math.PI); ctx.fill();
+          ctx.restore();
+        }
+        break;
       }
-
-      // 3. Generate Ambient Dust
-      this.dust = [];
-      const dustCount = utils.clamp(Math.floor(area / 15000), 25, 75);
-      for (let i = 0; i < dustCount; i++) {
-        this.dust.push({
-          x: utils.randomRange(0, width),
-          y: utils.randomRange(0, height * 0.8),
-          size: utils.randomRange(0.3, 0.95),
-          opacity: 0,
-          baseOpacity: utils.randomRange(0.08, 0.28),
-          pulsePhase: utils.randomRange(0, Math.PI * 2),
-          pulseSpeed: utils.randomRange(0.4, 1.8),
-          vy: utils.randomRange(-3, -8),
-          vx: utils.randomRange(-2, 2),
-          parallax: utils.randomRange(0.003, 0.01)
-        });
+      case 'buttercup': {
+        ctx.fillStyle = flower.color.petal;
+        for (let i = 0; i < 5; i++) {
+          ctx.save(); ctx.rotate((i * Math.PI * 2) / 5);
+          ctx.beginPath(); ctx.ellipse(0, -5 * s, 3.5 * s, 5 * s, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+        ctx.fillStyle = flower.color.center;
+        ctx.beginPath(); ctx.arc(0, 0, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+        break;
       }
-    },
-
-    createPetal(width, height, randomY = false) {
-      const utils = Utils;
-      const depthRandom = Math.random();
-      
-      let depth = 1, scale = 1.0, maxOpacity = utils.randomRange(0.45, 0.75), parallax = 0.012;
-      if (depthRandom < 0.35) {
-        depth = 0; scale = 0.6; maxOpacity = utils.randomRange(0.2, 0.45); parallax = 0.004;
-      } else if (depthRandom > 0.85) {
-        depth = 2; scale = 1.45; maxOpacity = utils.randomRange(0.7, 0.9); parallax = 0.022;
-      }
-
-      return {
-        x: utils.randomRange(-50, width),
-        y: randomY ? utils.randomRange(height * 0.6, height * 0.92) : height + 20,
-        width: utils.randomRange(5, 9) * scale,
-        height: utils.randomRange(7, 12) * scale,
-        depth: depth,
-        parallax: parallax,
-        maxOpacity: maxOpacity,
-        opacity: 0,
-        vx: utils.randomRange(8, 22) * scale,
-        vy: utils.randomRange(-12, -26) * scale,
-        rotation: utils.randomRange(0, Math.PI * 2),
-        rotSpeed: utils.randomRange(-0.8, 1.8),
-        dipPhase: utils.randomRange(0, Math.PI * 2),
-        dipSpeed: utils.randomRange(1.5, 3.5),
-        dipAmp: utils.randomRange(3, 8),
-        life: utils.randomRange(6.0, 11.0),
-        maxLife: 10.0
-      };
-    },
-
-    update(dt) {
-      const utils = Utils;
-      const w = State.width;
-      const h = State.height;
-
-      const moonX = MoonSystem.centerX + (State.mouseX * State.width * 0.007);
-      const moonY = MoonSystem.centerY + (State.mouseY * State.height * 0.007);
-      const moonR = MoonSystem.radius;
-      const avoidanceShield = moonR * 1.35;
-
-      const flowers = MeadowSystem.renderList.filter(item => item.isFlower);
-
-      // 1. Update Fireflies
-      for (let i = 0; i < this.fireflies.length; i++) {
-        const f = this.fireflies[i];
-
-        if (f.hoverTarget) {
-          f.hoverTimer -= dt;
-          const hdx = f.hoverTarget.headX - f.x;
-          const hdy = f.hoverTarget.headY - f.y;
-          const hdist = Math.sqrt(hdx * hdx + hdy * hdy);
-
-          if (hdist > 6) {
-            f.targetAngle = Math.atan2(hdy, hdx);
-            f.targetSpeed = utils.clamp(hdist * 0.8, 2, 10);
-          } else {
-            f.targetSpeed = 0;
-          }
-
-          if (f.hoverTimer <= 0) {
-            f.hoverTarget = null;
-            f.behaviorTimer = 0.5;
-          }
-        } else {
-          f.behaviorTimer -= dt;
-          if (f.behaviorTimer <= 0) {
-            f.behaviorTimer = utils.randomRange(1.0, 3.5);
-            const roll = Math.random();
-            if (roll < 0.15) {
-              f.targetSpeed = 0;
-            } else if (roll >= 0.15 && roll < 0.35) {
-              f.isCircling = true;
-              f.circleSpeed = utils.randomRange(-3.5, 3.5);
-              f.targetSpeed = utils.randomRange(10, 22);
-            } else if (roll >= 0.35 && roll < 0.55 && flowers.length > 0) {
-              const randomFlower = flowers[Math.floor(Math.random() * flowers.length)];
-              const fdx = randomFlower.headX - f.x;
-              const fdy = randomFlower.headY - f.y;
-              const fdist = Math.sqrt(fdx * fdx + fdy * fdy);
-
-              if (fdist < 150) {
-                f.hoverTarget = randomFlower;
-                f.hoverTimer = utils.randomRange(1.5, 4.0);
-                f.isCircling = false;
-              }
-            } else {
-              f.isCircling = false;
-              f.targetSpeed = utils.randomRange(15, 32);
-              f.targetAngle = utils.randomRange(0, Math.PI * 2);
-            }
-          }
+      case 'violet': {
+        ctx.fillStyle = flower.color.petal;
+        for (let i = 0; i < 5; i++) {
+          ctx.save(); ctx.rotate((i * Math.PI * 2) / 5);
+          ctx.beginPath(); ctx.ellipse(0, -4.5 * s, 2.8 * s, 4.8 * s, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
         }
-
-        if (f.isCircling && !f.hoverTarget) {
-          f.targetAngle += f.circleSpeed * dt;
-        }
-
-        f.speed += (f.targetSpeed - f.speed) * (4.0 * dt);
-        f.angle += (f.targetAngle - f.angle) * (f.steeringForce * dt);
-
-        let nextX = f.x + Math.cos(f.angle) * f.speed * dt;
-        let nextY = f.y + Math.sin(f.angle) * f.speed * dt;
-
-        if (moonR > 0) {
-          const dx = nextX - moonX;
-          const dy = nextY - moonY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < avoidanceShield) {
-            f.targetAngle = Math.atan2(dy, dx) + utils.randomRange(-0.4, 0.4);
-            f.angle = f.targetAngle;
-            f.isCircling = false;
-            f.hoverTarget = null;
-            nextX = moonX + (dx / dist) * avoidanceShield;
-            nextY = moonY + (dy / dist) * avoidanceShield;
-          }
-        }
-
-        if (nextY < h * 0.42) {
-          f.targetAngle = Math.PI / 2 + utils.randomRange(-0.5, 0.5);
-          f.hoverTarget = null;
-        }
-
-        f.x = nextX;
-        f.y = nextY;
-
-        const padding = 20;
-        if (f.x < -padding) f.x = w + padding;
-        if (f.x > w + padding) f.x = -padding;
-        if (f.y > h + padding) f.y = h * 0.45;
-
-        f.pulsePhase += f.pulseSpeed * dt;
-        const sineWave = Math.sin(f.pulsePhase);
-        let activeOpacity = 0;
-        if (sineWave > -0.3) {
-          activeOpacity = f.maxOpacity * ((sineWave + 0.3) / 1.3);
-        }
-
-        if (moonR > 0) {
-          const dx = f.x - moonX;
-          const dy = f.y - moonY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const glareLimit = moonR * 3.5;
-
-          if (distance < glareLimit) {
-            const factor = utils.clamp((distance - moonR * 1.1) / (glareLimit - moonR * 1.1), 0.1, 1.0);
-            activeOpacity *= factor;
-          }
-        }
-        f.opacity = activeOpacity;
-      }
-
-      // 2. Update Floating Petals
-      for (let i = 0; i < this.petals.length; i++) {
-        const p = this.petals[i];
-
-        p.life -= dt;
-        if (p.life <= 0) {
-          this.petals[i] = this.createPetal(w, h, false);
-          continue;
-        }
-
-        p.rotation += p.rotSpeed * dt;
-        p.dipPhase += p.dipSpeed * dt;
-
-        const windDrift = Math.sin(p.dipPhase) * p.dipAmp;
-
-        p.x += (p.vx + windDrift) * dt;
-        p.y += p.vy * dt;
-
-        if (p.x > w + 50 || p.y < -50) {
-          this.petals[i] = this.createPetal(w, h, false);
-          continue;
-        }
-
-        const lifeRatio = p.life / p.maxLife;
-        let activeOpacity = p.maxOpacity;
-        if (lifeRatio < 0.25) {
-          activeOpacity = p.maxOpacity * (lifeRatio / 0.25);
-        } else if (lifeRatio > 0.85) {
-          activeOpacity = p.maxOpacity * ((1.0 - lifeRatio) / 0.15);
-        }
-
-        if (moonR > 0) {
-          const dx = p.x - moonX;
-          const dy = p.y - moonY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const glareLimit = moonR * 2.2;
-
-          if (distance < glareLimit) {
-            const factor = utils.clamp((distance - moonR) / (glareLimit - moonR), 0.35, 1.0);
-            activeOpacity *= factor;
-          }
-        }
-
-        p.opacity = utils.clamp(activeOpacity, 0, 1.0);
-      }
-
-      // 3. Update Ambient Dust
-      for (let i = 0; i < this.dust.length; i++) {
-        const d = this.dust[i];
-
-        d.x += d.vx * dt;
-        d.y += d.vy * dt;
-
-        if (d.y < -10) {
-          d.y = h + 10;
-          d.x = utils.randomRange(0, w);
-        }
-
-        d.pulsePhase += d.pulseSpeed * dt;
-        const flicker = 0.7 + Math.sin(d.pulsePhase) * 0.3;
-        
-        let opacity = d.baseOpacity * flicker;
-
-        if (moonR > 0) {
-          const dx = d.x - moonX;
-          const dy = d.y - moonY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const glareLimit = moonR * 2.5;
-
-          if (distance < glareLimit) {
-            opacity *= utils.clamp((distance - moonR) / (glareLimit - moonR), 0.15, 1.0);
-          }
-        }
-
-        d.opacity = opacity;
-      }
-    },
-
-    render() {
-      if (!this.ctx) return;
-
-      const ctx = this.ctx;
-      ctx.clearRect(0, 0, State.width, State.height);
-
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-
-      // 1. Draw Ambient Dust
-      for (let i = 0; i < this.dust.length; i++) {
-        const d = this.dust[i];
-        if (d.opacity <= 0.01) continue;
-
-        const dpx = State.mouseX * State.width * d.parallax;
-        const dpy = State.mouseY * State.height * d.parallax;
-
-        ctx.beginPath();
-        ctx.arc(d.x + dpx, d.y + dpy, d.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(253, 246, 226, ${d.opacity})`;
-        ctx.fill();
-      }
-
-      // 2. Draw Fireflies
-      for (let i = 0; i < this.fireflies.length; i++) {
-        const f = this.fireflies[i];
-        if (f.opacity <= 0.01) continue;
-
-        const px = State.mouseX * State.width * f.parallax;
-        const py = State.mouseY * State.height * f.parallax;
-
-        const renderX = f.x + px;
-        const renderY = f.y + py;
-
-        const innerColor = `hsla(74, 90%, 65%, ${f.opacity})`;
-        const midColor = `hsla(74, 80%, 60%, ${f.opacity * 0.35})`;
-        const outerFade = 'rgba(150, 200, 50, 0)';
-
-        const glow = ctx.createRadialGradient(
-          renderX, renderY, f.size * 0.2,
-          renderX, renderY, f.size * 5.0
-        );
-        glow.addColorStop(0, innerColor);
-        glow.addColorStop(0.2, midColor);
-        glow.addColorStop(1, outerFade);
-
-        ctx.beginPath();
-        ctx.arc(renderX, renderY, f.size * 5.0, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
-      }
-
-      // 3. Draw Floating Petals
-      ctx.globalCompositeOperation = 'source-over';
-      
-      for (let i = 0; i < this.petals.length; i++) {
-        const p = this.petals[i];
-        if (p.opacity <= 0.01) continue;
-
-        const ppx = State.mouseX * State.width * p.parallax;
-        const ppy = State.mouseY * State.height * p.parallax;
-
-        const rx = p.x + ppx;
-        const ry = p.y + ppy;
-
-        ctx.save();
-        ctx.translate(rx, ry);
-        ctx.rotate(p.rotation);
-
-        ctx.beginPath();
-        ctx.moveTo(-p.width / 2, 0);
-        ctx.quadraticCurveTo(0, -p.height / 2, p.width / 2, 0);
-        ctx.quadraticCurveTo(0, p.height / 2, -p.width / 2, 0);
-        ctx.closePath();
-
-        const petalGrad = ctx.createLinearGradient(0, -p.height / 2, 0, p.height / 2);
-        petalGrad.addColorStop(0, `hsla(350, 55%, 90%, ${p.opacity})`);
-        petalGrad.addColorStop(1, `hsla(265, 30%, 82%, ${p.opacity * 0.85})`);
-
-        ctx.fillStyle = petalGrad;
-        ctx.fill();
-
-        ctx.restore();
-      }
-
-      ctx.restore();
-    }
-  };
-
-  /**
-   * Parchment Scroll Controller (Version 4.5 Sub-System - Replaces EnvelopeSystem)
-   * Manages rolling animations, vertical scaling, line reveals, and continue actions.
-   */
-  const ScrollSystem = {
-    name: 'ScrollSystem',
-    dom: {},
-    lines: [],
-    lineTimer: 0,
-    lineDelay: 1600, 
-    activeLineIndex: 0,
-    isOpened: false,
-
-    init() {
-      this.dom = {
-        scroll: document.getElementById('scroll-intro'),
-        trigger: document.getElementById('scroll-continue-trigger'),
-        lines: document.querySelectorAll('.scroll-line')
-      };
-
-      if (!this.dom.scroll) {
-        this.dom = { scroll: null };
-        return;
-      }
-
-      this.lines = Array.from(this.dom.lines);
-      this.bindEvents();
-    },
-
-    bindEvents() {
-      if (this.dom.trigger) {
-        this.dom.trigger.addEventListener('click', () => {
-          this.playPaperSound('scroll_exit');
-          this.triggerScrollExit();
-        });
-      }
-    },
-
-    triggerScrollLanding() {
-      if (!this.dom.scroll) return;
-      this.dom.scroll.classList.add('state-scroll-down');
-      this.playPaperSound('scroll_slide_in');
-
-      setTimeout(() => {
-        this.triggerScrollUnroll();
-      }, 1800);
-    },
-
-    triggerScrollUnroll() {
-      if (!this.dom.scroll) return;
-      this.dom.scroll.classList.add('state-scroll-open');
-      this.playPaperSound('scroll_unroll');
-
-      setTimeout(() => {
-        this.isOpened = true;
-      }, 2000);
-    },
-
-    triggerScrollExit() {
-      if (!this.dom.scroll) return;
-      
-      this.dom.scroll.classList.remove('state-scroll-open');
-      this.dom.scroll.classList.add('fade-out');
-
-      const worldLayer = document.getElementById('layer-world');
-      if (worldLayer) {
-        worldLayer.classList.add('state-camera-zoom');
-        worldLayer.classList.add('state-blur-garden');
-      }
-
-      setTimeout(() => {
-        GallerySystem.activate();
-      }, 1800);
-    },
-
-    playPaperSound(type) {
-      console.log(`Audio Event Triggered: paper_${type}`);
-    },
-
-    update(dt) {
-      if (!this.isOpened || this.activeLineIndex >= this.lines.length) return;
-
-      this.lineTimer += dt * 1000;
-      if (this.lineTimer >= this.lineDelay) {
-        this.lineTimer = 0;
-        
-        const line = this.lines[this.activeLineIndex];
-        if (line) {
-          this.playPaperSound('line_fade');
-          line.classList.add('visible');
-        }
-        
-        this.activeLineIndex++;
-
-        if (this.activeLineIndex === this.lines.length) {
-          this.revealContinueBtn();
-        }
-      }
-    },
-
-    revealContinueBtn() {
-      setTimeout(() => {
-        this.playPaperSound('continue_unlocked');
-        if (this.dom.trigger) {
-          this.dom.trigger.classList.add('visible');
-          this.dom.trigger.setAttribute('tabindex', '0');
-          this.dom.trigger.setAttribute('aria-hidden', 'false');
-        }
-      }, 1200);
-    },
-
-    render() {
-      if (!this.dom.scroll) return;
-
-      const px = State.mouseX * State.width * 0.022;
-      const py = State.mouseY * State.height * 0.022;
-      
-      this.dom.scroll.style.marginLeft = `${px}px`;
-      
-      if (!State.isScrollOpening) {
-        this.dom.scroll.style.marginTop = `${py}px`;
+        ctx.fillStyle = flower.color.center;
+        ctx.beginPath(); ctx.arc(0, 0, 1.6 * s, 0, Math.PI * 2); ctx.fill();
+        break;
       }
     }
-  };
+    ctx.restore();
+  }
 
-  /**
-   * Memory Gallery System (Version 4.5 Scrapbook Memory Lane Board - Fixed arrays & undefined playPaperSound exceptions)
-   * Seeded with Polaroids, vintage Postcards, and handwritten note scraps.
-   */
-  const GallerySystem = {
-    name: 'GallerySystem',
-    dom: {},
-    touchStartX: 0,
-    touchStartY: 0,
+  loop(now = performance.now()) {
+    if (!this.isRunning) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    const isReduced = Utils.prefersReducedMotion();
 
-    scraps: [
-      {
-        id: 'scrap-1',
-        type: 'polaroid',
-        title: 'Starlit Walk',
-        date: 'Oct 14, 2024',
-        sceneClass: 'scene-gradient-starry',
-        hasMoon: true,
-        hasMountain: true,
-        x: 60, y: 40, rot: -8, scale: 0.95, z: 2
-      },
-      {
-        id: 'scrap-2',
-        type: 'polaroid',
-        title: 'Twilight Lake',
-        date: 'Nov 22, 2024',
-        sceneClass: 'scene-gradient-sunset',
-        hasFlower: true,
-        hasMountain: true,
-        x: 480, y: 30, rot: 5, scale: 1.0, z: 4
-      },
-      {
-        id: 'scrap-3',
-        type: 'polaroid',
-        title: 'December Wish',
-        date: 'Dec 25, 2024',
-        sceneClass: 'scene-gradient-aurora',
-        hasStars: true,
-        hasMountain: true,
-        x: 270, y: 220, rot: -3, scale: 1.05, z: 6
-      },
-      {
-        id: 'scrap-4',
-        type: 'postcard',
-        title: 'The Journey',
-        text: 'Every step taken alongside you feels like walking through a dream... May we continue charting constellations together.',
-        x: 60, y: 280, rot: 4, scale: 0.9, z: 3
-      },
-      {
-        id: 'scrap-5',
-        type: 'note',
-        text: 'A quick little note just to say... thank you for being the warmest light in my sky. ✿',
-        x: 320, y: 20, rot: -12, scale: 0.85, z: 1
-      },
-      {
-        id: 'scrap-6',
-        type: 'polaroid',
-        title: 'Golden Meadows',
-        date: 'Jan 02, 2025',
-        sceneClass: 'scene-gradient-sunset',
-        hasFlower: true,
-        x: 540, y: 280, rot: -6, scale: 0.95, z: 5
-      }
-    ],
+    const windMult = this.isCalmWind ? 0.45 : 1.0;
+    const globalWind = isReduced ? 0 : (Math.sin(now * 0.0008) * 9 + Math.cos(now * 0.0018) * 4) * windMult;
+    const grassBaseY = this.height - Math.max(10, this.safeBottomInset + 6);
 
-    init() {
-      this.dom = {
-        wrapper: document.getElementById('memory-gallery'),
-        board: document.getElementById('gallery-board-container')
-      };
+    for (let layer = 0; layer < 3; layer++) {
+      const layerBlades = this.blades.filter(b => b.layer === layer);
+      for (let blade of layerBlades) {
+        const gustWave = isReduced ? 0 : Math.sin(now * 0.0012 - blade.x * 0.0025) * 7 * windMult;
+        const bladeSway = isReduced ? 0 : (globalWind + gustWave + Math.sin(now * blade.freq + blade.phase) * 3) * blade.flexibility;
 
-      if (!this.dom.wrapper) {
-        this.dom = { wrapper: null, board: null };
-        return;
-      }
+        const totalOffset = blade.naturalCurve + bladeSway;
+        const tipX = blade.x + totalOffset;
+        const tipY = grassBaseY - blade.height;
+        const ctrlX = blade.x + totalOffset * 0.5;
+        const ctrlY = grassBaseY - blade.height * 0.55;
+        const halfWidth = blade.baseWidth * 0.5;
 
-      this.buildScrapbookBoard();
-      this.bindTouchGestures();
-    },
+        this.ctx.save();
+        this.ctx.fillStyle = blade.color;
+        this.ctx.beginPath();
+        this.ctx.moveTo(blade.x - halfWidth, grassBaseY);
+        this.ctx.quadraticCurveTo(ctrlX - halfWidth * 0.3, ctrlY, tipX, tipY);
+        this.ctx.quadraticCurveTo(ctrlX + halfWidth * 0.3, ctrlY, blade.x + halfWidth, grassBaseY);
+        this.ctx.closePath();
+        this.ctx.fill();
 
-    buildScrapbookBoard() {
-      if (!this.dom.board) return;
-      this.dom.board.innerHTML = '';
-
-      this.scraps.forEach(s => {
-        const item = document.createElement('div');
-        item.className = `${s.type}-scrappy`;
-        item.id = s.id;
-        item.setAttribute('tabindex', '0');
-        item.setAttribute('role', 'button');
-        item.setAttribute('aria-label', `Memory piece: ${s.title || 'Handwritten note'}`);
-
-        item.style.left = `${s.x}px`;
-        item.style.top = `${s.y}px`;
-        item.style.zIndex = s.z;
-
-        item.dataset.rot = s.rot;
-        item.dataset.scale = s.scale;
-
-        if (s.type === 'polaroid') {
-          let internalSceneHTML = `<div class="scrappy-scene ${s.sceneClass}">`;
-          if (s.hasStars) internalSceneHTML += `<div class="procedural-stars"></div>`;
-          if (s.hasMoon) internalSceneHTML += `<div class="procedural-moon"></div>`;
-          if (s.hasMountain) internalSceneHTML += `<div class="procedural-mountain"></div>`;
-          if (s.hasFlower) internalSceneHTML += `<div class="procedural-flower-silhouette"></div>`;
-          internalSceneHTML += `</div>`;
-
-          item.innerHTML = `
-            <div class="photo-slot">
-              ${internalSceneHTML}
-            </div>
-            <div class="polaroid-caption">
-              <h3 class="caption-title">${s.title}</h3>
-              <span class="caption-date">${s.date}</span>
-            </div>
-          `;
-        } else if (s.type === 'postcard') {
-          item.innerHTML = `
-            <div class="vintage-borders"></div>
-            <div class="postcard-divider"></div>
-            <div class="note-text" style="width: 44%;">
-              <p style="margin: 0 0 4px 0; font-weight: bold; border-bottom: 1px dashed rgba(140, 120, 100, 0.35); padding-bottom: 2px;">Postcard</p>
-              ${s.text}
-            </div>
-          `;
-          item.style.width = '240px';
-          item.style.height = '160px';
-        } else if (s.type === 'note') {
-          item.innerHTML = `
-            <div class="note-text" style="width: 140px;">
-              ${s.text}
-            </div>
-          `;
+        if (blade.hasHighlight) {
+          this.ctx.strokeStyle = Config.grass.moonlightTip;
+          this.ctx.lineWidth = 0.75;
+          this.ctx.beginPath();
+          this.ctx.moveTo(ctrlX, ctrlY);
+          this.ctx.quadraticCurveTo(ctrlX + totalOffset * 0.2, tipY + blade.height * 0.15, tipX, tipY);
+          this.ctx.stroke();
         }
-
-        this.dom.board.appendChild(item);
-      });
-
-      this.onResize(State.width, State.height, State.pixelRatio);
-    },
-
-    bindTouchGestures() {
-      if (!this.dom.board) return;
-      const handleStart = (e) => {
-        if (!State.isGalleryActive) return;
-        this.touchStartX = e.touches[0].clientX;
-        this.touchStartY = e.touches[0].clientY;
-      };
-
-      const handleEnd = (e) => {
-        if (!State.isGalleryActive) return;
-        const diffX = e.changedTouches[0].clientX - this.touchStartX;
-        const diffY = e.changedTouches[0].clientY - this.touchStartY;
-      };
-
-      this.dom.board.addEventListener('touchstart', handleStart, { passive: true });
-      this.dom.board.addEventListener('touchend', handleEnd, { passive: true });
-    },
-
-    activate() {
-      if (State.isGalleryActive) return;
-      State.isGalleryActive = true;
-
-      if (this.dom.wrapper) {
-        this.dom.wrapper.classList.add('active');
-        this.dom.wrapper.setAttribute('aria-hidden', 'false');
+        this.ctx.restore();
       }
 
-      if (!this.dom.board) return;
-      const scrapNodes = Array.from(this.dom.board.children);
-      
-      scrapNodes.forEach((node, idx) => {
-        setTimeout(() => {
-          playPaperSound('scrap_drop');
-          
-          node.classList.add('visible');
-          
-          const r = node.dataset.rot;
-          const s = node.dataset.scale;
-          node.style.transform = `scale(${s}) rotate(${r}deg) translateY(0)`;
-        }, idx * 280); 
-      });
+      const layerFlowers = this.flowers.filter(f => f.layer === layer);
+      for (let flower of layerFlowers) {
+        const flowerBaseY = grassBaseY - flower.plantZoneOffset;
+        const gustWave = isReduced ? 0 : Math.sin(now * 0.001 - flower.x * 0.002) * 5 * windMult;
+        const flowerSway = isReduced ? 0 : (globalWind + gustWave + Math.sin(now * flower.freq + flower.phase) * 2) * flower.windFactor;
 
-      playPaperSound('board_unveiled');
-    },
+        const totalOffset = flower.stemCurve + flowerSway;
+        const tipX = flower.x + totalOffset;
+        const tipY = flowerBaseY - flower.stemHeight;
+        const ctrlX = flower.x + totalOffset * 0.5;
+        const ctrlY = flowerBaseY - flower.stemHeight * 0.5;
 
-    onResize(width, height, dpr) {
-      if (!this.dom.board) return;
+        this.ctx.save();
+        this.ctx.strokeStyle = "#254238";
+        this.ctx.lineWidth = 1.4 * flower.scale;
+        this.ctx.beginPath();
+        this.ctx.moveTo(flower.x, flowerBaseY);
+        this.ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+        this.ctx.stroke();
+        this.ctx.restore();
 
-      const baseWidth = 850;
-      const baseHeight = 540;
-      
-      const scale = Math.min(width / baseWidth, height / baseHeight);
-      const targetScale = Utils.clamp(scale, 0.44, 1.0); 
-      
-      this.dom.board.style.transform = `scale(${targetScale})`;
-    },
-
-    update(dt) {},
-
-    render() {
-      if (!this.dom.wrapper || !State.isGalleryActive || !this.dom.board) return;
-
-      const px = State.mouseX * State.width * 0.024;
-      const py = State.mouseY * State.height * 0.024;
-      this.dom.board.style.marginLeft = `${px}px`;
-      this.dom.board.style.marginTop = `${py}px`;
-    }
-  };
-
-  /**
-   * Scene Manager to handle initialization lifecycle steps,
-   * mount scene layers, and control transition states. (Preserved & Enhanced)
-   */
-  const SceneManager = {
-    dom: {},
-
-    init() {
-      this.dom = {
-        loading: document.getElementById('layer-loading'),
-        world: document.getElementById('layer-world'),
-      };
-    },
-
-    revealWorld() {
-      if (State.isLoaded) return; // Prevent duplicate revealWorld execution
-      State.isLoaded = true;
-
-      if (this.dom.loading) {
-        this.dom.loading.style.opacity = '0';
-        this.dom.loading.style.pointerEvents = 'none';
-
-        setTimeout(() => {
-          this.dom.loading.style.display = 'none';
-          LoadingSystem.destroy();
-          GardenEngine.unregisterSystem(LoadingSystem);
-          
-          // Step 4 & 5: Wait about 900 ms after loading has faded out, then slide Scroll into center
-          setTimeout(() => {
-            if (ScrollSystem && typeof ScrollSystem.triggerScrollLanding === 'function') {
-              ScrollSystem.triggerScrollLanding();
-            }
-          }, 900);
-        }, 1200);
+        this.drawFlower(flower, tipX, tipY);
       }
     }
-  };
 
-  /**
-   * Mathematical and functional utility helpers. (Preserved)
-   */
-  const Utils = {
-    randomRange(min, max) {
-      return Math.random() * (max - min) + min;
-    },
-
-    clamp(value, min, max) {
-      return Math.min(Math.max(value, min), max);
-    }
-  };
-
-  // Public API exposure (Preserved & Enhanced)
-  return {
-    init() {
-      if (State.isInitialized) return;
-
-      ResizeManager.init();
-      SceneManager.init();
-      
-      // Register global systems
-      this.registerSystem(LoadingSystem);
-      this.registerSystem(EnvironmentSystem);
-      this.registerSystem(MoonSystem); 
-      this.registerSystem(StarSystem); 
-      this.registerSystem(CloudSystem); 
-      this.registerSystem(MeadowSystem); 
-      this.registerSystem(EffectsSystem); 
-      this.registerSystem(ScrollSystem); 
-      this.registerSystem(GallerySystem); 
-      
-      AnimationManager.start();
-
-      // Meticulous Fail-Safe Fallback: Guarantees revealWorld runs in 5 seconds even if loader blocks
-      setTimeout(() => {
-        if (!State.isLoaded) {
-          console.warn('Bootstrapping fall-safe fallback triggered.');
-          SceneManager.revealWorld();
-        }
-      }, 5000);
-
-      State.isInitialized = true;
-      console.log('Garden Engine initialized.');
-    },
-
-    registerSystem(system) {
-      if (system && typeof system.init === 'function') {
-        system.init(State.width, State.height, State.pixelRatio);
-        ActiveSystems.add(system);
-        console.log(`System mounted successfully: ${system.name || 'Anonymous'}`);
-      }
-    },
-
-    unregisterSystem(system) {
-      if (ActiveSystems.has(system)) {
-        ActiveSystems.delete(system);
-      }
-    },
-
-    getUtils() {
-      return Utils;
-    }
-  };
-})();
-
-// Dual-State Initialization: safely bypasses DOMContentLoaded readyState triggers
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    GardenEngine.init();
-  });
-} else {
-  GardenEngine.init();
+    this.animFrameId = requestAnimationFrame(timestamp => this.loop(timestamp));
+  }
 }
+
+/* ==================================================
+   8. EXACT ORIGINAL FIREWORK ENGINE FROM INDEX(1).HTML
+   ================================================== */
+const GRAVITY = 0.9;
+let simSpeed = 1;
+
+const COLOR = {
+  Red: '#ff0043', Green: '#14fc56', Blue: '#1e7fff',
+  Purple: '#e60aff', Gold: '#ffbf36', White: '#ffffff'
+};
+const INVISIBLE = '_INVISIBLE_';
+const COLOR_CODES = Object.values(COLOR);
+const COLOR_CODES_W_INVIS = [...COLOR_CODES, INVISIBLE];
+const PI_2 = Math.PI * 2;
+const PI_HALF = Math.PI * 0.5;
+
+const COLOR_TUPLES = {
+  '#ff0043': { r: 255, g: 0, b: 67 },
+  '#14fc56': { r: 20, g: 252, b: 86 },
+  '#1e7fff': { r: 30, g: 127, b: 255 },
+  '#e60aff': { r: 230, g: 10, b: 255 },
+  '#ffbf36': { r: 255, g: 191, b: 54 },
+  '#ffffff': { r: 255, g: 255, b: 255 }
+};
+
+function randomColorSimple() { return COLOR_CODES[Math.floor(Math.random() * COLOR_CODES.length)]; }
+let lastColor;
+function randomColor(options) {
+  const notSame = options && options.notSame;
+  const notColor = options && options.notColor;
+  const limitWhite = options && options.limitWhite;
+  let color = randomColorSimple();
+
+  if (limitWhite && color === COLOR.White && Math.random() < 0.6) {
+    color = randomColorSimple();
+  }
+  if (notSame) {
+    while (color === lastColor) { color = randomColorSimple(); }
+  } else if (notColor) {
+    while (color === notColor) { color = randomColorSimple(); }
+  }
+  lastColor = color;
+  return color;
+}
+function whiteOrGold() { return Math.random() < 0.5 ? COLOR.Gold : COLOR.White; }
+function makePistilColor(c) { return (c === COLOR.White || c === COLOR.Gold) ? randomColor({ notColor: c }) : whiteOrGold(); }
+
+function createParticleCollection() {
+  const col = {};
+  COLOR_CODES_W_INVIS.forEach(c => col[c] = []);
+  return col;
+}
+
+const Star = {
+  drawWidth: 3.0,
+  airDrag: 0.98,
+  airDragHeavy: 0.992,
+  active: createParticleCollection(),
+  _pool: [],
+
+  _new() { return {}; },
+
+  add(x, y, color, angle, speed, life, speedOffX, speedOffY) {
+    const inst = this._pool.pop() || this._new();
+    inst.visible = true; inst.heavy = false;
+    inst.x = x; inst.y = y; inst.prevX = x; inst.prevY = y;
+    inst.color = color;
+    inst.speedX = Math.sin(angle) * speed + (speedOffX || 0);
+    inst.speedY = Math.cos(angle) * speed + (speedOffY || 0);
+    inst.life = life; inst.fullLife = life;
+    inst.spinAngle = Math.random() * PI_2; inst.spinSpeed = 0.8; inst.spinRadius = 0;
+    inst.sparkFreq = 0; inst.sparkSpeed = 1; inst.sparkTimer = 0;
+    inst.sparkColor = color; inst.sparkLife = 750; inst.sparkLifeVariation = 0.25;
+    inst.strobe = false;
+    this.active[color].push(inst);
+    return inst;
+  },
+
+  returnInstance(inst) {
+    if (inst.onDeath) inst.onDeath(inst);
+    inst.onDeath = null; inst.secondColor = null; inst.transitionTime = 0; inst.colorChanged = false;
+    this._pool.push(inst);
+  }
+};
+
+const Spark = {
+  drawWidth: 0.85,
+  airDrag: 0.9,
+  active: createParticleCollection(),
+  _pool: [],
+
+  _new() { return {}; },
+
+  add(x, y, color, angle, speed, life) {
+    const inst = this._pool.pop() || this._new();
+    inst.x = x; inst.y = y; inst.prevX = x; inst.prevY = y;
+    inst.color = color;
+    inst.speedX = Math.sin(angle) * speed;
+    inst.speedY = Math.cos(angle) * speed;
+    inst.life = life;
+    this.active[color].push(inst);
+    return inst;
+  },
+
+  returnInstance(inst) { this._pool.push(inst); }
+};
+
+const BurstFlash = {
+  active: [],
+  _pool: [],
+  _new() { return {}; },
+  add(x, y, radius, colorTuple) {
+    const inst = this._pool.pop() || this._new();
+    inst.x = x; inst.y = y; inst.radius = radius;
+    inst.colorTuple = colorTuple || { r: 255, g: 220, b: 150 };
+    this.active.push(inst);
+    return inst;
+  },
+  returnInstance(inst) { this._pool.push(inst); }
+};
+
+function createParticleArc(start, arcLength, count, randomness, particleFactory) {
+  const angleDelta = arcLength / count;
+  const end = start + arcLength - (angleDelta * 0.5);
+  if (end > start) {
+    for (let angle = start; angle < end; angle += angleDelta) {
+      particleFactory(angle + Math.random() * angleDelta * randomness);
+    }
+  } else {
+    for (let angle = start; angle > end; angle += angleDelta) {
+      particleFactory(angle + Math.random() * angleDelta * randomness);
+    }
+  }
+}
+
+function createBurst(count, particleFactory, startAngle = 0, arcLength = PI_2) {
+  const R = 0.5 * Math.sqrt(count / Math.PI);
+  const C = 2 * R * Math.PI;
+  const C_HALF = C / 2;
+  for (let i = 0; i <= C_HALF; i++) {
+    const ringAngle = i / C_HALF * PI_HALF;
+    const ringSize = Math.cos(ringAngle);
+    const partsPerFullRing = C * ringSize;
+    const partsPerArc = partsPerFullRing * (arcLength / PI_2);
+    const angleInc = PI_2 / partsPerFullRing;
+    const angleOffset = Math.random() * angleInc + startAngle;
+    const maxRandomAngleOffset = angleInc * 0.33;
+    for (let j = 0; j < partsPerArc; j++) {
+      let angle = angleInc * j + angleOffset + Math.random() * maxRandomAngleOffset;
+      particleFactory(angle, ringSize);
+    }
+  }
+}
+
+function crossetteEffect(star) {
+  const startAngle = Math.random() * PI_HALF;
+  createParticleArc(startAngle, PI_2, 4, 0.5, angle => {
+    Star.add(star.x, star.y, star.color, angle, Math.random() * 0.6 + 0.75, 600);
+  });
+}
+
+function floralEffect(star) {
+  createBurst(18, (angle, speedMult) => {
+    Star.add(star.x, star.y, star.color, angle, speedMult * 2.4, 1000 + Math.random() * 300, star.speedX, star.speedY);
+  });
+  BurstFlash.add(star.x, star.y, 46);
+  soundManager.playSound('burstSmall');
+}
+
+function fallingLeavesEffect(star) {
+  createBurst(7, (angle, speedMult) => {
+    const newStar = Star.add(star.x, star.y, INVISIBLE, angle, speedMult * 2.4, 2400 + Math.random() * 600, star.speedX, star.speedY);
+    newStar.sparkColor = COLOR.Gold;
+    newStar.sparkFreq = 120;
+    newStar.sparkSpeed = 0.28;
+    newStar.sparkLife = 750;
+    newStar.sparkLifeVariation = 3.2;
+  });
+  BurstFlash.add(star.x, star.y, 46);
+  soundManager.playSound('burstSmall');
+}
+
+function crackleEffect(star) {
+  createParticleArc(0, PI_2, 32, 1.8, angle => {
+    Spark.add(star.x, star.y, COLOR.Gold, angle, Math.pow(Math.random(), 0.45) * 2.4, 300 + Math.random() * 200);
+  });
+}
+
+// 12-inch shell definitions (size = 4)
+const crysanthemumShell = (size = 4) => {
+  const glitter = Math.random() < 0.25;
+  const singleColor = Math.random() < 0.72;
+  const color = singleColor ? randomColor({ limitWhite: true }) : [randomColor(), randomColor({ notSame: true })];
+  const pistil = singleColor && Math.random() < 0.42;
+  const pistilColor = pistil && makePistilColor(color);
+  const secondColor = singleColor && (Math.random() < 0.2 || color === COLOR.White) ? pistilColor || randomColor({ notColor: color, limitWhite: true }) : null;
+  const streamers = !pistil && color !== COLOR.White && Math.random() < 0.42;
+  return {
+    shellSize: size, spreadSize: 300 + size * 100, starLife: 900 + size * 200, starDensity: 1.2,
+    color, secondColor, glitter: glitter ? 'light' : '', glitterColor: whiteOrGold(),
+    pistil, pistilColor, streamers
+  };
+};
+
+const ghostShell = (size = 4) => {
+  const shell = crysanthemumShell(size);
+  shell.starLife *= 1.5;
+  let ghostColor = randomColor({ notColor: COLOR.White });
+  shell.streamers = true;
+  shell.color = INVISIBLE;
+  shell.secondColor = ghostColor;
+  shell.glitter = '';
+  return shell;
+};
+
+const strobeShell = (size = 4) => {
+  const color = randomColor({ limitWhite: true });
+  return {
+    shellSize: size, spreadSize: 280 + size * 92, starLife: 1100 + size * 200, starLifeVariation: 0.40,
+    starDensity: 1.1, color, glitter: 'light', glitterColor: COLOR.White, strobe: true,
+    strobeColor: Math.random() < 0.5 ? COLOR.White : null, pistil: Math.random() < 0.5, pistilColor: makePistilColor(color)
+  };
+};
+
+const palmShell = (size = 4) => {
+  const color = randomColor();
+  const thick = Math.random() < 0.5;
+  return {
+    shellSize: size, color, spreadSize: 250 + size * 75, starDensity: thick ? 0.15 : 0.4,
+    starLife: 1800 + size * 200, glitter: thick ? 'thick' : 'heavy'
+  };
+};
+
+const ringShell = (size = 4) => {
+  const color = randomColor();
+  const pistil = Math.random() < 0.75;
+  return {
+    shellSize: size, ring: true, color, spreadSize: 300 + size * 100, starLife: 900 + size * 200,
+    starCount: 2.2 * PI_2 * (size + 1), pistil, pistilColor: makePistilColor(color),
+    glitter: !pistil ? 'light' : '', glitterColor: color === COLOR.Gold ? COLOR.Gold : COLOR.White,
+    streamers: Math.random() < 0.3
+  };
+};
+
+const crossetteShell = (size = 4) => {
+  const color = randomColor({ limitWhite: true });
+  return {
+    shellSize: size, spreadSize: 300 + size * 100, starLife: 750 + size * 160, starLifeVariation: 0.4,
+    starDensity: 0.85, color, crossette: true, pistil: Math.random() < 0.5, pistilColor: makePistilColor(color)
+  };
+};
+
+const floralShell = (size = 4) => ({
+  shellSize: size, spreadSize: 300 + size * 120, starDensity: 0.12, starLife: 500 + size * 50,
+  starLifeVariation: 0.5, color: Math.random() < 0.65 ? 'random' : (Math.random() < 0.15 ? randomColor() : [randomColor(), randomColor({ notSame: true })]), floral: true
+});
+
+const fallingLeavesShell = (size = 4) => ({
+  shellSize: size, color: INVISIBLE, spreadSize: 300 + size * 120, starDensity: 0.12, starLife: 500 + size * 50,
+  starLifeVariation: 0.5, glitter: 'medium', glitterColor: COLOR.Gold, fallingLeaves: true
+});
+
+const willowShell = (size = 4) => ({
+  shellSize: size, spreadSize: 300 + size * 100, starDensity: 0.6, starLife: 3000 + size * 300,
+  glitter: 'willow', glitterColor: COLOR.Gold, color: INVISIBLE
+});
+
+const crackleShell = (size = 4) => {
+  const color = Math.random() < 0.75 ? COLOR.Gold : randomColor();
+  return {
+    shellSize: size, spreadSize: 380 + size * 75, starDensity: 1, starLife: 600 + size * 100,
+    starLifeVariation: 0.32, glitter: 'light', glitterColor: COLOR.Gold, color, crackle: true,
+    pistil: Math.random() < 0.65, pistilColor: makePistilColor(color)
+  };
+};
+
+const horsetailShell = (size = 4) => {
+  const color = randomColor();
+  return {
+    shellSize: size, horsetail: true, color, spreadSize: 250 + size * 38, starDensity: 0.9,
+    starLife: 2500 + size * 300, glitter: 'medium', glitterColor: Math.random() < 0.5 ? whiteOrGold() : color,
+    strobe: color === COLOR.White
+  };
+};
+
+const shellTypes = {
+  'Crackle': crackleShell, 'Crossette': crossetteShell, 'Crysanthemum': crysanthemumShell,
+  'Falling Leaves': fallingLeavesShell, 'Floral': floralShell, 'Ghost': ghostShell,
+  'Horse Tail': horsetailShell, 'Palm': palmShell, 'Ring': ringShell,
+  'Strobe': strobeShell, 'Willow': willowShell
+};
+
+const shellNames = Object.keys(shellTypes);
+
+class Shell {
+  constructor(options) {
+    Object.assign(this, options);
+    this.starLifeVariation = options.starLifeVariation || 0.125;
+    this.color = options.color || randomColor();
+    this.glitterColor = options.glitterColor || this.color;
+
+    if (!this.starCount) {
+      const density = options.starDensity || 1;
+      const scaledSize = this.spreadSize / 54;
+      this.starCount = Math.max(6, scaledSize * scaledSize * density);
+    }
+  }
+
+  launch(position, launchHeight) {
+    const width = stageW; const height = stageH;
+    const hpad = 60; const vpad = 50;
+    const minHeightPercent = 0.45;
+    const minHeight = height - height * minHeightPercent;
+
+    const launchX = position * (width - hpad * 2) + hpad;
+    const launchY = height;
+    const burstY = minHeight - (launchHeight * (minHeight - vpad));
+
+    const launchDistance = launchY - burstY;
+    const launchVelocity = Math.pow(launchDistance * 0.04, 0.64);
+
+    const comet = this.comet = Star.add(
+      launchX, launchY,
+      typeof this.color === 'string' && this.color !== INVISIBLE ? this.color : COLOR.White,
+      Math.PI, launchVelocity * (this.horsetail ? 1.2 : 1),
+      launchVelocity * (this.horsetail ? 100 : 400)
+    );
+
+    comet.heavy = true;
+    comet.spinRadius = MyMath.random(0.32, 0.85);
+    comet.sparkFreq = 12; comet.sparkLife = 320; comet.sparkLifeVariation = 3;
+    if (this.color === INVISIBLE) comet.sparkColor = COLOR.Gold;
+
+    if (Math.random() > 0.4 && !this.horsetail) {
+      comet.secondColor = INVISIBLE;
+      comet.transitionTime = Math.pow(Math.random(), 1.5) * 700 + 500;
+    }
+
+    comet.onDeath = c => this.burst(c.x, c.y);
+    soundManager.playSound('lift');
+  }
+
+  burst(x, y) {
+    const speed = this.spreadSize / 96;
+    let color, onDeath, sparkFreq, sparkSpeed, sparkLife;
+    let sparkLifeVariation = 0.25;
+    let playedDeathSound = false;
+
+    if (this.crossette) onDeath = star => {
+      if (!playedDeathSound) { soundManager.playSound('crackleSmall'); playedDeathSound = true; }
+      crossetteEffect(star);
+    };
+    if (this.crackle) onDeath = star => {
+      if (!playedDeathSound) { soundManager.playSound('crackle'); playedDeathSound = true; }
+      crackleEffect(star);
+    };
+    if (this.floral) onDeath = floralEffect;
+    if (this.fallingLeaves) onDeath = fallingLeavesEffect;
+
+    if (this.glitter === 'light') { sparkFreq = 400; sparkSpeed = 0.3; sparkLife = 300; sparkLifeVariation = 2; }
+    else if (this.glitter === 'medium') { sparkFreq = 200; sparkSpeed = 0.44; sparkLife = 700; sparkLifeVariation = 2; }
+    else if (this.glitter === 'heavy') { sparkFreq = 80; sparkSpeed = 0.8; sparkLife = 1400; sparkLifeVariation = 2; }
+    else if (this.glitter === 'thick') { sparkFreq = 16; sparkSpeed = 1.5; sparkLife = 1400; sparkLifeVariation = 3; }
+    else if (this.glitter === 'streamer') { sparkFreq = 32; sparkSpeed = 1.05; sparkLife = 620; sparkLifeVariation = 2; }
+    else if (this.glitter === 'willow') { sparkFreq = 120; sparkSpeed = 0.34; sparkLife = 1400; sparkLifeVariation = 3.8; }
+
+    const starFactory = (angle, speedMult) => {
+      const standardInitialSpeed = this.spreadSize / 1800;
+      const star = Star.add(
+        x, y, color || randomColor(), angle, speedMult * speed,
+        this.starLife + Math.random() * this.starLife * this.starLifeVariation,
+        this.horsetail ? this.comet && this.comet.speedX : 0,
+        this.horsetail ? this.comet && this.comet.speedY : -standardInitialSpeed
+      );
+
+      if (this.secondColor) {
+        star.transitionTime = this.starLife * (Math.random() * 0.05 + 0.32);
+        star.secondColor = this.secondColor;
+      }
+      if (this.strobe) {
+        star.transitionTime = this.starLife * (Math.random() * 0.08 + 0.46);
+        star.strobe = true;
+        star.strobeFreq = Math.random() * 20 + 40;
+        if (this.strobeColor) star.secondColor = this.strobeColor;
+      }
+      star.onDeath = onDeath;
+      if (this.glitter) {
+        star.sparkFreq = sparkFreq; star.sparkSpeed = sparkSpeed;
+        star.sparkLife = sparkLife; star.sparkLifeVariation = sparkLifeVariation;
+        star.sparkColor = this.glitterColor; star.sparkTimer = Math.random() * star.sparkFreq;
+      }
+    };
+
+    if (typeof this.color === 'string') {
+      color = this.color === 'random' ? null : this.color;
+      if (this.ring) {
+        const ringStartAngle = Math.random() * Math.PI;
+        const ringSquash = Math.pow(Math.random(), 2) * 0.85 + 0.15;
+        createParticleArc(0, PI_2, this.starCount, 0, angle => {
+          const initSpeedX = Math.sin(angle) * speed * ringSquash;
+          const initSpeedY = Math.cos(angle) * speed;
+          const newSpeed = MyMath.pointDist(0, 0, initSpeedX, initSpeedY);
+          const newAngle = MyMath.pointAngle(0, 0, initSpeedX, initSpeedY) + ringStartAngle;
+          const star = Star.add(x, y, color, newAngle, newSpeed, this.starLife + Math.random() * this.starLife * this.starLifeVariation);
+          if (this.glitter) {
+            star.sparkFreq = sparkFreq; star.sparkSpeed = sparkSpeed;
+            star.sparkLife = sparkLife; star.sparkLifeVariation = sparkLifeVariation;
+            star.sparkColor = this.glitterColor; star.sparkTimer = Math.random() * star.sparkFreq;
+          }
+        });
+      } else {
+        createBurst(this.starCount, starFactory);
+      }
+    } else if (Array.isArray(this.color)) {
+      if (Math.random() < 0.5) {
+        const start = Math.random() * Math.PI; const start2 = start + Math.PI; const arc = Math.PI;
+        color = this.color[0]; createBurst(this.starCount, starFactory, start, arc);
+        color = this.color[1]; createBurst(this.starCount, starFactory, start2, arc);
+      } else {
+        color = this.color[0]; createBurst(this.starCount / 2, starFactory);
+        color = this.color[1]; createBurst(this.starCount / 2, starFactory);
+      }
+    }
+
+    if (this.pistil) {
+      const innerShell = new Shell({
+        spreadSize: this.spreadSize * 0.5, starLife: this.starLife * 0.6,
+        starLifeVariation: this.starLifeVariation, starDensity: 1.4,
+        color: this.pistilColor, glitter: 'light', glitterColor: this.pistilColor === COLOR.Gold ? COLOR.Gold : COLOR.White
+      });
+      innerShell.burst(x, y);
+    }
+    if (this.streamers) {
+      const innerShell = new Shell({
+        spreadSize: this.spreadSize * 0.9, starLife: this.starLife * 0.8,
+        starLifeVariation: this.starLifeVariation, starCount: Math.floor(Math.max(6, this.spreadSize / 45)),
+        color: COLOR.White, glitter: 'streamer'
+      });
+      innerShell.burst(x, y);
+    }
+
+    const colorHex = typeof this.color === 'string' && this.color !== INVISIBLE ? this.color : COLOR.White;
+    const tuple = COLOR_TUPLES[colorHex] || { r: 255, g: 220, b: 150 };
+    BurstFlash.add(x, y, this.spreadSize / 3.5, tuple);
+
+    if (this.comet) {
+      soundManager.playSound('burst', 0.85);
+    }
+  }
+}
+
+let trailsStage, mainStage;
+let stageW, stageH;
+let currentFrame = 0;
+let isFireworksActive = false;
+
+/* ==================================================
+   DYNAMIC ENVIRONMENTAL LIGHTING SYSTEM
+   ================================================== */
+const currentEnvLight = { r: 0, g: 0, b: 0, a: 0, x: 0.5, y: 0.4 };
+const targetEnvLight = { r: 0, g: 0, b: 0, a: 0, x: 0.5, y: 0.4 };
+
+function updateEnvironmentLighting(speed) {
+  let totalR = 0, totalG = 0, totalB = 0, totalWeight = 0;
+  let weightedX = 0, weightedY = 0;
+
+  COLOR_CODES.forEach(colorHex => {
+    const stars = Star.active[colorHex];
+    const count = stars ? stars.length : 0;
+    if (count > 0) {
+      const tuple = COLOR_TUPLES[colorHex] || { r: 255, g: 220, b: 150 };
+      totalR += tuple.r * count;
+      totalG += tuple.g * count;
+      totalB += tuple.b * count;
+      totalWeight += count;
+    }
+  });
+
+  BurstFlash.active.forEach(bf => {
+    const burstWeight = 180;
+    const tuple = bf.colorTuple || { r: 255, g: 220, b: 150 };
+    totalR += tuple.r * burstWeight;
+    totalG += tuple.g * burstWeight;
+    totalB += tuple.b * burstWeight;
+    weightedX += (bf.x / stageW) * burstWeight;
+    weightedY += (bf.y / stageH) * burstWeight;
+    totalWeight += burstWeight;
+  });
+
+  if (totalWeight > 0) {
+    targetEnvLight.r = totalR / totalWeight;
+    targetEnvLight.g = totalG / totalWeight;
+    targetEnvLight.b = totalB / totalWeight;
+    targetEnvLight.x = weightedX > 0 ? (weightedX / totalWeight) : 0.5;
+    targetEnvLight.y = weightedY > 0 ? (weightedY / totalWeight) : 0.4;
+
+    const maxDensity = 350;
+    const rawIntensity = Math.min(1.0, totalWeight / maxDensity);
+    targetEnvLight.a = Math.pow(rawIntensity, 0.42) * 0.36;
+  } else {
+    targetEnvLight.a = 0;
+  }
+
+  const lerpSpeed = 0.10 * speed;
+  currentEnvLight.r += (targetEnvLight.r - currentEnvLight.r) * lerpSpeed;
+  currentEnvLight.g += (targetEnvLight.g - currentEnvLight.g) * lerpSpeed;
+  currentEnvLight.b += (targetEnvLight.b - currentEnvLight.b) * lerpSpeed;
+  currentEnvLight.a += (targetEnvLight.a - currentEnvLight.a) * lerpSpeed;
+  currentEnvLight.x += (targetEnvLight.x - currentEnvLight.x) * lerpSpeed;
+  currentEnvLight.y += (targetEnvLight.y - currentEnvLight.y) * lerpSpeed;
+
+  const flashOverlay = document.getElementById('firework-flash-overlay');
+  if (flashOverlay) {
+    if (currentEnvLight.a > 0.005) {
+      const r = currentEnvLight.r | 0;
+      const g = currentEnvLight.g | 0;
+      const b = currentEnvLight.b | 0;
+      const a = currentEnvLight.a.toFixed(3);
+      const posX = (currentEnvLight.x * 100).toFixed(1);
+      const posY = (currentEnvLight.y * 100).toFixed(1);
+
+      flashOverlay.style.background = `radial-gradient(circle at ${posX}% ${posY}%, rgba(${r}, ${g}, ${b}, ${a}) 0%, rgba(${r}, ${g}, ${b}, ${(a * 0.45).toFixed(3)}) 55%, rgba(${r}, ${g}, ${b}, 0) 85%)`;
+      flashOverlay.style.opacity = '1';
+    } else {
+      flashOverlay.style.opacity = '0';
+    }
+  }
+}
+
+function initFireworksEngine() {
+  trailsStage = new Stage('trails-canvas');
+  mainStage = new Stage('main-canvas');
+
+  function handleResize() {
+    const container = document.getElementById('fireworks-canvas-container');
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+
+    trailsStage.resize(w, h);
+    mainStage.resize(w, h);
+
+    stageW = w / Config.scaleFactor;
+    stageH = h / Config.scaleFactor;
+  }
+
+  window.addEventListener('resize', handleResize);
+  handleResize();
+
+  mainStage.addEventListener('ticker', (frameTime, lag) => {
+    if (!isFireworksActive) return;
+
+    currentFrame++;
+    const timeStep = frameTime * simSpeed;
+    const speed = simSpeed * lag;
+
+    const starDrag = 1 - (1 - Star.airDrag) * speed;
+    const starDragHeavy = 1 - (1 - Star.airDragHeavy) * speed;
+    const sparkDrag = 1 - (1 - Spark.airDrag) * speed;
+    const gAcc = (timeStep / 1000) * GRAVITY;
+
+    COLOR_CODES_W_INVIS.forEach(color => {
+      const stars = Star.active[color];
+      for (let i = stars.length - 1; i >= 0; i--) {
+        const star = stars[i];
+        if (star.updateFrame === currentFrame) continue;
+        star.updateFrame = currentFrame;
+        star.life -= timeStep;
+
+        if (star.life <= 0) {
+          stars.splice(i, 1);
+          Star.returnInstance(star);
+        } else {
+          const burnRate = Math.pow(star.life / star.fullLife, 0.5);
+          const burnRateInverse = 1 - burnRate;
+
+          star.prevX = star.x; star.prevY = star.y;
+          star.x += star.speedX * speed; star.y += star.speedY * speed;
+
+          if (!star.heavy) { star.speedX *= starDrag; star.speedY *= starDrag; }
+          else { star.speedX *= starDragHeavy; star.speedY *= starDragHeavy; }
+          star.speedY += gAcc;
+
+          if (star.spinRadius) {
+            star.spinAngle += star.spinSpeed * speed;
+            star.x += Math.sin(star.spinAngle) * star.spinRadius * speed;
+            star.y += Math.cos(star.spinAngle) * star.spinRadius * speed;
+          }
+
+          if (star.sparkFreq) {
+            star.sparkTimer -= timeStep;
+            while (star.sparkTimer < 0) {
+              star.sparkTimer += star.sparkFreq * 0.75 + star.sparkFreq * burnRateInverse * 4;
+              Spark.add(star.x, star.y, star.sparkColor, Math.random() * PI_2, Math.random() * star.sparkSpeed * burnRate, star.sparkLife * 0.8 + Math.random() * star.sparkLifeVariation * star.sparkLife);
+            }
+          }
+
+          if (star.life < star.transitionTime) {
+            if (star.secondColor && !star.colorChanged) {
+              star.colorChanged = true;
+              star.color = star.secondColor;
+              stars.splice(i, 1);
+              Star.active[star.secondColor].push(star);
+              if (star.secondColor === INVISIBLE) star.sparkFreq = 0;
+            }
+            if (star.strobe) {
+              star.visible = Math.floor(star.life / star.strobeFreq) % 3 === 0;
+            }
+          }
+        }
+      }
+
+      const sparks = Spark.active[color];
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const spark = sparks[i];
+        spark.life -= timeStep;
+        if (spark.life <= 0) {
+          sparks.splice(i, 1);
+          Spark.returnInstance(spark);
+        } else {
+          spark.prevX = spark.x; spark.prevY = spark.y;
+          spark.x += spark.speedX * speed; spark.y += spark.speedY * speed;
+          spark.speedX *= sparkDrag; spark.speedY *= sparkDrag;
+          spark.speedY += gAcc;
+        }
+      }
+    });
+
+    renderFireworks(speed);
+  });
+}
+
+function renderFireworks(speed) {
+  const { dpr } = mainStage;
+  const trailsCtx = trailsStage.ctx;
+  const mainCtx = mainStage.ctx;
+  const width = stageW; const height = stageH;
+
+  const scale = Config.scaleFactor;
+  trailsCtx.scale(dpr * scale, dpr * scale);
+  mainCtx.scale(dpr * scale, dpr * scale);
+
+  // PRESERVE GARDEN VISIBILITY: Use 'destination-out' to fade particle trails to transparent instead of dark fill!
+  trailsCtx.globalCompositeOperation = 'destination-out';
+  trailsCtx.fillStyle = `rgba(0, 0, 0, ${0.12 * speed})`;
+  trailsCtx.fillRect(0, 0, width, height);
+
+  mainCtx.clearRect(0, 0, width, height);
+
+  while (BurstFlash.active.length) {
+    const bf = BurstFlash.active.pop();
+    const tuple = bf.colorTuple || { r: 255, g: 200, b: 120 };
+    const grad = trailsCtx.createRadialGradient(bf.x, bf.y, 0, bf.x, bf.y, bf.radius);
+    grad.addColorStop(0, `rgba(${tuple.r}, ${tuple.g}, ${tuple.b}, 0.85)`);
+    grad.addColorStop(0.35, `rgba(${tuple.r}, ${tuple.g}, ${tuple.b}, 0.25)`);
+    grad.addColorStop(1, `rgba(${tuple.r}, ${tuple.g}, ${tuple.b}, 0)`);
+    trailsCtx.fillStyle = grad;
+    trailsCtx.fillRect(bf.x - bf.radius, bf.y - bf.radius, bf.radius * 2, bf.radius * 2);
+    BurstFlash.returnInstance(bf);
+  }
+
+  trailsCtx.globalCompositeOperation = 'lighten';
+  trailsCtx.lineWidth = Star.drawWidth;
+
+  COLOR_CODES.forEach(color => {
+    const stars = Star.active[color];
+    trailsCtx.strokeStyle = color;
+    trailsCtx.beginPath();
+    stars.forEach(star => {
+      if (star.visible) {
+        trailsCtx.moveTo(star.x, star.y);
+        trailsCtx.lineTo(star.prevX, star.prevY);
+      }
+    });
+    trailsCtx.stroke();
+  });
+
+  COLOR_CODES.forEach(color => {
+    const sparks = Spark.active[color];
+    trailsCtx.strokeStyle = color;
+    trailsCtx.beginPath();
+    sparks.forEach(spark => {
+      trailsCtx.moveTo(spark.x, spark.y);
+      trailsCtx.lineTo(spark.prevX, spark.prevY);
+    });
+    trailsCtx.stroke();
+  });
+
+  trailsCtx.setTransform(1, 0, 0, 1, 0, 0);
+  mainCtx.setTransform(1, 0, 0, 1, 0, 0);
+
+  // Update Dynamic Scene Lighting
+  updateEnvironmentLighting(speed);
+}
+
+let finaleInterval = null;
+
+function launchFinaleBatch() {
+  if (!isFireworksActive) return;
+  // Launch 1 to 4 12-inch shells simultaneously per batch
+  const shellCount = Math.floor(Math.random() * 4) + 1;
+
+  for (let i = 0; i < shellCount; i++) {
+    const shellName = MyMath.randomChoice(shellNames);
+    const size = 4; // 12-inch shells
+    const shellObj = shellTypes[shellName](size);
+    const shell = new Shell(shellObj);
+
+    const posX = MyMath.random(0.15, 0.85);
+    const posY = MyMath.random(0.35, 0.85);
+
+    setTimeout(() => {
+      if (isFireworksActive) shell.launch(posX, posY);
+    }, i * MyMath.random(60, 180));
+  }
+}
+
+function startFinaleCelebration() {
+  isFireworksActive = true;
+  const container = document.getElementById('fireworks-canvas-container');
+  if (container) container.classList.add('active');
+
+  const moonlitScene = document.getElementById('moonlit-sky-scene');
+  if (moonlitScene) moonlitScene.classList.add('at-end');
+
+  launchFinaleBatch();
+  finaleInterval = setInterval(launchFinaleBatch, 1100);
+}
+
+function stopFinaleCelebration() {
+  clearInterval(finaleInterval);
+}
+
+/* ==================================================
+   9. HANDWRITING ANIMATION SYSTEM
+   ================================================== */
+class HandwritingSystem {
+  constructor(svgElement, penTipElement, particleSystem) {
+    this.svg = svgElement;
+    this.penTip = penTipElement;
+    this.strokeGroup = svgElement.querySelector('#stroke-group');
+    this.particleSystem = particleSystem;
+    this.paths = [];
+    this.isWriting = false;
+
+    this.buildPaths();
+  }
+
+  buildPaths() {
+    this.strokeGroup.innerHTML = '';
+    this.paths = [];
+
+    Config.initials.strokes.forEach(strokeConfig => {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('id', strokeConfig.id);
+      path.setAttribute('d', strokeConfig.d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', strokeConfig.color);
+      path.setAttribute('stroke-width', strokeConfig.strokeWidth);
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-linejoin', 'round');
+      path.classList.add('handwritten-path');
+
+      this.strokeGroup.appendChild(path);
+
+      const length = path.getTotalLength();
+      path.style.strokeDasharray = `${length} ${length}`;
+      path.style.strokeDashoffset = `${length}`;
+
+      this.paths.push({ element: path, length, duration: strokeConfig.duration, config: strokeConfig });
+    });
+
+    if (this.penTip) this.penTip.style.opacity = '0';
+  }
+
+  async animateAll() {
+    this.isWriting = true;
+    if (Utils.prefersReducedMotion()) {
+      this.paths.forEach(p => p.element.style.strokeDashoffset = '0');
+      if (this.penTip) this.penTip.style.opacity = '0';
+      this.isWriting = false;
+      return;
+    }
+
+    if (this.penTip) this.penTip.style.opacity = '1';
+
+    for (let i = 0; i < this.paths.length; i++) {
+      await this.animateStroke(this.paths[i]);
+      if (i < this.paths.length - 1) await Utils.wait(Config.timings.interStrokeDelay);
+    }
+
+    if (this.penTip) this.penTip.style.opacity = '0';
+    this.isWriting = false;
+  }
+
+  animateStroke(pathData) {
+    return new Promise(resolve => {
+      const path = pathData.element;
+      const totalLength = pathData.length;
+      const duration = pathData.duration;
+      const startTime = performance.now();
+
+      const step = now => {
+        const elapsed = now - startTime;
+        const progress = Utils.clamp(elapsed / duration, 0, 1);
+        const eased = Utils.easeInOutCubic(progress);
+
+        path.style.strokeDashoffset = `${totalLength * (1 - eased)}`;
+        const pointLength = totalLength * eased;
+        if (pointLength >= 0 && pointLength <= totalLength) {
+          const point = path.getPointAtLength(pointLength);
+          this.updatePenTipPosition(point);
+        }
+
+        if (progress < 1) requestAnimationFrame(step);
+        else { path.style.strokeDashoffset = '0'; resolve(); }
+      };
+
+      requestAnimationFrame(step);
+    });
+  }
+
+  updatePenTipPosition(point) {
+    if (!this.penTip) return;
+    this.penTip.setAttribute('cx', point.x);
+    this.penTip.setAttribute('cy', point.y);
+
+    const ctm = this.svg.getScreenCTM();
+    if (ctm && this.particleSystem) {
+      const svgPoint = this.svg.createSVGPoint();
+      svgPoint.x = point.x; svgPoint.y = point.y;
+      const clientPoint = svgPoint.matrixTransform(ctm);
+      this.particleSystem.addStardustSpark(clientPoint.x, clientPoint.y);
+    }
+  }
+
+  applySoftGlow() { this.svg.classList.add('has-soft-glow'); }
+  reset() { this.svg.classList.remove('has-soft-glow'); this.buildPaths(); }
+}
+
+/* ==================================================
+   10. SCENE MANAGER & CELEBRATION TRIGGER
+   ================================================== */
+class SceneManager {
+  constructor(particleSystem, grassSystem) {
+    this.particleSystem = particleSystem;
+    this.grassSystem = grassSystem;
+
+    this.loadingScene = document.getElementById('loading-scene');
+    this.moonlitSkyScene = document.getElementById('moonlit-sky-scene');
+    this.paperContainer = document.getElementById('paper-container');
+    this.focusOverlay = document.getElementById('scroll-focus-overlay');
+    this.fireworkFlashOverlay = document.getElementById('firework-flash-overlay');
+    this.memoryLaneFoundation = document.getElementById('memory-lane-foundation');
+    this.memoryLaneScrapbook = document.getElementById('memory-lane-scrapbook');
+    this.scrapbookTrack = document.getElementById('scrapbook-track');
+    this.finalMessageContainer = document.getElementById('final-message-container');
+    this.finalMessageContent = document.getElementById('final-message-content');
+    
+    this.letterLines = document.querySelectorAll('.letter-line, .letter-divider');
+    this.continueContainer = document.getElementById('continue-container');
+    this.continueBtn = document.getElementById('continue-btn');
+    
+    this.hasReachedEndOfPath = false;
+    this.isTransitioning = false;
+
+    this.initEvents();
+    this.buildScrapbookDOM();
+    this.buildFinalMessageDOM();
+  }
+
+  initEvents() {
+    if (this.continueBtn) {
+      this.continueBtn.addEventListener('click', e => this.handleContinueClick(e));
+    }
+  }
+
+  buildScrapbookDOM() {
+    if (!this.scrapbookTrack || !Config.memories) return;
+    this.scrapbookTrack.innerHTML = '';
+
+    Config.memories.forEach((mem, idx) => {
+      const card = document.createElement('article');
+      const isPolaroid = mem.type === 'polaroid';
+      card.className = `memory-card ${isPolaroid ? 'card-polaroid' : 'card-postcard'} memory-${idx + 1}`;
+      card.setAttribute('data-index', idx);
+
+      let accentHTML = '';
+      if (mem.accent === 'tape-top-right') accentHTML = '<div class="masking-tape tape-top-right"></div>';
+      else if (mem.accent === 'tape-top-left') accentHTML = '<div class="masking-tape tape-top-left"></div>';
+      else if (mem.accent === 'pressed-flower') accentHTML = '<div class="pressed-flower-accent">✿</div>';
+      else if (mem.accent === 'pressed-leaf') accentHTML = '<div class="pressed-leaf-accent">🍃</div>';
+
+      let headerHTML = isPolaroid ? '' : `
+        <div class="postcard-header">
+          <span class="postmark-circle">✦</span>
+          <span class="postcard-stamp">${mem.accent === 'stamp-air' ? 'AIR' : 'POST'}</span>
+        </div>
+      `;
+
+      const fallbackSrc = Utils.generateFallbackSVG(mem.fallbackRoman || 'I');
+
+      // Create img natively in JS to avoid inline onerror security blocks
+      const img = document.createElement('img');
+      img.className = 'memory-photo';
+      img.alt = 'Memory Photo';
+      img.loading = 'lazy';
+      img.src = mem.image;
+      img.onerror = () => { img.onerror = null; img.src = fallbackSrc; };
+
+      card.innerHTML = `
+        ${accentHTML}
+        <div class="frame-body">
+          ${headerHTML}
+          <div class="photo-wrapper">
+            <div class="photo-overlay-glare"></div>
+          </div>
+          <div class="caption-area">
+            <span class="card-number">${mem.number}</span>
+            <p class="caption-text">${mem.caption}</p>
+          </div>
+        </div>
+      `;
+
+      card.querySelector('.photo-wrapper').appendChild(img);
+      this.scrapbookTrack.appendChild(card);
+    });
+
+    const endSpacer = document.createElement('div');
+    endSpacer.className = 'end-of-path-spacer';
+    endSpacer.innerHTML = '<div class="path-fade-end"></div>';
+    this.scrapbookTrack.appendChild(endSpacer);
+
+    this.memoryCards = document.querySelectorAll('.memory-card');
+    this.initScrapbookScroll();
+  }
+
+  buildFinalMessageDOM() {
+    if (!this.finalMessageContent || !Config.finalMessage) return;
+    this.finalMessageContent.innerHTML = '';
+
+    Config.finalMessage.lines.forEach(lineObj => {
+      const p = document.createElement('p');
+      let text = lineObj.text;
+      text = text.replace('{{recipientName}}', Config.finalMessage.recipientName || 'My Dearest');
+      text = text.replace('{{signature}}', Config.finalMessage.signature || '— Atif');
+
+      p.className = `final-message-line ${lineObj.class || ''}`;
+      p.textContent = text;
+      this.finalMessageContent.appendChild(p);
+    });
+
+    this.finalMessageLines = document.querySelectorAll('.final-message-line');
+  }
+
+  initScrapbookScroll() {
+    if (!this.memoryLaneScrapbook) return;
+
+    this.memoryLaneScrapbook.addEventListener('wheel', e => {
+      if (this.memoryLaneScrapbook.classList.contains('active') && !this.hasReachedEndOfPath) {
+        e.preventDefault();
+        this.memoryLaneScrapbook.scrollLeft += (e.deltaY || e.deltaX) * 1.2;
+        this.checkScrollEnd();
+      }
+    }, { passive: false });
+
+    this.memoryLaneScrapbook.addEventListener('scroll', Utils.debounce(() => this.checkScrollEnd(), 60));
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { root: this.memoryLaneScrapbook, threshold: 0.10 });
+
+      this.memoryCards.forEach(card => observer.observe(card));
+    } else {
+      this.memoryCards.forEach(card => card.classList.add('in-view'));
+    }
+  }
+
+  checkScrollEnd() {
+    if (!this.memoryLaneScrapbook || this.hasReachedEndOfPath || !this.memoryCards || !this.memoryCards.length) return;
+
+    const maxScroll = this.memoryLaneScrapbook.scrollWidth - this.memoryLaneScrapbook.clientWidth;
+    const currentScroll = this.memoryLaneScrapbook.scrollLeft;
+
+    if (currentScroll >= maxScroll - 60) {
+      this.triggerCelebrationSequence();
+    }
+  }
+
+  async triggerCelebrationSequence() {
+    if (this.hasReachedEndOfPath) return;
+    this.hasReachedEndOfPath = true;
+
+    // 1. Detect when visitor reaches final memory card & center it smoothly
+    const lastCard = this.memoryCards[this.memoryCards.length - 1];
+    if (lastCard && this.memoryLaneScrapbook) {
+      const targetScroll = lastCard.offsetLeft - (this.memoryLaneScrapbook.clientWidth - lastCard.clientWidth) / 2;
+      this.memoryLaneScrapbook.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+    }
+
+    // 2. Prevent any further scrolling
+    this.memoryLaneScrapbook.classList.add('is-locked');
+
+    // 3. Wait 1 second
+    await Utils.wait(1000);
+
+    // 4. Gracefully fade out all memory cards while keeping Moonlit Garden visible
+    if (this.scrapbookTrack) {
+      this.scrapbookTrack.classList.add('fade-out');
+    }
+
+    // 5. Duck ambient soundtrack
+    setAmbientAudioDucking(true);
+
+    // 6. Start integrated firework celebration
+    startFinaleCelebration();
+
+    // 7. Run celebration launches
+    await Utils.wait(Config.celebrationDuration);
+
+    // 8. Cease NEW shell launches
+    stopFinaleCelebration();
+
+    // 9. Allow remaining particles, comets, trails & smoke to decay naturally (~4.5s)
+    await Utils.wait(4500);
+
+    // 10. Restore ambient audio & smoothly fade out fireworks canvas container (~3.5s)
+    setAmbientAudioDucking(false);
+
+    const fwContainer = document.getElementById('fireworks-canvas-container');
+    if (fwContainer) fwContainer.classList.remove('active');
+
+    await Utils.wait(3500);
+
+    // 11. Shutdown active state
+    isFireworksActive = false;
+
+    // 12. Calm, elegant transition to final birthday message
+    this.revealFinalMessage();
+  }
+
+  async revealFinalMessage() {
+    if (!this.finalMessageLines) return;
+    for (let el of this.finalMessageLines) {
+      el.classList.add('visible');
+      await Utils.wait(Config.timings.finalLineRevealInterval);
+    }
+  }
+
+  async fadeOutLoadingScene() {
+    if (!this.loadingScene) return;
+    if (this.moonlitSkyScene) this.moonlitSkyScene.classList.add('active');
+    this.loadingScene.classList.add('dissolving');
+    await Utils.wait(Config.timings.fadeSceneDuration);
+    this.loadingScene.style.display = 'none';
+  }
+
+  async bringInPaperRoll() {
+    if (!this.paperContainer) return;
+    if (this.focusOverlay) this.focusOverlay.classList.add('active');
+    this.paperContainer.classList.add('arrived');
+    await Utils.wait(1000);
+  }
+
+  async unfurlPaper() {
+    if (!this.paperContainer) return;
+    this.paperContainer.classList.add('unfurled');
+    await Utils.wait(Config.timings.unfurlDuration);
+  }
+
+  async revealLetterLineByLine() {
+    if (!this.letterLines) return;
+    for (let el of this.letterLines) {
+      el.classList.add('visible');
+      await Utils.wait(Config.timings.lineRevealInterval);
+    }
+  }
+
+  async showContinueInteraction() {
+    if (this.continueContainer) this.continueContainer.classList.add('visible');
+  }
+
+  async handleContinueClick(e) {
+    if (e) e.preventDefault();
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
+
+    if (this.continueBtn) this.continueBtn.style.pointerEvents = 'none';
+    if (this.paperContainer) this.paperContainer.classList.add('rolling-up');
+    await Utils.wait(1400);
+
+    if (this.paperContainer) this.paperContainer.classList.add('ascending');
+    await Utils.wait(1400);
+
+    if (this.focusOverlay) this.focusOverlay.style.opacity = '0.14';
+    if (this.memoryLaneFoundation) this.memoryLaneFoundation.classList.add('active');
+    await Utils.wait(800);
+
+    if (this.memoryLaneScrapbook) this.memoryLaneScrapbook.classList.add('active');
+
+    // Force cards in view when scrapbook becomes active
+    if (this.memoryCards) {
+      this.memoryCards.forEach(card => card.classList.add('in-view'));
+    }
+
+    this.isTransitioning = false;
+  }
+}
+
+/* ==================================================
+   11. TIMELINE MANAGER & INITIALIZATION
+   ================================================== */
+class TimelineManager {
+  constructor(handwritingSystem, sceneManager) {
+    this.handwriting = handwritingSystem;
+    this.sceneManager = sceneManager;
+    this.subtitleContainer = document.getElementById('subtitle-container');
+  }
+
+  async runSequence() {
+    await Utils.wait(Config.timings.initialPause);
+    await this.handwriting.animateAll();
+    await Utils.wait(Config.timings.glowDelay);
+    this.handwriting.applySoftGlow();
+
+    await Utils.wait(Config.timings.subtitleDelay);
+    if (this.subtitleContainer) this.subtitleContainer.classList.add('visible');
+
+    await Utils.wait(Config.timings.subtitleHold);
+    await this.sceneManager.fadeOutLoadingScene();
+
+    await Utils.wait(Config.timings.gardenAdmirePause);
+    await this.sceneManager.bringInPaperRoll();
+
+    await Utils.wait(Config.timings.rollPauseBeforeUnfurl);
+    await this.sceneManager.unfurlPaper();
+
+    await Utils.wait(Config.timings.pauseBeforeLetterReveal);
+    await this.sceneManager.revealLetterLineByLine();
+
+    await Utils.wait(Config.timings.pauseBeforeContinue);
+    await this.sceneManager.showContinueInteraction();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  soundManager.init();
+  initFireworksEngine();
+
+  const particleCanvas = document.getElementById('particle-canvas');
+  const grassCanvas = document.getElementById('grass-canvas');
+  const svg = document.getElementById('initials-svg');
+  const penTip = document.getElementById('pen-tip');
+
+  const particleSystem = new ParticleSystem(particleCanvas);
+  const grassSystem = new GrassSystem(grassCanvas);
+  const responsiveSystem = new ResponsiveSystem(particleCanvas, grassCanvas, particleSystem, grassSystem);
+  const handwritingSystem = new HandwritingSystem(svg, penTip, particleSystem);
+  const sceneManager = new SceneManager(particleSystem, grassSystem);
+  const timelineManager = new TimelineManager(handwritingSystem, sceneManager);
+
+  responsiveSystem.handleResize();
+  particleSystem.start();
+  grassSystem.start();
+
+  timelineManager.runSequence();
+
+  // Resume AudioContext on user interaction
+  const unlockAudio = () => { soundManager.resume(); };
+  window.addEventListener('click', unlockAudio, { once: true });
+  window.addEventListener('touchstart', unlockAudio, { once: true });
+});
