@@ -950,3 +950,86 @@ html, body {
   .letter-line, .continue-container, .memory-lane-scrapbook, .memory-card, .final-message-line { opacity: 1; transform: none; }
   .final-message-container { opacity: 1; transform: translate(-50%, -50%); }
 }
+/* Cover Screen Styling (Option 2) */
+.entry-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: radial-gradient(ellipse at 50% 45%, var(--bg-midnight-light) 0%, var(--bg-midnight-deep) 100%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  transition: opacity 1.2s var(--ease-cinematic);
+}
+
+.entry-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.entry-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+}
+
+.entry-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  font-style: italic;
+  color: var(--color-cream);
+  text-shadow: 0 0 15px rgba(230, 202, 133, 0.4);
+  margin-bottom: 0.6rem;
+}
+
+.entry-subtitle {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+  color: var(--color-warm-beige);
+  opacity: 0.85;
+  margin-bottom: 2.2rem;
+  font-style: italic;
+}
+
+.open-gift-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--color-warm-yellow);
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+  font-style: italic;
+  font-weight: 600;
+  border-radius: 35px;
+  padding: 0.75rem 2.4rem;
+  cursor: pointer;
+  outline: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 25px rgba(230, 202, 133, 0.25);
+  transition: all 0.4s var(--ease-cinematic);
+  animation: open-btn-glow 3s ease-in-out infinite alternate;
+}
+
+.open-gift-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 0 35px rgba(230, 202, 133, 0.5);
+}
+
+.open-gift-btn:active {
+  transform: scale(0.96);
+}
+
+@keyframes open-btn-glow {
+  0% { box-shadow: 0 0 15px rgba(230, 202, 133, 0.2); }
+  100% { box-shadow: 0 0 30px rgba(230, 202, 133, 0.5); }
+}
