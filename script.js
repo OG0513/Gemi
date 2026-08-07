@@ -136,7 +136,56 @@ const Config = {
 };
 
 /* ==================================================
-   2. UTILITIES & MATH
+   2. BACKGROUND MUSIC MANAGER (images/music.mp3)
+   ================================================== */
+const bgMusic = {
+  element: null,
+  fadeInterval: null,
+
+  init() {
+    this.element = document.getElementById('bg-music');
+    if (this.element) {
+      this.element.volume = 1.0;
+    }
+  },
+
+  play() {
+    if (this.element && this.element.paused) {
+      const playPromise = this.element.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
+    }
+  },
+
+  setDucking(duck) {
+    if (!this.element) return;
+    const targetVol = duck ? 0.25 : 1.0;
+    this.fadeToVolume(targetVol, 1000);
+  },
+
+  fadeToVolume(targetVol, durationMs = 1000) {
+    if (!this.element) return;
+    if (this.fadeInterval) clearInterval(this.fadeInterval);
+
+    const startVol = this.element.volume;
+    const startTime = performance.now();
+
+    this.fadeInterval = setInterval(() => {
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(1, elapsed / durationMs);
+      this.element.volume = startVol + (targetVol - startVol) * progress;
+
+      if (progress >= 1) {
+        clearInterval(this.fadeInterval);
+        this.fadeInterval = null;
+      }
+    }, 30);
+  }
+};
+
+/* ==================================================
+   3. UTILITIES & MATH
    ================================================== */
 const MyMath = {
   random: (min, max) => Math.random() * (max - min) + min,
@@ -167,7 +216,7 @@ const Utils = {
 };
 
 /* ==================================================
-   3. STAGE CANVAS LOOP WRAPPER
+   4. STAGE CANVAS LOOP WRAPPER
    ================================================== */
 class Stage {
   constructor(canvasId) {
@@ -209,7 +258,7 @@ class Stage {
 }
 
 /* ==================================================
-   4. WEB AUDIO SOUND MANAGER (WITH AUDIO DUCKING)
+   5. WEB AUDIO SOUND MANAGER
    ================================================== */
 const soundManager = {
   baseURL: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/329180/',
@@ -279,14 +328,11 @@ const soundManager = {
 };
 
 function setAmbientAudioDucking(duck) {
-  if (window.ambientAudio && typeof window.ambientAudio.setVolume === 'function') {
-    const targetVolume = duck ? 0.25 : 1.0;
-    window.ambientAudio.fadeToVolume(targetVolume, 1000);
-  }
+  bgMusic.setDucking(duck);
 }
 
 /* ==================================================
-   5. RESPONSIVE ENVIRONMENT ENGINE
+   6. RESPONSIVE ENVIRONMENT ENGINE
    ================================================== */
 class ResponsiveSystem {
   constructor(particleCanvas, grassCanvas, particleSystem, grassSystem) {
@@ -438,7 +484,7 @@ class ResponsiveSystem {
 }
 
 /* ==================================================
-   6. BACKGROUND PARTICLES, MILKY WAY & CONTINUOUS STARS
+   7. BACKGROUND PARTICLES, MILKY WAY & CONTINUOUS STARS
    ================================================== */
 class ParticleSystem {
   constructor(canvas) {
@@ -779,7 +825,7 @@ class ParticleSystem {
 }
 
 /* ==================================================
-   7. PLANTING ZONE GARDEN ENGINE (GRASS & FLOWERS)
+   8. PLANTING ZONE GARDEN ENGINE (GRASS & FLOWERS)
    ================================================== */
 class GrassSystem {
   constructor(canvas) {
@@ -1023,7 +1069,7 @@ class GrassSystem {
 }
 
 /* ==================================================
-   8. EXACT ORIGINAL FIREWORK ENGINE FROM INDEX(1).HTML
+   9. EXACT ORIGINAL FIREWORK ENGINE FROM INDEX(1).HTML
    ================================================== */
 const GRAVITY = 0.9;
 let simSpeed = 1;
@@ -1547,6 +1593,7 @@ function updateEnvironmentLighting(speed) {
       flashOverlay.style.opacity = '1';
     } else {
       flashOverlay.style.opacity = '0';
+      flashOverlay.style.background = 'transparent';
     }
   }
 }
@@ -1557,8 +1604,8 @@ function initFireworksEngine() {
 
   function handleResize() {
     const container = document.getElementById('fireworks-canvas-container');
-    const w = container.clientWidth;
-    const h = container.clientHeight;
+    const w = container ? container.clientWidth : window.innerWidth;
+    const h = container ? container.clientHeight : window.innerHeight;
 
     trailsStage.resize(w, h);
     mainStage.resize(w, h);
@@ -1720,7 +1767,6 @@ let finaleInterval = null;
 
 function launchFinaleBatch() {
   if (!isFireworksActive) return;
-  // Launch 1 to 4 12-inch shells simultaneously per batch
   const shellCount = Math.floor(Math.random() * 4) + 1;
 
   for (let i = 0; i < shellCount; i++) {
@@ -1884,7 +1930,8 @@ class SceneManager {
     this.continueContainer = document.getElementById('continue-container');
     this.continueBtn = document.getElementById('continue-btn');
     
-    this.hasReachedEndOfPath = false;
+    this.celebrationTriggered = false;
+    this.celebrationCompleted = false;
     this.isTransitioning = false;
 
     this.initEvents();
@@ -1923,7 +1970,6 @@ class SceneManager {
 
       const fallbackSrc = Utils.generateFallbackSVG(mem.fallbackRoman || 'I');
 
-      // Create img natively in JS to avoid inline onerror security blocks
       const img = document.createElement('img');
       img.className = 'memory-photo';
       img.alt = 'Memory Photo';
@@ -1962,7 +2008,6 @@ class SceneManager {
     if (!this.finalMessageContent || !Config.finalMessage) return;
     this.finalMessageContent.innerHTML = '';
 
-    // Glassmorphism card container
     const glassCard = document.createElement('div');
     glassCard.className = 'final-card-glass';
 
@@ -1983,7 +2028,6 @@ class SceneManager {
 
     glassCard.appendChild(cardBody);
 
-    // Close Button
     const closeBtn = document.createElement('button');
     closeBtn.className = 'final-close-btn';
     closeBtn.id = 'final-close-btn';
@@ -2001,7 +2045,7 @@ class SceneManager {
     if (!this.memoryLaneScrapbook) return;
 
     this.memoryLaneScrapbook.addEventListener('wheel', e => {
-      if (this.memoryLaneScrapbook.classList.contains('active') && !this.hasReachedEndOfPath) {
+      if (this.memoryLaneScrapbook.classList.contains('active') && !this.celebrationTriggered) {
         e.preventDefault();
         this.memoryLaneScrapbook.scrollLeft += (e.deltaY || e.deltaX) * 1.2;
         this.checkScrollEnd();
@@ -2027,7 +2071,8 @@ class SceneManager {
   }
 
   checkScrollEnd() {
-    if (!this.memoryLaneScrapbook || this.hasReachedEndOfPath || !this.memoryCards || !this.memoryCards.length) return;
+    // ONE-TIME ONLY TRIGGER CHECK
+    if (!this.memoryLaneScrapbook || this.celebrationTriggered || this.celebrationCompleted || !this.memoryCards || !this.memoryCards.length) return;
 
     const maxScroll = this.memoryLaneScrapbook.scrollWidth - this.memoryLaneScrapbook.clientWidth;
     const currentScroll = this.memoryLaneScrapbook.scrollLeft;
@@ -2038,49 +2083,48 @@ class SceneManager {
   }
 
   async triggerCelebrationSequence() {
-    if (this.hasReachedEndOfPath) return;
-    this.hasReachedEndOfPath = true;
+    if (this.celebrationTriggered || this.celebrationCompleted) return;
+    this.celebrationTriggered = true;
 
-    // 1. Detect when visitor reaches final memory card & center it smoothly
+    // 1. Center final memory card
     const lastCard = this.memoryCards[this.memoryCards.length - 1];
     if (lastCard && this.memoryLaneScrapbook) {
       const targetScroll = lastCard.offsetLeft - (this.memoryLaneScrapbook.clientWidth - lastCard.clientWidth) / 2;
       this.memoryLaneScrapbook.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
     }
 
-    // 2. Prevent any further scrolling
+    // 2. Lock scroll
     this.memoryLaneScrapbook.classList.add('is-locked');
 
-    // 3. Wait 1 second
+    // 3. Wait 1s
     await Utils.wait(1000);
 
-    // 4. Gracefully fade out all memory cards while keeping Moonlit Garden visible
+    // 4. Fade out memory cards while keeping Moonlit Garden visible
     if (this.scrapbookTrack) {
       this.scrapbookTrack.classList.add('fade-out');
     }
 
-    // 5. Duck ambient soundtrack
+    // 5. Duck background music
     setAmbientAudioDucking(true);
 
-    // 6. Start integrated firework celebration
+    // 6. Start fireworks
     startFinaleCelebration();
 
-    // 7. Run celebration launches
+    // 7. Run fireworks
     await Utils.wait(Config.celebrationDuration);
 
-    // 8. Cease NEW shell launches
+    // 8. Cease NEW launches
     stopFinaleCelebration();
 
-    // 9. OVERLAPPING TRANSITION: As fireworks begin their FINAL fade-out, begin fading in the final message simultaneously!
-    // Start canvas container smooth fade out & ducking restoration
+    // 9. OVERLAPPING TRANSITION: Fade out fireworks container & restore audio
     setAmbientAudioDucking(false);
     const fwContainer = document.getElementById('fireworks-canvas-container');
     if (fwContainer) fwContainer.classList.remove('active');
 
-    // SIMULTANEOUS: Reveal Glassmorphism Final Message Card immediately as fireworks fade in background
+    // SIMULTANEOUSLY: Reveal Glassmorphism Final Message Card
     this.revealFinalMessage();
 
-    // Allow remaining active particles to finish naturally in background
+    // Allow active particles to decay naturally
     await Utils.wait(4500);
     isFireworksActive = false;
   }
@@ -2097,12 +2141,32 @@ class SceneManager {
   }
 
   handleFinalCloseClick() {
-    // 1. Fade out the Glassmorphism card
+    // Permanently mark celebration as completed for this session
+    this.celebrationCompleted = true;
+
+    // 1. Fade out final message card
     if (this.finalMessageContainer) {
       this.finalMessageContainer.classList.remove('visible');
     }
 
-    // 2. Restore Memory Lane smoothly with zero page reload / element re-creation
+    // 2. RESTORE MOONLIT GARDEN APPEARANCE 100% (No dark strip, no leftover dimming/tint)
+    const moonlitScene = document.getElementById('moonlit-sky-scene');
+    if (moonlitScene) {
+      moonlitScene.classList.remove('at-end');
+    }
+
+    const flashOverlay = document.getElementById('firework-flash-overlay');
+    if (flashOverlay) {
+      flashOverlay.style.opacity = '0';
+      flashOverlay.style.background = 'transparent';
+    }
+
+    const fwStage1 = document.getElementById('trails-canvas');
+    const fwStage2 = document.getElementById('main-canvas');
+    if (fwStage1) { const ctx1 = fwStage1.getContext('2d'); if (ctx1) ctx1.clearRect(0, 0, fwStage1.width, fwStage1.height); }
+    if (fwStage2) { const ctx2 = fwStage2.getContext('2d'); if (ctx2) ctx2.clearRect(0, 0, fwStage2.width, fwStage2.height); }
+
+    // 3. Smoothly fade Memory Lane back into view & unlock scrolling
     setTimeout(() => {
       if (this.scrapbookTrack) {
         this.scrapbookTrack.classList.remove('fade-out');
@@ -2112,13 +2176,9 @@ class SceneManager {
         this.memoryLaneScrapbook.classList.remove('is-locked');
       }
 
-      // Preserve all card rotation, in-view classes & exact scroll position
       if (this.memoryCards) {
         this.memoryCards.forEach(card => card.classList.add('in-view'));
       }
-
-      // Allow visitor to re-trigger or continue browsing memories naturally
-      this.hasReachedEndOfPath = false;
     }, 400);
   }
 
@@ -2159,6 +2219,9 @@ class SceneManager {
     if (e) e.preventDefault();
     if (this.isTransitioning) return;
     this.isTransitioning = true;
+
+    // Ensure background music starts playing
+    bgMusic.play();
 
     if (this.continueBtn) this.continueBtn.style.pointerEvents = 'none';
     if (this.paperContainer) this.paperContainer.classList.add('rolling-up');
@@ -2218,6 +2281,7 @@ class TimelineManager {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  bgMusic.init();
   soundManager.init();
   initFireworksEngine();
 
@@ -2239,8 +2303,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   timelineManager.runSequence();
 
-  // Resume AudioContext on user gesture
-  const unlockAudio = () => { soundManager.resume(); };
+  // Global user interaction triggers for Web Audio & background music
+  const unlockAudio = () => {
+    bgMusic.play();
+    soundManager.resume();
+  };
+
   window.addEventListener('click', unlockAudio, { once: true });
   window.addEventListener('touchstart', unlockAudio, { once: true });
+  window.addEventListener('pointerdown', unlockAudio, { once: true });
 });
