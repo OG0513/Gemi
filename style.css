@@ -219,7 +219,7 @@ html, body {
 
 .moonlit-sky-scene.active { opacity: 1; pointer-events: auto; }
 
-/* Sky Background Gradient Layer - Blended to show stars & Milky Way */
+/* Sky Background Gradient Layer */
 .sky-backdrop {
   position: absolute;
   top: 0;
@@ -822,43 +822,145 @@ html, body {
 .paper-container.unfurled .paper-ground-shadow { opacity: 1; transform: scale(1.05); }
 
 /* ==================================================
-   FINAL BIRTHDAY MESSAGE
+   GLASSMORPHISM FINAL BIRTHDAY MESSAGE CARD
    ================================================== */
 
 .final-message-container {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: clamp(280px, 80vw, 680px); z-index: 25; pointer-events: none; text-align: center;
-  padding: clamp(1rem, 3vw, 2.5rem); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% + 20px)) scale(0.98);
+  width: min(90vw, 560px);
+  z-index: 28;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-cinematic), transform 0.8s var(--ease-cinematic);
+}
+
+.final-message-container.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+/* Glassmorphism Card Frame */
+.final-card-glass {
+  background: rgba(16, 22, 48, 0.55);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: clamp(16px, 3vw, 24px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45),
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  padding: clamp(1.6rem, 4vw, 2.8rem) clamp(1.4rem, 3.5vw, 2.5rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.final-card-glass::-webkit-scrollbar {
+  display: none;
+}
+
+.final-card-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .final-message-line {
-  opacity: 0; transform: translateY(12px);
+  opacity: 0;
+  transform: translateY(12px);
   transition: opacity 1.2s var(--ease-cinematic), transform 1.2s var(--ease-cinematic);
-  font-family: var(--font-serif); font-size: clamp(0.92rem, 1.8vw, 1.25rem);
-  color: var(--color-cream); text-shadow: 0 0 12px rgba(230, 202, 133, 0.45), 0 0 24px rgba(247, 214, 208, 0.25);
-  line-height: 1.65; letter-spacing: 0.04em; margin-bottom: clamp(0.2rem, 0.8vh, 0.45rem); text-wrap: balance;
+  font-family: var(--font-serif);
+  font-size: clamp(0.92rem, 1.8vw, 1.25rem);
+  color: var(--color-cream);
+  text-shadow: 0 0 12px rgba(230, 202, 133, 0.45), 0 0 24px rgba(247, 214, 208, 0.25);
+  line-height: 1.65;
+  letter-spacing: 0.04em;
+  margin-bottom: clamp(0.2rem, 0.8vh, 0.45rem);
+  text-wrap: balance;
 }
 
-.final-message-line.visible { opacity: 0.95; transform: translateY(0); }
+.final-message-line.visible {
+  opacity: 0.95;
+  transform: translateY(0);
+}
+
 .final-line-recipient {
-  font-size: clamp(1.35rem, 2.8vw, 1.95rem); font-style: italic; font-weight: 600;
-  color: var(--color-warm-yellow); text-shadow: 0 0 16px rgba(252, 232, 158, 0.6), 0 0 30px rgba(230, 202, 133, 0.35);
+  font-size: clamp(1.35rem, 2.8vw, 1.95rem);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--color-warm-yellow);
+  text-shadow: 0 0 16px rgba(252, 232, 158, 0.6), 0 0 30px rgba(230, 202, 133, 0.35);
   margin-bottom: clamp(0.8rem, 2vh, 1.2rem);
 }
-.final-line-salutation { font-size: clamp(1.15rem, 2.2vw, 1.5rem); font-style: italic; }
+
+.final-line-salutation {
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-style: italic;
+}
+
 .final-line-signature {
-  font-size: clamp(1.2rem, 2.4vw, 1.6rem); font-style: italic; font-weight: 600;
-  color: var(--color-soft-gold); margin-top: clamp(0.8rem, 2vh, 1.2rem); letter-spacing: 0.08em;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--color-soft-gold);
+  margin-top: clamp(0.8rem, 2vh, 1.2rem);
+  letter-spacing: 0.08em;
+}
+
+/* Glassmorphism Card Close Button */
+.final-close-btn {
+  margin-top: clamp(1.2rem, 2.8vh, 1.8rem);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: var(--color-warm-beige);
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+  font-style: italic;
+  font-weight: 600;
+  border-radius: 30px;
+  padding: 0.45rem 1.8rem;
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.35s var(--ease-cinematic);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.final-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(230, 202, 133, 0.3);
+}
+
+.final-close-btn:active {
+  transform: translateY(0) scale(0.96);
 }
 
 /* REDUCED MOTION */
 @media (prefers-reduced-motion: reduce) {
   .loading-scene, .subtitle-container, .initials-svg, .moonlit-sky-scene, .moon-container,
   .cloud, .paper-container, .paper-sheet, .scroll-focus-overlay, .letter-line,
-  .continue-container, .memory-lane-foundation, .memory-lane-scrapbook, .memory-card, .final-message-line {
+  .continue-container, .memory-lane-foundation, .memory-lane-scrapbook, .memory-card, .final-message-line,
+  .final-message-container, .final-close-btn {
     transition: none !important; animation: none !important;
   }
   .paper-container { transform: translate(-50%, -50%); }
   .paper-container.unfurled .paper-sheet { height: clamp(340px, 54vh, 520px); }
   .letter-line, .continue-container, .memory-lane-scrapbook, .memory-card, .final-message-line { opacity: 1; transform: none; }
+  .final-message-container { opacity: 1; transform: translate(-50%, -50%); }
 }
