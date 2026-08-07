@@ -2303,15 +2303,23 @@ document.addEventListener('DOMContentLoaded', () => {
   particleSystem.start();
   grassSystem.start();
 
-  timelineManager.runSequence();
+  // Option 2: Start experience & music when "Open Gift" is clicked
+  const openBtn = document.getElementById('open-gift-btn');
+  const entryScreen = document.getElementById('entry-screen');
 
-  // Global user interaction triggers for Web Audio & background music
-  const unlockAudio = () => {
-    bgMusic.play();
-    soundManager.resume();
-  };
+  if (openBtn) {
+    openBtn.addEventListener('click', () => {
+      bgMusic.play();
+      soundManager.resume();
 
-  window.addEventListener('click', unlockAudio, { once: true });
-  window.addEventListener('touchstart', unlockAudio, { once: true });
-  window.addEventListener('pointerdown', unlockAudio, { once: true });
+      if (entryScreen) {
+        entryScreen.classList.add('fade-out');
+      }
+
+      // Starts handwriting loading sequence immediately!
+      timelineManager.runSequence();
+    });
+  } else {
+    timelineManager.runSequence();
+  }
 });
