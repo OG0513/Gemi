@@ -2,6 +2,7 @@
  * A Little World Made Just for Her
  * Cinematic Interactive Experience with Integrated Canvas Firework Engine
  */
+
 /* ==================================================
    1. CONFIGURATION SYSTEM
    ================================================== */
@@ -1961,6 +1962,14 @@ class SceneManager {
     if (!this.finalMessageContent || !Config.finalMessage) return;
     this.finalMessageContent.innerHTML = '';
 
+    // Glassmorphism card container
+    const glassCard = document.createElement('div');
+    glassCard.className = 'final-card-glass';
+
+    const cardBody = document.createElement('div');
+    cardBody.className = 'final-card-body';
+    cardBody.id = 'final-card-lines';
+
     Config.finalMessage.lines.forEach(lineObj => {
       const p = document.createElement('p');
       let text = lineObj.text;
@@ -1969,10 +1978,23 @@ class SceneManager {
 
       p.className = `final-message-line ${lineObj.class || ''}`;
       p.textContent = text;
-      this.finalMessageContent.appendChild(p);
+      cardBody.appendChild(p);
     });
 
-    this.finalMessageLines = document.querySelectorAll('.final-message-line');
+    glassCard.appendChild(cardBody);
+
+    // Close Button
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'final-close-btn';
+    closeBtn.id = 'final-close-btn';
+    closeBtn.setAttribute('aria-label', 'Close message and return to memories');
+    closeBtn.innerHTML = '<span>Close</span>';
+    closeBtn.addEventListener('click', () => this.handleFinalCloseClick());
+
+    glassCard.appendChild(closeBtn);
+    this.finalMessageContent.appendChild(glassCard);
+
+    this.finalMessageLines = cardBody.querySelectorAll('.final-message-line');
   }
 
   initScrapbookScroll() {
@@ -2049,30 +2071,55 @@ class SceneManager {
     // 8. Cease NEW shell launches
     stopFinaleCelebration();
 
-    // 9. Allow remaining particles, comets, trails & smoke to decay naturally (~4.5s)
-    await Utils.wait(4500);
-
-    // 10. Restore ambient audio & smoothly fade out fireworks canvas container (~3.5s)
+    // 9. OVERLAPPING TRANSITION: As fireworks begin their FINAL fade-out, begin fading in the final message simultaneously!
+    // Start canvas container smooth fade out & ducking restoration
     setAmbientAudioDucking(false);
-
     const fwContainer = document.getElementById('fireworks-canvas-container');
     if (fwContainer) fwContainer.classList.remove('active');
 
-    await Utils.wait(3500);
-
-    // 11. Shutdown active state
-    isFireworksActive = false;
-
-    // 12. Calm, elegant transition to final birthday message
+    // SIMULTANEOUS: Reveal Glassmorphism Final Message Card immediately as fireworks fade in background
     this.revealFinalMessage();
+
+    // Allow remaining active particles to finish naturally in background
+    await Utils.wait(4500);
+    isFireworksActive = false;
   }
 
   async revealFinalMessage() {
+    if (!this.finalMessageContainer) return;
+    this.finalMessageContainer.classList.add('visible');
+
     if (!this.finalMessageLines) return;
     for (let el of this.finalMessageLines) {
       el.classList.add('visible');
       await Utils.wait(Config.timings.finalLineRevealInterval);
     }
+  }
+
+  handleFinalCloseClick() {
+    // 1. Fade out the Glassmorphism card
+    if (this.finalMessageContainer) {
+      this.finalMessageContainer.classList.remove('visible');
+    }
+
+    // 2. Restore Memory Lane smoothly with zero page reload / element re-creation
+    setTimeout(() => {
+      if (this.scrapbookTrack) {
+        this.scrapbookTrack.classList.remove('fade-out');
+      }
+
+      if (this.memoryLaneScrapbook) {
+        this.memoryLaneScrapbook.classList.remove('is-locked');
+      }
+
+      // Preserve all card rotation, in-view classes & exact scroll position
+      if (this.memoryCards) {
+        this.memoryCards.forEach(card => card.classList.add('in-view'));
+      }
+
+      // Allow visitor to re-trigger or continue browsing memories naturally
+      this.hasReachedEndOfPath = false;
+    }, 400);
   }
 
   async fadeOutLoadingScene() {
@@ -2126,7 +2173,6 @@ class SceneManager {
 
     if (this.memoryLaneScrapbook) this.memoryLaneScrapbook.classList.add('active');
 
-    // Force cards in view when scrapbook becomes active
     if (this.memoryCards) {
       this.memoryCards.forEach(card => card.classList.add('in-view'));
     }
@@ -2193,7 +2239,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   timelineManager.runSequence();
 
-  // Resume AudioContext on user interaction
+  // Resume AudioContext on user gesture
   const unlockAudio = () => { soundManager.resume(); };
   window.addEventListener('click', unlockAudio, { once: true });
   window.addEventListener('touchstart', unlockAudio, { once: true });
