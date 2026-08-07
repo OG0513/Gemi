@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>A Little World Made Just for Her</title>
 
+  <!-- Typography Preconnect & Storybook Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Russo+One&display=swap" rel="stylesheet">
@@ -12,18 +13,27 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Background Music Audio Element -->
+  <audio id="bg-music" src="images/music.mp3" loop preload="auto"></audio>
+
+  <!-- Fullscreen Viewport Layer -->
   <div id="app" class="app-viewport">
     
+    <!-- Unified Background Canvas (Stars, Milky Way, Particles, Fireflies, Pollen) -->
     <canvas id="particle-canvas" class="particle-canvas"></canvas>
 
+    <!-- Foundation Scene Container -->
     <main id="scene-container" class="scene-container">
 
+      <!-- Loading Scene (Introductory Experience) -->
       <section id="loading-scene" class="loading-scene" aria-label="Introductory Experience">
         
         <div class="loading-content">
+          <!-- Monogram SVG Container -->
           <div class="initials-wrapper" id="initials-wrapper">
             <svg id="initials-svg" class="initials-svg" viewBox="0 0 600 240" aria-label="Handwritten Monogram Initials">
               <defs>
+                <!-- Soft Glow Filter -->
                 <filter id="path-glow" x="-30%" y="-30%" width="160%" height="160%">
                   <feGaussianBlur stdDeviation="3" result="blur1" />
                   <feGaussianBlur stdDeviation="8" result="blur2" />
@@ -34,6 +44,7 @@
                   </feMerge>
                 </filter>
 
+                <!-- Pen Tip Sparkle Glow -->
                 <filter id="tip-glow" x="-50%" y="-50%" width="200%" height="200%">
                   <feGaussianBlur stdDeviation="3" result="blur" />
                   <feMerge>
@@ -43,12 +54,15 @@
                 </filter>
               </defs>
 
+              <!-- Dynamic Handwriting Stroke Group -->
               <g id="stroke-group" class="stroke-group"></g>
 
+              <!-- Active Pen Tip Glowing Marker -->
               <circle id="pen-tip" class="pen-tip" r="4" fill="var(--color-warm-yellow)" filter="url(#tip-glow)"></circle>
             </svg>
           </div>
 
+          <!-- Emotional Subtitle Message -->
           <div class="subtitle-container" id="subtitle-container" aria-live="polite">
             <p class="subtitle-text" id="subtitle-text">Someone made something special for you...</p>
           </div>
@@ -56,48 +70,18 @@
 
       </section>
 
+      <!-- Moonlit Garden Scene -->
       <section id="moonlit-sky-scene" class="moonlit-sky-scene" aria-hidden="true">
+        <!-- Night Sky Backdrop -->
         <div class="sky-backdrop"></div>
 
-        <div class="moon-container" id="moon-container" aria-label="Moonlit Night Sky Moon">
-          <div class="moon-aura-outer"></div>
-          <div class="moon-aura-inner"></div>
-          
-          <svg class="moon-svg" viewBox="0 0 200 200" aria-hidden="true">
-            <defs>
-              <radialGradient id="moonGradient" cx="35%" cy="35%" r="65%">
-                <stop offset="0%" stop-color="#FFFDF5" />
-                <stop offset="45%" stop-color="#F7EED9" />
-                <stop offset="80%" stop-color="#EAD7B2" />
-                <stop offset="100%" stop-color="#D4BF94" />
-              </radialGradient>
-              <radialGradient id="craterGradient" cx="40%" cy="40%" r="60%">
-                <stop offset="0%" stop-color="#CBB38D" stop-opacity="0.32" />
-                <stop offset="100%" stop-color="#A89470" stop-opacity="0.55" />
-              </radialGradient>
-              <radialGradient id="lunarShadingGrad" cx="30%" cy="30%" r="70%">
-                <stop offset="0%" stop-color="rgba(255,255,255,0.3)" />
-                <stop offset="70%" stop-color="rgba(195,172,138,0.15)" />
-                <stop offset="100%" stop-color="rgba(110,88,58,0.42)" />
-              </radialGradient>
-              <filter id="moonSoftEdge" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="1.2" />
-              </filter>
-            </defs>
-
-            <circle cx="100" cy="100" r="74" fill="url(#moonGradient)" filter="url(#moonSoftEdge)" />
-
-            <ellipse cx="68" cy="78" rx="15" ry="12" fill="url(#craterGradient)" transform="rotate(-15 68 78)" />
-            <ellipse cx="124" cy="118" rx="19" ry="15" fill="url(#craterGradient)" transform="rotate(10 124 118)" />
-            <ellipse cx="132" cy="62" rx="11" ry="8" fill="url(#craterGradient)" transform="rotate(-5 132 62)" />
-            <ellipse cx="82" cy="138" rx="13" ry="10" fill="url(#craterGradient)" transform="rotate(20 82 138)" />
-            <ellipse cx="148" cy="92" rx="9" ry="7" fill="url(#craterGradient)" transform="rotate(-10 148 92)" />
-            <ellipse cx="98" cy="92" rx="16" ry="13" fill="url(#craterGradient)" transform="rotate(5 98 92)" />
-
-            <circle cx="100" cy="100" r="74" fill="url(#lunarShadingGrad)" filter="url(#moonSoftEdge)" />
-          </svg>
+        <!-- Integrated Dual-Canvas Firework Engine Layer -->
+        <div class="fireworks-canvas-container" id="fireworks-canvas-container">
+          <canvas id="trails-canvas"></canvas>
+          <canvas id="main-canvas"></canvas>
         </div>
 
+        <!-- Organic Clouds Layer -->
         <div class="clouds-container" id="clouds-container" aria-hidden="true">
           <div class="cloud cloud-1">
             <div class="cloud-part cloud-base"></div>
@@ -136,11 +120,48 @@
           </div>
         </div>
 
-        <div class="fireworks-canvas-container" id="fireworks-canvas-container">
-          <canvas id="trails-canvas"></canvas>
-          <canvas id="main-canvas"></canvas>
+        <!-- Moon Container -->
+        <div class="moon-container" id="moon-container" aria-label="Moonlit Night Sky Moon">
+          <div class="moon-aura-outer"></div>
+          <div class="moon-aura-inner"></div>
+          
+          <svg class="moon-svg" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <radialGradient id="moonGradient" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FFFDF5" />
+                <stop offset="45%" stop-color="#F7EED9" />
+                <stop offset="80%" stop-color="#EAD7B2" />
+                <stop offset="100%" stop-color="#D4BF94" />
+              </radialGradient>
+              <radialGradient id="craterGradient" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#CBB38D" stop-opacity="0.32" />
+                <stop offset="100%" stop-color="#A89470" stop-opacity="0.55" />
+              </radialGradient>
+              <radialGradient id="lunarShadingGrad" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.3)" />
+                <stop offset="70%" stop-color="rgba(195,172,138,0.15)" />
+                <stop offset="100%" stop-color="rgba(110,88,58,0.42)" />
+              </radialGradient>
+              <filter id="moonSoftEdge" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="1.2" />
+              </filter>
+            </defs>
+
+            <circle cx="100" cy="100" r="74" fill="url(#moonGradient)" filter="url(#moonSoftEdge)" />
+
+            <!-- Lunar Craters -->
+            <ellipse cx="68" cy="78" rx="15" ry="12" fill="url(#craterGradient)" transform="rotate(-15 68 78)" />
+            <ellipse cx="124" cy="118" rx="19" ry="15" fill="url(#craterGradient)" transform="rotate(10 124 118)" />
+            <ellipse cx="132" cy="62" rx="11" ry="8" fill="url(#craterGradient)" transform="rotate(-5 132 62)" />
+            <ellipse cx="82" cy="138" rx="13" ry="10" fill="url(#craterGradient)" transform="rotate(20 82 138)" />
+            <ellipse cx="148" cy="92" rx="9" ry="7" fill="url(#craterGradient)" transform="rotate(-10 148 92)" />
+            <ellipse cx="98" cy="92" rx="16" ry="13" fill="url(#craterGradient)" transform="rotate(5 98 92)" />
+
+            <circle cx="100" cy="100" r="74" fill="url(#lunarShadingGrad)" filter="url(#moonSoftEdge)" />
+          </svg>
         </div>
 
+        <!-- Meadow Backdrop -->
         <div class="meadow-backdrop" id="meadow-backdrop" aria-hidden="true">
           <svg class="meadow-hills-svg" viewBox="0 0 1200 360" preserveAspectRatio="none">
             <defs>
@@ -165,9 +186,12 @@
           </svg>
         </div>
 
+        <!-- Living Garden Canvas (Grass & Flowers) -->
         <canvas id="grass-canvas" class="grass-canvas"></canvas>
 
+        <!-- Memory Lane Foundation Area -->
         <div class="memory-lane-foundation" id="memory-lane-foundation" aria-hidden="true">
+          <!-- Pathway -->
           <div class="pathway-container">
             <svg class="pathway-svg" viewBox="0 0 1200 360" preserveAspectRatio="none">
               <defs>
@@ -188,6 +212,7 @@
             </svg>
           </div>
 
+          <!-- Lanterns -->
           <div class="lanterns-container">
             <div class="lantern lantern-1">
               <div class="lantern-glow"></div>
@@ -207,6 +232,7 @@
             </div>
           </div>
 
+          <!-- Ground Fog -->
           <div class="ground-fog-container">
             <div class="ground-fog fog-1"></div>
             <div class="ground-fog fog-2"></div>
@@ -214,13 +240,16 @@
           </div>
         </div>
 
+        <!-- Memory Lane Scrapbook -->
         <section class="memory-lane-scrapbook" id="memory-lane-scrapbook" aria-label="Memory Lane Scrapbook Collection">
           <div class="scrapbook-track" id="scrapbook-track"></div>
         </section>
 
+        <!-- Focus & Dynamic Screen Lighting Overlays -->
         <div class="scroll-focus-overlay" id="scroll-focus-overlay" aria-hidden="true"></div>
         <div class="firework-flash-overlay" id="firework-flash-overlay" aria-hidden="true"></div>
 
+        <!-- Parchment Paper & Letter -->
         <div class="paper-container" id="paper-container" aria-label="Vintage Parchment Letter">
           
           <div class="roller-assembly assembly-top">
@@ -272,6 +301,7 @@
           <div class="paper-ground-shadow" id="paper-shadow"></div>
         </div>
 
+        <!-- Final Message Container -->
         <div class="final-message-container" id="final-message-container" aria-label="Final Birthday Message" aria-live="polite">
           <div class="final-message-content" id="final-message-content"></div>
         </div>
