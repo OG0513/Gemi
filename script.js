@@ -2256,6 +2256,7 @@ class TimelineManager {
   }
 
   async runSequence() {
+    bgMusic.play();
     await Utils.wait(Config.timings.initialPause);
     await this.handwriting.animateAll();
     await Utils.wait(Config.timings.glowDelay);
