@@ -146,6 +146,7 @@ const bgMusic = {
     this.element = document.getElementById('bg-music');
     if (this.element) {
       this.element.volume = 1.0;
+      this.play();
     }
   },
 
