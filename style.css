@@ -1,9 +1,4 @@
-/* ==================================================
-   DESIGN SYSTEM & COLOR VARIABLES
-   ================================================== */
-
 :root {
-  /* Soft Pastel Palette */
   --color-cream: #fcf8f2;
   --color-warm-beige: #f3e8d7;
   --color-blush-pink: #f7d6d0;
@@ -13,7 +8,6 @@
   --color-soft-gold: #e6ca85;
   --color-warm-yellow: #fce89e;
 
-  /* Parchment Palette */
   --parchment-vintage-top: #fdf8ec;
   --parchment-vintage-mid: #f8eed8;
   --parchment-vintage-shade: #f1e2c3;
@@ -22,18 +16,15 @@
   --parchment-ink: #3b2a1a;
   --parchment-ink-dark: #2e1d0f;
 
-  /* Wooden Roller Palette */
   --wood-dark: #3d1f0e;
   --wood-mid: #6e3f23;
   --wood-light: #a46d46;
   --wood-accent: #8c5a38;
 
-  /* Scrapbook Frame Palette */
   --polaroid-bg: #fdfbf7;
   --postcard-bg: #f7eed9;
   --frame-shadow: rgba(10, 14, 28, 0.38);
 
-  /* Sky Background Palette */
   --bg-midnight-deep: #060919;
   --bg-midnight-mid: #0c112b;
   --bg-midnight-light: #13193a;
@@ -41,26 +32,18 @@
   --bg-sky-mid: #0d122c;
   --bg-sky-bottom: #161c42;
 
-  /* Particle Palette */
   --particle-gold: rgba(230, 202, 133, 0.85);
   --particle-cream: rgba(252, 248, 242, 0.75);
 
-  /* Typography */
   --font-serif: 'Cormorant Garamond', 'Georgia', 'Playfair Display', serif;
 
-  /* Adaptive Meadow Height Fallback */
   --meadow-height: 30dvh;
 
-  /* Easing Curves */
   --ease-cinematic: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-handwriting: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-scroll-entrance: cubic-bezier(0.175, 0.885, 0.32, 1.05);
   --ease-unfurl: cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-/* ==================================================
-   RESET & VIEWPORT
-   ================================================== */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -114,10 +97,6 @@ html, body {
   height: 100%;
   z-index: 2;
 }
-
-/* ==================================================
-   LOADING SCENE
-   ================================================== */
 
 .loading-scene {
   position: absolute;
@@ -201,10 +180,6 @@ html, body {
   line-height: 1.6;
 }
 
-/* ==================================================
-   MOONLIT GARDEN SCENE
-   ================================================== */
-
 .moonlit-sky-scene {
   position: absolute;
   top: 0;
@@ -219,7 +194,6 @@ html, body {
 
 .moonlit-sky-scene.active { opacity: 1; pointer-events: auto; }
 
-/* Sky Background Gradient Layer */
 .sky-backdrop {
   position: absolute;
   top: 0;
@@ -237,85 +211,6 @@ html, body {
   filter: brightness(0.88);
 }
 
-.fireworks-canvas-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0;
-  transition: opacity 3.5s var(--ease-cinematic);
-}
-
-.fireworks-canvas-container.active { opacity: 1; }
-
-.fireworks-canvas-container canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  mix-blend-mode: lighten;
-  transform: translateZ(0);
-}
-
-/* Dynamic Full-Screen Environmental Illumination Overlay */
-.firework-flash-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  opacity: 0;
-  z-index: 26;
-  pointer-events: none;
-  mix-blend-mode: soft-light;
-  will-change: background, opacity;
-  transition: opacity 0.5s ease-out;
-}
-
-/* ==================================================
-   CLOUDS
-   ================================================== */
-
-.clouds-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 55vh;
-  pointer-events: none;
-  z-index: 2;
-  overflow: hidden;
-}
-
-.cloud { position: absolute; will-change: transform; }
-.cloud-1 { top: 6vh; width: clamp(180px, 20vw, 260px); height: 70px; opacity: 0.62; animation: cloud-drift-1 145s linear infinite; animation-delay: -25s; }
-.cloud-2 { top: 15vh; width: clamp(220px, 25vw, 320px); height: 85px; opacity: 0.48; animation: cloud-drift-2 195s linear infinite; animation-delay: -90s; }
-.cloud-3 { top: 24vh; width: clamp(160px, 18vw, 220px); height: 65px; opacity: 0.58; animation: cloud-drift-3 125s linear infinite; animation-delay: -15s; }
-.cloud-4 { top: 32vh; width: clamp(200px, 22vw, 290px); height: 80px; opacity: 0.42; animation: cloud-drift-4 220s linear infinite; animation-delay: -110s; }
-.cloud-5 { top: 40vh; width: clamp(150px, 16vw, 200px); height: 60px; opacity: 0.50; animation: cloud-drift-5 165s linear infinite; animation-delay: -50s; }
-
-.cloud-part { position: absolute; }
-.cloud-base { bottom: 0; left: 8%; width: 84%; height: 60%; border-radius: 30px; background: linear-gradient(180deg, rgba(30, 42, 80, 0.45) 0%, rgba(16, 24, 48, 0.7) 100%); }
-.cloud-puff-1 { bottom: 20%; left: 12%; width: 38%; height: 85%; border-radius: 50%; background: radial-gradient(circle at 40% 30%, rgba(252, 248, 242, 0.32) 0%, rgba(25, 36, 70, 0.55) 75%); }
-.cloud-puff-2 { bottom: 25%; left: 32%; width: 46%; height: 105%; border-radius: 50%; background: radial-gradient(circle at 35% 25%, rgba(252, 248, 242, 0.38) 0%, rgba(230, 202, 133, 0.22) 40%, rgba(20, 30, 60, 0.6) 80%); }
-.cloud-puff-3 { bottom: 15%; left: 60%; width: 32%; height: 75%; border-radius: 50%; background: radial-gradient(circle at 40% 30%, rgba(252, 248, 242, 0.28) 0%, rgba(22, 32, 62, 0.5) 75%); }
-.cloud-moon-rim { top: 0; left: 15%; width: 70%; height: 35%; border-radius: 50%; border-top: 1.5px solid rgba(230, 202, 133, 0.45); filter: blur(1px); }
-
-@keyframes cloud-drift-1 { 0% { transform: translateX(-320px); } 100% { transform: translateX(105vw); } }
-@keyframes cloud-drift-2 { 0% { transform: translateX(-380px); } 100% { transform: translateX(105vw); } }
-@keyframes cloud-drift-3 { 0% { transform: translateX(-280px); } 100% { transform: translateX(105vw); } }
-@keyframes cloud-drift-4 { 0% { transform: translateX(-350px); } 100% { transform: translateX(105vw); } }
-@keyframes cloud-drift-5 { 0% { transform: translateX(-250px); } 100% { transform: translateX(105vw); } }
-
-/* ==================================================
-   MOON
-   ================================================== */
-
 .moon-container {
   position: absolute;
   top: clamp(12vh, 15vh, 18vh);
@@ -323,7 +218,7 @@ html, body {
   width: clamp(95px, 16vw, 210px);
   height: clamp(95px, 16vw, 210px);
   transform: translate(-50%, -50%);
-  z-index: 3;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -364,9 +259,75 @@ html, body {
   100% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
 }
 
-/* ==================================================
-   MEADOW & GARDEN
-   ================================================== */
+.clouds-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55vh;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.cloud { position: absolute; will-change: transform; }
+.cloud-1 { top: 6vh; width: clamp(180px, 20vw, 260px); height: 70px; opacity: 0.62; animation: cloud-drift-1 145s linear infinite; animation-delay: -25s; }
+.cloud-2 { top: 15vh; width: clamp(220px, 25vw, 320px); height: 85px; opacity: 0.48; animation: cloud-drift-2 195s linear infinite; animation-delay: -90s; }
+.cloud-3 { top: 24vh; width: clamp(160px, 18vw, 220px); height: 65px; opacity: 0.58; animation: cloud-drift-3 125s linear infinite; animation-delay: -15s; }
+.cloud-4 { top: 32vh; width: clamp(200px, 22vw, 290px); height: 80px; opacity: 0.42; animation: cloud-drift-4 220s linear infinite; animation-delay: -110s; }
+.cloud-5 { top: 40vh; width: clamp(150px, 16vw, 200px); height: 60px; opacity: 0.50; animation: cloud-drift-5 165s linear infinite; animation-delay: -50s; }
+
+.cloud-part { position: absolute; }
+.cloud-base { bottom: 0; left: 8%; width: 84%; height: 60%; border-radius: 30px; background: linear-gradient(180deg, rgba(30, 42, 80, 0.45) 0%, rgba(16, 24, 48, 0.7) 100%); }
+.cloud-puff-1 { bottom: 20%; left: 12%; width: 38%; height: 85%; border-radius: 50%; background: radial-gradient(circle at 40% 30%, rgba(252, 248, 242, 0.32) 0%, rgba(25, 36, 70, 0.55) 75%); }
+.cloud-puff-2 { bottom: 25%; left: 32%; width: 46%; height: 105%; border-radius: 50%; background: radial-gradient(circle at 35% 25%, rgba(252, 248, 242, 0.38) 0%, rgba(230, 202, 133, 0.22) 40%, rgba(20, 30, 60, 0.6) 80%); }
+.cloud-puff-3 { bottom: 15%; left: 60%; width: 32%; height: 75%; border-radius: 50%; background: radial-gradient(circle at 40% 30%, rgba(252, 248, 242, 0.28) 0%, rgba(22, 32, 62, 0.5) 75%); }
+.cloud-moon-rim { top: 0; left: 15%; width: 70%; height: 35%; border-radius: 50%; border-top: 1.5px solid rgba(230, 202, 133, 0.45); filter: blur(1px); }
+
+@keyframes cloud-drift-1 { 0% { transform: translateX(-320px); } 100% { transform: translateX(105vw); } }
+@keyframes cloud-drift-2 { 0% { transform: translateX(-380px); } 100% { transform: translateX(105vw); } }
+@keyframes cloud-drift-3 { 0% { transform: translateX(-280px); } 100% { transform: translateX(105vw); } }
+@keyframes cloud-drift-4 { 0% { transform: translateX(-350px); } 100% { transform: translateX(105vw); } }
+@keyframes cloud-drift-5 { 0% { transform: translateX(-250px); } 100% { transform: translateX(105vw); } }
+
+.fireworks-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 3.5s var(--ease-cinematic);
+}
+
+.fireworks-canvas-container.active { opacity: 1; }
+
+.fireworks-canvas-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: lighten;
+  transform: translateZ(0);
+}
+
+.firework-flash-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  opacity: 0;
+  z-index: 26;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  will-change: background, opacity;
+  transition: opacity 0.5s ease-out;
+}
 
 .meadow-backdrop {
   position: absolute;
@@ -374,7 +335,7 @@ html, body {
   left: 0;
   width: 100%;
   height: var(--meadow-height, 30dvh);
-  z-index: 3;
+  z-index: 5;
   pointer-events: none;
   overflow: hidden;
 }
@@ -388,12 +349,8 @@ html, body {
   width: 100%;
   height: var(--meadow-height, 30dvh);
   pointer-events: none;
-  z-index: 4;
+  z-index: 6;
 }
-
-/* ==================================================
-   PATHWAY & LANTERNS
-   ================================================== */
 
 .memory-lane-foundation {
   position: absolute;
@@ -401,7 +358,7 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 5;
+  z-index: 7;
   opacity: 0;
   pointer-events: none;
   transition: opacity 2.2s var(--ease-cinematic);
@@ -482,10 +439,6 @@ html, body {
 @keyframes fog-drift-1 { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 @keyframes fog-drift-2 { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
 
-/* ==================================================
-   SCRAPBOOK TRACK
-   ================================================== */
-
 .memory-lane-scrapbook {
   position: absolute;
   top: 0;
@@ -546,7 +499,6 @@ html, body {
   pointer-events: none;
 }
 
-/* Individual Memory Cards */
 .memory-card {
   position: relative;
   flex-shrink: 0;
@@ -624,10 +576,6 @@ html, body {
 .card-number { font-family: var(--font-serif); font-size: 0.72rem; letter-spacing: 0.12em; color: rgba(120, 101, 76, 0.65); }
 .caption-text { font-family: var(--font-serif); font-size: clamp(0.85rem, 1.35vw, 1.05rem); font-style: italic; color: #4a3825; letter-spacing: 0.02em; }
 
-/* ==================================================
-   OVERLAYS
-   ================================================== */
-
 .scroll-focus-overlay {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(6, 9, 25, 0.08); opacity: 0; z-index: 15;
@@ -635,10 +583,6 @@ html, body {
 }
 
 .scroll-focus-overlay.active { opacity: 1; }
-
-/* ==================================================
-   PARCHMENT LETTER & WOODEN ROLLERS
-   ================================================== */
 
 .paper-container {
   position: absolute;
@@ -821,19 +765,20 @@ html, body {
 .paper-container.arrived .paper-ground-shadow { opacity: 0.85; transform: scale(0.85); }
 .paper-container.unfurled .paper-ground-shadow { opacity: 1; transform: scale(1.05); }
 
-/* ==================================================
-   GLASSMORPHISM FINAL BIRTHDAY MESSAGE CARD
-   ================================================== */
-
 .final-message-container {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, calc(-50% + 20px)) scale(0.98);
-  width: min(90vw, 560px);
+  transform: translate(-50%, calc(-50% + 15px)) scale(0.98);
+  width: min(90vw, 480px);
+  max-height: calc(100dvh - 30px);
   z-index: 28;
   pointer-events: none;
   opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   transition: opacity 0.8s var(--ease-cinematic), transform 0.8s var(--ease-cinematic);
 }
 
@@ -843,22 +788,22 @@ html, body {
   pointer-events: auto;
 }
 
-/* Glassmorphism Card Frame */
 .final-card-glass {
   background: rgba(16, 22, 48, 0.55);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: clamp(16px, 3vw, 24px);
+  border-radius: clamp(14px, 2.5vw, 20px);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45),
               inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  padding: clamp(1.6rem, 4vw, 2.8rem) clamp(1.4rem, 3.5vw, 2.5rem);
+  padding: clamp(1.0rem, 3.5vw, 2.0rem) clamp(1.0rem, 3vw, 2.0rem);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  max-height: 85vh;
+  width: 100%;
+  max-height: calc(100dvh - 40px);
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -879,12 +824,12 @@ html, body {
   transform: translateY(12px);
   transition: opacity 1.2s var(--ease-cinematic), transform 1.2s var(--ease-cinematic);
   font-family: var(--font-serif);
-  font-size: clamp(0.92rem, 1.8vw, 1.25rem);
+  font-size: clamp(0.80rem, 1.5vw, 1.05rem);
   color: var(--color-cream);
   text-shadow: 0 0 12px rgba(230, 202, 133, 0.45), 0 0 24px rgba(247, 214, 208, 0.25);
-  line-height: 1.65;
-  letter-spacing: 0.04em;
-  margin-bottom: clamp(0.2rem, 0.8vh, 0.45rem);
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  margin-bottom: clamp(0.15rem, 0.5vh, 0.35rem);
   text-wrap: balance;
 }
 
@@ -894,40 +839,39 @@ html, body {
 }
 
 .final-line-recipient {
-  font-size: clamp(1.35rem, 2.8vw, 1.95rem);
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
   font-style: italic;
   font-weight: 600;
   color: var(--color-warm-yellow);
   text-shadow: 0 0 16px rgba(252, 232, 158, 0.6), 0 0 30px rgba(230, 202, 133, 0.35);
-  margin-bottom: clamp(0.8rem, 2vh, 1.2rem);
+  margin-bottom: clamp(0.4rem, 1.2vh, 0.8rem);
 }
 
 .final-line-salutation {
-  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-size: clamp(0.95rem, 1.8vw, 1.25rem);
   font-style: italic;
 }
 
 .final-line-signature {
-  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  font-size: clamp(1.0rem, 2.0vw, 1.35rem);
   font-style: italic;
   font-weight: 600;
   color: var(--color-soft-gold);
-  margin-top: clamp(0.8rem, 2vh, 1.2rem);
+  margin-top: clamp(0.4rem, 1.2vh, 0.8rem);
   letter-spacing: 0.08em;
 }
 
-/* Glassmorphism Card Close Button */
 .final-close-btn {
-  margin-top: clamp(1.2rem, 2.8vh, 1.8rem);
+  margin-top: clamp(0.8rem, 2.0vh, 1.2rem);
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.28);
   color: var(--color-warm-beige);
   font-family: var(--font-serif);
-  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
   font-style: italic;
   font-weight: 600;
   border-radius: 30px;
-  padding: 0.45rem 1.8rem;
+  padding: clamp(0.35rem, 1vh, 0.5rem) clamp(1.2rem, 3vw, 1.8rem);
   cursor: pointer;
   outline: none;
   display: inline-flex;
@@ -951,7 +895,6 @@ html, body {
   transform: translateY(0) scale(0.96);
 }
 
-/* REDUCED MOTION */
 @media (prefers-reduced-motion: reduce) {
   .loading-scene, .subtitle-container, .initials-svg, .moonlit-sky-scene, .moon-container,
   .cloud, .paper-container, .paper-sheet, .scroll-focus-overlay, .letter-line,
